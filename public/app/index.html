@@ -329,7 +329,7 @@ function forceLogout(msg){
   state.user.loggedIn=false; save();
   document.getElementById("app").classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
-  toggleAuth(false);
+  showAuthScreen();
   if(msg) toast(msg);
 }
 
