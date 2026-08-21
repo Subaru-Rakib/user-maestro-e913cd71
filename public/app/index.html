@@ -1480,52 +1480,190 @@ function exportCSV(){
 }
 
 
+/* ---------- Users page ---------- */
+function relTime(iso){
+  if(!iso) return "Never";
+  const d=new Date(iso), diff=Date.now()-d.getTime();
+  const m=Math.floor(diff/60000);
+  if(m<1) return "Just now";
+  if(m<60) return m+" min ago";
+  const h=Math.floor(m/60); if(h<24) return h+" hr ago";
+  return d.toLocaleString();
+}
+function isOnline(a){ return a.lastSeenAt && (Date.now()-new Date(a.lastSeenAt).getTime()) < 120000 }
+function adminCount(){ return (state.users||[]).filter(u=>u.role==="Admin" && u.active!==false).length }
+
+render.users = function(){
+  if(!isAdmin()){ document.getElementById("page-users").innerHTML = `<div class="card">Access denied.</div>`; return; }
+  const rows = (state.users||[]).map(u=>`<tr>
+    <td><b>${esc(u.name)}</b></td>
+    <td>${esc(u.position||"-")}</td>
+    <td>${esc(u.email)}</td>
+    <td>${esc(u.role)}</td>
+    <td>${u.active===false?'<span class="pill c">Inactive</span>':'<span class="pill a">Active</span>'}</td>
+    <td>${isOnline(u)?'<span style="color:#15803d;font-weight:700">● Online</span>':esc(relTime(u.lastSeenAt))}</td>
+    <td>${esc(u.createdAt? new Date(u.createdAt).toLocaleDateString() : "-")}</td>
+    <td style="white-space:nowrap">
+      <button class="btn small" onclick="openUserModal('${u.id}')">Edit</button>
+      <button class="btn small secondary" onclick="toggleUserActive('${u.id}')">${u.active===false?"Activate":"Deactivate"}</button>
+      <button class="btn small danger" onclick="deleteUser('${u.id}')">Delete</button>
+    </td></tr>`).join("") || `<tr><td colspan="8" class="muted">No accounts yet.</td></tr>`;
+  document.getElementById("page-users").innerHTML = `
+    <div class="card">
+      <div class="card-head"><h2>👥 User Accounts</h2><button class="btn" onclick="openUserModal()">+ Add Account</button></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Position</th><th>Email</th><th>Role</th><th>Status</th><th>Online / Last active</th><th>Created</th><th>Action</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>`;
+};
+
+function openUserModal(id){
+  if(!isAdmin()) return;
+  const u = id ? accountById(id) : null;
+  document.getElementById("modalRoot").innerHTML = `
+  <div class="modal"><div class="modal-card">
+    <h3>${u?"Edit Account":"Add Account"}</h3>
+    <form id="userForm" class="form-stack">
+      <div class="field"><label class="required">Full Name</label><input id="uName" value="${esc(u?.name||"")}" required></div>
+      <div class="field"><label class="required">Position</label><input id="uPosition" value="${esc(u?.position||"")}" required></div>
+      <div class="field"><label class="required">Email</label><input id="uEmail" type="email" value="${esc(u?.email||"")}" required></div>
+      <div class="field"><label ${u?"":'class="required"'}>Password${u?" (leave blank to keep)":""}</label><input id="uPass" type="password" ${u?"":"required"}></div>
+      <div class="field"><label class="required">Role</label><select id="uRole"><option ${u?.role==="Admin"?"selected":""}>Admin</option><option ${u&&u.role==="User"?"selected":""}>User</option></select></div>
+      <div id="uErr" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600"></div>
+      <button class="btn">${u?"Save Changes":"Create Account"}</button>
+      <button type="button" class="btn secondary" onclick="closeModal()">Cancel</button>
+    </form>
+  </div></div>`;
+  document.getElementById("userForm").onsubmit = async e=>{
+    e.preventDefault();
+    const err=document.getElementById("uErr");
+    const name=document.getElementById("uName").value.trim();
+    const position=document.getElementById("uPosition").value.trim();
+    const email=document.getElementById("uEmail").value.trim().toLowerCase();
+    const pass=document.getElementById("uPass").value;
+    const role=document.getElementById("uRole").value;
+    const dup=(state.users||[]).some(x=>x.email===email && x.id!==(u?.id));
+    if(dup){ err.textContent="This email is already used by another account."; err.classList.remove("hidden"); return; }
+    if(u && u.role==="Admin" && role!=="Admin" && adminCount()<=1){
+      err.textContent="Cannot downgrade the last active Admin."; err.classList.remove("hidden"); return;
+    }
+    if(u){
+      Object.assign(u,{name,position,email,role});
+      if(pass) u.passHash = await hashString(pass);
+      recordAudit("USER", `Updated account ${email}`);
+    }else{
+      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
+      recordAudit("USER", `Created ${role} account ${email}`);
+    }
+    save(); enforceSession(); syncHeader(); closeModal(); render.users(); toast("Account saved.");
+  };
+}
+
+function toggleUserActive(id){
+  if(!isAdmin()) return;
+  const u=accountById(id); if(!u) return;
+  if(u.id===state.user.id) return alert("You cannot deactivate your own account.");
+  if(u.active!==false && u.role==="Admin" && adminCount()<=1) return alert("Cannot deactivate the last active Admin.");
+  u.active = u.active===false;
+  recordAudit("USER", `${u.active?"Activated":"Deactivated"} account ${u.email}`);
+  save(); render.users(); toast(u.active?"Account activated.":"Account deactivated.");
+}
+
+function deleteUser(id){
+  if(!isAdmin()) return;
+  const u=accountById(id); if(!u) return;
+  if(u.id===state.user.id) return alert("You cannot delete your own account.");
+  if(u.role==="Admin" && adminCount()<=1) return alert("Cannot delete the last active Admin.");
+  if(!confirm(`Delete account ${u.email}? This cannot be undone.`)) return;
+  state.users = state.users.filter(x=>x.id!==id);
+  recordAudit("USER", `Deleted account ${u.email}`);
+  save(); render.users(); toast("Account deleted.");
+}
+
+/* ---------- Auth ---------- */
+function loginError(msg){
+  const el=document.getElementById("loginError");
+  el.textContent=msg; el.classList.remove("hidden");
+}
+function showAuthScreen(){
+  const first = (state.users||[]).length === 0;
+  document.getElementById("createAdminBox").classList.toggle("hidden", !first);
+  document.getElementById("signInBox").classList.toggle("hidden", first);
+  document.getElementById("signUpCompanyBox").classList.add("hidden");
+}
+function enterApp(msg){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  syncHeader(); setLogo(); show("dashboard"); if(msg) toast(msg);
+}
+function signInAccount(a){
+  const nowIso=new Date().toISOString();
+  a.lastLoginAt=nowIso; a.lastSeenAt=nowIso;
+  state.user={id:a.id,name:a.name,position:a.position,email:a.email,role:a.role,loggedIn:true};
+  recordAudit("LOGIN", `${a.name} (${a.position}) signed in`);
+  save();
+}
+
 document.getElementById("loginForm").onsubmit=async e=>{
  e.preventDefault();
+ document.getElementById("loginError").classList.add("hidden");
  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
  const compId=document.getElementById("loginCompanySelect").value;
  const pass=document.getElementById("loginPass").value;
- const role=document.getElementById("loginRoleSelect").value;
- if(!email) return;
-
  const passHash = await hashString(pass);
- state.activeCompanyId = compId;
- state.user={name:email.split("@")[0]||"User", email, passHash, role, loggedIn:true};
- recordAudit("LOGIN", `Logged in as ${role}`);
- save();
- document.getElementById("loginScreen").classList.add("hidden");
- document.getElementById("app").classList.remove("hidden");
- syncHeader(); setLogo(); show("dashboard"); toast(`Logged in as ${role}!`);
+ const a=(state.users||[]).find(u=>u.email===email && u.passHash===passHash);
+ if(!a) return loginError("Access denied. Invalid email or password.");
+ if(a.active===false) return loginError("Your account is inactive.");
+ state.activeCompanyId = compId || state.activeCompanyId;
+ signInAccount(a);
+ enterApp(`Welcome, ${a.name}!`);
+};
+
+document.getElementById("createAdminForm").onsubmit=async e=>{
+ e.preventDefault();
+ const name=document.getElementById("firstAdminName").value.trim();
+ const position=document.getElementById("firstAdminPosition").value.trim();
+ const email=document.getElementById("firstAdminEmail").value.trim().toLowerCase();
+ const pass=document.getElementById("firstAdminPass").value;
+ const a={id:uid("u"),name,position,email,passHash:await hashString(pass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ state.users.push(a);
+ signInAccount(a);
+ recordAudit("USER", `First Admin account created (${email})`);
+ enterApp("Admin account created.");
 };
 
 document.getElementById("quickCompanyForm").onsubmit=async e=>{
  e.preventDefault();
  const compName = document.getElementById("regCompName").value.trim();
  const compAddress = document.getElementById("regCompAddress").value.trim();
+ const name = document.getElementById("regAdminName").value.trim();
+ const position = document.getElementById("regAdminPosition").value.trim();
  const adminEmail = document.getElementById("regAdminEmail").value.trim().toLowerCase();
  const adminPass = document.getElementById("regAdminPass").value;
  if(!compName || !adminEmail) return;
+ if((state.users||[]).some(u=>u.email===adminEmail)) return alert("This email is already registered.");
 
  const newCompId = uid("comp");
- const passHash = await hashString(adminPass);
  state.companies.push({id:newCompId, name:compName, address:compAddress, logo:""});
  state.activeCompanyId = newCompId;
- state.user = {name:adminEmail.split("@")[0]||"Admin", email:adminEmail, passHash, role:"Admin", loggedIn:true};
+ const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ state.users.push(a);
+ signInAccount(a);
  recordAudit("COMPANY", `Registered workspace ${compName}`);
- 
- save();
- document.getElementById("loginScreen").classList.add("hidden");
- document.getElementById("app").classList.remove("hidden");
- syncHeader(); setLogo(); show("dashboard"); toast(`Company '${compName}' workspace ready!`);
+ enterApp(`Company '${compName}' workspace ready!`);
 };
 
 syncHeader();
 setLogo();
-if(state.user?.loggedIn){
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  show("dashboard");
+if(state.user?.loggedIn && enforceSession()){
+  enterApp();
+}else{
+  state.user.loggedIn=false;
+  document.getElementById("loginScreen").classList.remove("hidden");
+  showAuthScreen();
 }
+
 </script>
 </body>
 </html>
