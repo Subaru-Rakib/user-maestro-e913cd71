@@ -511,14 +511,16 @@ function updateOutValue(){
 }
 
 function show(page){
-  if(state.user.role === "Staff" && (page === "audit" || page === "backup" || page === "companies" || page === "company")){
+  if(!enforceSession()) return;
+  touchSeen();
+  if(!isAdmin() && (page === "audit" || page === "backup" || page === "companies" || page === "company" || page === "users")){
     toast("Access Denied: Admin only feature.");
     page = "dashboard";
   }
   document.querySelectorAll(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("page-"+page).classList.add("active");
-  const labels={dashboard:"Dashboard",in:"Stock IN",out:"Stock OUT",vendorReports:"Vendor Reports",cartons:"Carton Tracking",vendors:"Vendors & Pricing",products:"Products",reports:"Stock Reports",audit:"Audit Trail",backup:"Backup & Cloud",companies:"Companies",company:"Company Settings"};
+  const labels={dashboard:"Dashboard",in:"Stock IN",out:"Stock OUT",vendorReports:"Vendor Reports",cartons:"Carton Tracking",vendors:"Vendors & Pricing",products:"Products",reports:"Stock Reports",audit:"Audit Trail",backup:"Backup & Cloud",companies:"Companies",company:"Company Settings",users:"User Accounts"};
   document.getElementById("pageTitle").textContent=labels[page];
   render[page]();
 }
