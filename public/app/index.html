@@ -1,0 +1,1672 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pro Inventory & Stock Management</title>
+<style>
+:root{
+  --bg:#f1f5f9;--panel:#fff;--text:#0f2033;--muted:#71829a;--line:#e6ecf3;
+  --nav:#0b1324;--blue:#0f766e;--blue2:#115e59;--green:#16a34a;--amber:#d97706;
+  --orange:#ea580c;--red:#dc2626;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 12px 28px -12px rgba(15,23,42,.16);
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:
+  radial-gradient(1200px 600px at 100% -10%,rgba(15,118,110,.10),transparent 60%),
+  radial-gradient(900px 500px at -10% 110%,rgba(234,88,12,.08),transparent 60%),
+  var(--bg);
+  color:var(--text);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}.hidden{display:none!important}
+.login-screen{min-height:100vh;display:grid;place-items:center;background:radial-gradient(900px 600px at 20% 0%,#134e4a,transparent 60%),linear-gradient(135deg,#071018,#0f2c33 55%,#0b1324);padding:20px}
+.login-card{width:min(440px,94vw);background:#fff;border-radius:24px;padding:36px;box-shadow:0 40px 90px rgba(0,0,0,.35);text-align:center;border:1px solid rgba(255,255,255,.6)}
+.login-card img{width:240px;height:80px;object-fit:contain}.login-card h1{margin:12px 0 4px;font-size:22px;letter-spacing:-.4px}.login-card p{color:var(--muted);margin:0 0 18px}
+.form-stack{display:grid;gap:12px;text-align:left}.field label{display:block;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#5b6b83;margin-bottom:6px}
+.field input,.field select,.field textarea,.search input{width:100%;padding:11px 12px;border:1px solid #dde4ee;border-radius:12px;background:#fbfdff;outline:none;transition:.15s}
+.field input:focus,.field select:focus,.field textarea:focus,.search input:focus{border-color:#0f766e;background:#fff;box-shadow:0 0 0 4px rgba(15,118,110,.12)}
+.required::after{content:" *";color:var(--red)}
+.btn{border:0;border-radius:12px;padding:11px 16px;background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;cursor:pointer;font-weight:700;text-align:center;box-shadow:0 8px 18px -8px rgba(15,118,110,.7);transition:transform .12s,box-shadow .12s,filter .12s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}.btn:active{transform:translateY(0)}
+.btn.secondary{background:#eef2f7;color:#1e293b;box-shadow:none}.btn.danger{background:linear-gradient(135deg,#b91c1c,#dc2626)}.btn.small{padding:7px 11px;font-size:12px}.btn.outline{background:transparent;border:1px dashed #cbd5e1;color:var(--blue);box-shadow:none}
+.app{display:flex;min-height:100vh}
+.sidebar{position:fixed;top:0;bottom:0;left:0;width:252px;background:linear-gradient(180deg,#07131b,#0d2430 60%,#0b1324);color:#fff;padding:18px 14px;display:flex;flex-direction:column;z-index:5;border-right:1px solid rgba(255,255,255,.06)}
+.brand img{width:205px;height:70px;object-fit:contain;background:#fff;border-radius:12px;padding:6px}.brand b{display:block;font-size:13px;margin:10px 4px 14px;color:#e2e8f0}
+.company-chip{padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;margin-bottom:12px;font-size:11px;letter-spacing:.6px;color:#94a3b8}
+.company-chip select{width:100%;background:#0b1c26;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:7px;margin-top:6px;letter-spacing:0}
+.nav{display:block;width:100%;padding:10px 12px;border:0;background:transparent;color:#a9b8c9;text-align:left;border-radius:10px;margin:2px 0;cursor:pointer;font-size:14px;transition:.15s}
+.nav:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav.active{background:linear-gradient(90deg,rgba(45,212,191,.18),rgba(45,212,191,.02));color:#fff;box-shadow:inset 3px 0 0 #2dd4bf}
+.sidebar-bottom{margin-top:auto}.main{margin-left:252px;flex:1;padding:24px 30px}
+.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid #fff;border-radius:18px;padding:15px 20px;margin-bottom:20px;box-shadow:var(--shadow)}
+.eyebrow{font-size:10px;letter-spacing:1.8px;color:var(--muted);font-weight:700}h1{font-size:26px;margin:4px 0;letter-spacing:-.6px}
+.user-chip{font-size:13px;color:#334155;background:#fff;border:1px solid var(--line);padding:9px 14px;border-radius:999px;box-shadow:var(--shadow-sm)}
+.page{display:none}.page.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.metric{padding:18px;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.metric:hover{transform:translateY(-2px);box-shadow:0 18px 34px -18px rgba(15,23,42,.4)}
+.metric::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#0f766e}
+.metric:nth-child(2)::before{background:#0ea5e9}.metric:nth-child(3)::before{background:#16a34a}
+.metric:nth-child(4)::before{background:#d97706}.metric:nth-child(5)::before{background:#6366f1}.metric:nth-child(6)::before{background:#dc2626}
+.metric small{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.metric strong{display:block;font-size:28px;margin:8px 0 2px;letter-spacing:-1px}
+.metric span{font-size:11px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{padding:20px;margin-top:18px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.section-head h2{margin:0;font-size:15px;letter-spacing:-.2px;text-transform:uppercase;letter-spacing:.6px;color:#334155}
+.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:11px 12px;border-bottom:1px solid #eff3f8;text-align:left;font-size:13px;white-space:nowrap}
+.table th{background:#f7fafc;color:var(--muted);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.table tr:last-child td{border-bottom:0}.table tbody tr:hover td,.table tr:hover td{background:#f9fbfd}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800}.a{background:#dcfce7;color:#166534}.b{background:#fef3c7;color:#92400e}.b2{background:#e0e7ff;color:#3730a3}.c{background:#fee2e2;color:#991b1b}
+.notice{padding:12px 16px;border-radius:14px;background:#ecfdf5;color:#115e59;border:1px solid #ccfbf1;margin:0 0 14px;font-size:13px}
+.alert-box{padding:12px 16px;border-radius:14px;background:#fff1f2;color:#991b1b;border:1px solid #fecdd3;margin-bottom:14px;font-size:13px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.inline{display:flex;gap:10px;align-items:end}.inline>*{flex:1}.search{display:flex;gap:10px}.search input{flex:1}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}.pill{padding:8px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;font-size:12px}
+.preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.report-paper{background:#fff;border:1px solid #dfe5ec;padding:30px;border-radius:16px;box-shadow:var(--shadow)}.report-logo{width:160px;height:55px;object-fit:contain}
+.company-brand{display:flex;align-items:center;gap:12px}.company-brand h2{margin:0}.muted{color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.6);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:20;padding:20px}
+.modal-card{width:min(680px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+.toast{position:fixed;right:22px;bottom:22px;background:#0f2033;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 16px 34px rgba(0,0,0,.28);z-index:30}
+.grade-box{background:linear-gradient(180deg,#f8fafc,#f1f5f9);border:1px dashed #cbd5e1;border-radius:14px;padding:14px;grid-column:span 2;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.auth-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12px}
+.auth-footer a{color:var(--blue);text-decoration:none;font-weight:700;cursor:pointer}
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px;border:3px solid transparent;background-clip:content-box}
+.hamburger{display:none;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:20px;line-height:1;padding:8px 12px;cursor:pointer}
+.nav-scrim{display:none;position:fixed;inset:0;background:rgba(2,6,23,.5);z-index:4}
+.nav-scrim.show{display:block}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){
+  .hamburger{display:block}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;width:264px;box-shadow:0 0 40px rgba(0,0,0,.4);overflow-y:auto}
+  .sidebar.open{transform:none}
+  .main{margin-left:0;padding:14px}
+  .topbar{gap:12px;padding:12px 14px;border-radius:16px;flex-wrap:wrap}
+  .tb-title{flex:1;min-width:0}
+  .tb-title h1{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .user-chip{font-size:11px;padding:7px 10px;order:3;width:100%;text-align:center}
+  .cards{grid-template-columns:1fr 1fr;gap:10px}
+  .metric{padding:14px}.metric strong{font-size:22px}
+  .two,.form-grid{grid-template-columns:1fr}
+  .grade-box{grid-column:span 1;grid-template-columns:1fr 1fr}
+  .panel{padding:14px;border-radius:16px}
+  .section-head{flex-direction:column;align-items:flex-start}
+  .table th,.table td{padding:9px 10px;font-size:12px}
+  .btn{padding:12px 14px}
+  .actions .btn,.filter-bar .btn{flex:1 1 auto;min-width:120px}
+  .inline{flex-direction:column;align-items:stretch}
+  .filter-bar>*{flex:1 1 140px}
+  .report-paper{padding:16px}
+  .modal{padding:10px}.modal-card{padding:16px;border-radius:16px}
+  .toast{right:12px;left:12px;bottom:12px;text-align:center}
+  .field input,.field select,.field textarea{font-size:16px}
+}
+@media(max-width:420px){.cards{grid-template-columns:1fr}.grade-box{grid-template-columns:1fr 1fr}}
+
+.print-only{display:none}
+.report-meta{text-align:right;font-size:12px;color:#334155;line-height:1.6}
+.report-title-box{display:inline-block;text-align:right;border:1px solid var(--line);background:#f8fafc;border-radius:10px;padding:10px 14px}
+.report-accent{height:3px;background:linear-gradient(90deg,#0f172a,#64748b 60%,transparent);border-radius:2px;margin:14px 0 16px}
+.report-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-top:24px;font-size:11px;color:#475569}
+.sign-line{border-top:1px dotted #64748b;padding-top:4px;min-width:190px;text-align:center}
+
+@page{size:A4;margin:12mm}
+@media print{
+  html,body{background:#fff!important}
+  body *{display:none!important}
+  body *:has(#reportPaper), body *:has(#vendorReportPaper){display:block!important;background:none!important;box-shadow:none!important;border:none!important;padding:0!important;margin:0!important;width:auto!important;max-width:none!important;overflow:visible!important}
+  #reportPaper, #vendorReportPaper{display:block!important;position:static!important;border:none!important;box-shadow:none!important;border-radius:0!important;padding:0!important;width:100%!important}
+  #reportPaper *, #vendorReportPaper *{display:revert!important}
+  #reportPaper table, #vendorReportPaper table{display:table!important;width:100%!important;border-collapse:collapse!important;font-size:10.5px!important}
+  #reportPaper thead, #vendorReportPaper thead{display:table-header-group!important}
+  #reportPaper tr, #vendorReportPaper tr{display:table-row!important;break-inside:avoid;page-break-inside:avoid}
+  #reportPaper th, #reportPaper td, #vendorReportPaper th, #vendorReportPaper td{display:table-cell!important;border:1px solid #cbd5e1!important;padding:5px 6px!important}
+  #reportPaper th, #vendorReportPaper th{background:#eef2f7!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;text-align:left}
+  #reportPaper tbody tr:nth-child(even) td, #reportPaper tr:nth-child(even) td{background:#fafbfc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #reportPaper tr:last-child td{border-top:3px double #0f172a!important;font-weight:700}
+  #reportPaper .table-wrap, #vendorReportPaper .table-wrap{display:block!important;overflow:visible!important;border:none!important}
+  #reportPaper .kpis, #vendorReportPaper .kpis{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-bottom:10px!important}
+  #reportPaper .pill, #vendorReportPaper .pill{display:inline-block!important;border:1px solid #cbd5e1!important;border-radius:4px!important;padding:4px 8px!important;font-size:10.5px!important;background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #reportPaper .pill.a{background:#eef7ee!important}#reportPaper .pill.b{background:#eef3fb!important}
+  #reportPaper .pill.b2{background:#fdf6e8!important}#reportPaper .pill.c{background:#fdeeee!important}
+  #reportPaper .preview-head, #vendorReportPaper .preview-head{display:flex!important;justify-content:space-between!important;align-items:flex-start!important}
+  #reportPaper .company-brand, #vendorReportPaper .company-brand{display:flex!important;align-items:center!important;gap:10px!important}
+  #reportPaper .report-logo, #vendorReportPaper .report-logo{display:block!important;width:150px!important;height:50px!important;object-fit:contain}
+  #reportPaper .report-title-box, #vendorReportPaper .report-title-box{display:inline-block!important;border:1px solid #cbd5e1!important;background:#f6f8fb!important;border-radius:6px!important;padding:8px 10px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #reportPaper .report-accent, #vendorReportPaper .report-accent{display:block!important;height:3px!important;background:#0f172a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:12px 0 14px!important}
+  #reportPaper .report-foot, #vendorReportPaper .report-foot{display:flex!important;justify-content:space-between!important;align-items:flex-end!important;margin-top:22px!important;font-size:10px!important}
+  #reportPaper .sign-line, #vendorReportPaper .sign-line{display:block!important;border-top:1px dotted #475569!important;padding-top:3px!important;min-width:180px!important;text-align:center!important}
+  .print-only{display:block!important}
+  .sidebar, .topbar, .no-print, #loginScreen, .toast, .modal{display:none!important}
+}
+
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card" id="signInBox">
+    <img id="loginLogo" alt="Inventory Logo">
+    <h1>Stock Management</h1>
+    <p id="loginSubtitle">Inventory Control Panel</p>
+    <form id="loginForm" class="form-stack">
+      <div class="field"><label class="required">Select Company</label><select id="loginCompanySelect" required></select></div>
+      <div class="field"><label class="required">Email Address</label><input id="loginEmail" type="email" placeholder="you@example.com" required></div>
+      <div class="field"><label class="required">Password</label><input id="loginPass" type="password" placeholder="••••••••" required></div>
+      <div id="loginError" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600;margin-bottom:6px"></div>
+      <button class="btn">Sign In</button>
+    </form>
+    <div class="auth-footer">
+      <a onclick="toggleAuth(true)">+ Register New Company</a>
+    </div>
+  </div>
+
+  <div class="login-card hidden" id="createAdminBox">
+    <h1>👤 Create Admin Account</h1>
+    <p>First account — full access</p>
+    <form id="createAdminForm" class="form-stack">
+      <div class="field"><label class="required">Full Name</label><input id="firstAdminName" placeholder="e.g. Md. Rakib Hasan" required></div>
+      <div class="field"><label class="required">Position</label><input id="firstAdminPosition" placeholder="e.g. QC" required></div>
+      <div class="field"><label class="required">Email Address</label><input id="firstAdminEmail" type="email" placeholder="admin@company.com" required></div>
+      <div class="field"><label class="required">Password</label><input id="firstAdminPass" type="password" placeholder="••••••••" required></div>
+      <button class="btn">Create & Sign In</button>
+    </form>
+  </div>
+
+  <div class="login-card hidden" id="signUpCompanyBox">
+    <h1>🏢 Create Company</h1>
+    <p>Register a new company workspace</p>
+    <form id="quickCompanyForm" class="form-stack">
+      <div class="field"><label class="required">Company Name</label><input id="regCompName" placeholder="e.g. Apex Traders Ltd." required></div>
+      <div class="field"><label>Company Address</label><input id="regCompAddress" placeholder="e.g. Gulshan, Dhaka"></div>
+      <div class="field"><label class="required">Your Full Name</label><input id="regAdminName" placeholder="e.g. Md. Rakib Hasan" required></div>
+      <div class="field"><label class="required">Your Position</label><input id="regAdminPosition" placeholder="e.g. QC" required></div>
+      <div class="field"><label class="required">Admin Email</label><input id="regAdminEmail" type="email" placeholder="admin@company.com" required></div>
+      <div class="field"><label class="required">Password</label><input id="regAdminPass" type="password" placeholder="••••••••" required></div>
+      <button class="btn">Create & Launch</button>
+      <button type="button" class="btn secondary" onclick="toggleAuth(false)">Back to Sign In</button>
+    </form>
+  </div>
+</div>
+
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><img id="brandLogo" alt="Inventory Logo"><b id="brandCompany">Loading...</b></div>
+    <div class="company-chip">
+      <small>ACTIVE COMPANY</small>
+      <select id="sidebarCompanySelect" onchange="switchCompany(this.value)"></select>
+    </div>
+    <button class="nav active" data-page="dashboard">Dashboard</button>
+    <button class="nav" data-page="in">Stock IN (Receive)</button>
+    <button class="nav" data-page="out">Stock OUT (Dispatch)</button>
+    <button class="nav" data-page="vendorReports">🏪 Vendor Reports</button>
+    <button class="nav" data-page="cartons">Carton Tracking</button>
+    <button class="nav" data-page="vendors">🏷️ Vendors & Pricing</button>
+    <button class="nav" data-page="products">Products</button>
+    <button class="nav" data-page="reports">Stock Reports</button>
+    <button class="nav admin-only" data-page="audit">📋 Audit Log</button>
+    <button class="nav admin-only" data-page="backup">💾 Backup & Cloud</button>
+    <button class="nav admin-only" data-page="companies">🏢 Companies</button>
+    <button class="nav admin-only" data-page="company">Company Settings</button>
+    <button class="nav admin-only" data-page="users">👥 Users</button>
+    <div class="sidebar-bottom"><button id="logoutBtn" class="nav">Logout</button></div>
+  </aside>
+
+  <div id="navScrim" class="nav-scrim" onclick="toggleSidebar(false)"></div>
+  <main class="main">
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <div class="tb-title"><span class="eyebrow">INVENTORY CONTROL</span><h1 id="pageTitle">Dashboard</h1></div>
+      <div class="user-chip" id="userChip">Admin · admin@example.com</div>
+    </header>
+
+
+    <section id="page-dashboard" class="page active"></section>
+    <section id="page-in" class="page"></section>
+    <section id="page-out" class="page"></section>
+    <section id="page-vendorReports" class="page"></section>
+    <section id="page-cartons" class="page"></section>
+    <section id="page-vendors" class="page"></section>
+    <section id="page-products" class="page"></section>
+    <section id="page-reports" class="page"></section>
+    <section id="page-audit" class="page"></section>
+    <section id="page-backup" class="page"></section>
+    <section id="page-companies" class="page"></section>
+    <section id="page-company" class="page"></section>
+    <section id="page-users" class="page"></section>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toast" class="toast hidden"></div>
+<datalist id="vendorSuggestions"></datalist>
+
+<script>
+const LS = "genericCartonStorage_v9";
+const logoFallback = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="150" viewBox="0 0 500 150">
+  <rect width="500" height="150" rx="16" fill="#0f172a"/>
+  <path d="M45 40 L85 20 L125 40 L85 60 Z" fill="#3b82f6"/>
+  <path d="M45 45 L85 65 L85 110 L45 90 Z" fill="#2563eb"/>
+  <path d="M125 45 L85 65 L85 110 L125 90 Z" fill="#1d4ed8"/>
+  <text x="155" y="88" font-family="Segoe UI, sans-serif" font-size="36" font-weight="800" fill="#ffffff" letter-spacing="2">INVENTORY</text>
+  <text x="157" y="112" font-family="Segoe UI, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" letter-spacing="3">STOCK &amp; CARTON CONTROL</text>
+</svg>`);
+
+async function hashString(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function defaultState(){
+  return {
+    activeCompanyId: "c1",
+    selectedVendorFilter: "ALL",
+    cartonStatusFilter: "ALL",
+    dateFilterFrom: "",
+    dateFilterTo: "",
+    companies: [
+      {id:"c1", name:"My Inventory Limited", address:"Dhaka, Bangladesh", logo:""}
+    ],
+    user:{name:"", position:"", email:"", role:"Admin", loggedIn:false},
+    users:[],
+    products:[{id:"p1", companyId:"c1", name:"Sample Product Pack", retailPrice:0}],
+    vendors:[],
+    selectedVendorId:"",
+    cartons:[],
+    movements:[],
+    audits:[]
+  };
+}
+
+let state = migrateState(load());
+function load(){try{return JSON.parse(localStorage.getItem(LS))||defaultState()}catch(e){return defaultState()}}
+function migrateState(s){
+  if(!s) return defaultState();
+  if(!Array.isArray(s.vendors)) s.vendors = [];
+  if(!Array.isArray(s.users)) s.users = [];
+  if(!s.user) s.user = {name:"", position:"", email:"", role:"Admin", loggedIn:false};
+  (s.products||[]).forEach(p=>{ if(p.retailPrice===undefined || p.retailPrice===null) p.retailPrice = 0; });
+  (s.cartons||[]).forEach(c=>{
+    const nm = String(c.outlet||"").trim();
+    if(!nm) return;
+    const exists = s.vendors.some(v=>v.companyId===c.companyId && String(v.name).toLowerCase()===nm.toLowerCase());
+    if(!exists) s.vendors.push({id:uid("v"), companyId:c.companyId, name:nm, phone:"", address:"", discountPct:0});
+  });
+  return s;
+}
+function save(){localStorage.setItem(LS,JSON.stringify(state))}
+function uid(prefix){return prefix+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7)}
+function now(){return new Date().toLocaleString()}
+
+/* ---------- Accounts ---------- */
+function accountById(id){ return (state.users||[]).find(u=>u.id===id) }
+function currentAccount(){ return accountById((state.user||{}).id) }
+function isAdmin(){ return (state.user||{}).role === "Admin" }
+function touchSeen(){
+  const a=currentAccount(); if(!a) return;
+  const t=Date.now();
+  if(!a.lastSeenAt || t - new Date(a.lastSeenAt).getTime() > 60000){ a.lastSeenAt = new Date(t).toISOString(); save(); }
+}
+function enforceSession(){
+  if(!state.user?.loggedIn) return true;
+  const a=currentAccount();
+  if(!a || a.active===false){
+    forceLogout(a ? "Your account is inactive. Contact an admin." : "Your account has been removed.");
+    return false;
+  }
+  state.user.name=a.name; state.user.position=a.position; state.user.email=a.email; state.user.role=a.role;
+  return true;
+}
+function forceLogout(msg){
+  state.user.loggedIn=false; save();
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+  showAuthScreen();
+  if(msg) toast(msg);
+}
+
+function generatedBy(){
+  const u=state.user||{};
+  return {name:u.name||"-", position:u.position||"-", email:u.email||"-"};
+}
+function printMeta(title, extraLines){
+  const u=generatedBy();
+  return `<div class="report-meta"><div class="report-title-box">
+    <b>${esc(title)}</b><br>
+    ${(extraLines||[]).join("<br>")}${(extraLines||[]).length?"<br>":""}
+    Generated: ${now()}<br>
+    Generated by: <b>${esc(u.name)}</b><br>
+    Position: <b>${esc(u.position)}</b><br>
+    <span class="muted">${esc(u.email)}</span>
+  </div></div>`;
+}
+function reportFooter(){
+  const u=generatedBy(); const comp=currentCompany();
+  return `<div class="report-foot print-only">
+    <div>Generated by <b>${esc(u.name)}</b> · Position: ${esc(u.position)} · ${esc(u.email)}<br>${now()}</div>
+    <div style="text-align:center"><b>${esc(comp?.name||"")}</b><br><span class="muted">System generated report</span></div>
+    <div class="sign-line">Authorized Signature</div>
+  </div>`;
+}
+function printReport(orientation){
+  let st=document.getElementById("pageOrientStyle");
+  if(!st){st=document.createElement("style");st.id="pageOrientStyle";document.head.appendChild(st)}
+  st.textContent=`@page{size:A4 ${orientation||"portrait"};margin:12mm}`;
+  try{
+    if(!localStorage.getItem("printHintSeen")){
+      localStorage.setItem("printHintSeen","1");
+      toast("Tip: Print dialog e 'More settings' > 'Headers and footers' off korun.");
+    }
+  }catch(e){}
+  setTimeout(()=>window.print(), 60);
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.remove("hidden");clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.add("hidden"),3000)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+function recordAudit(action, details){
+  state.audits.unshift({
+    id: uid("aud"),
+    companyId: state.activeCompanyId,
+    user: `${state.user.name} (${state.user.role})`,
+    action,
+    details,
+    date: now()
+  });
+  save();
+}
+
+function currentCompany(){
+  return state.companies.find(c=>c.id === state.activeCompanyId) || state.companies[0];
+}
+
+function setLogo(){
+  const comp = currentCompany();
+  const src = comp?.logo || logoFallback;
+  document.querySelectorAll("#loginLogo,#brandLogo").forEach(x=>x.src=src);
+  const sub = document.getElementById("loginSubtitle");
+  if(sub && comp) sub.textContent = comp.name;
+}
+
+function syncHeader(){
+  const comp = currentCompany();
+  if(!comp) return;
+  document.getElementById("brandCompany").textContent = comp.name;
+  document.getElementById("userChip").textContent = `${state.user.name||"-"} · ${state.user.position||"-"}`;
+  
+  const opts = state.companies.map(c=>`<option value="${c.id}" ${c.id===state.activeCompanyId?"selected":""}>${esc(c.name)}</option>`).join("");
+  document.getElementById("sidebarCompanySelect").innerHTML = opts;
+  const loginSel = document.getElementById("loginCompanySelect");
+  if(loginSel) loginSel.innerHTML = opts;
+
+  const isAdmin = state.user.role === "Admin";
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    el.style.display = isAdmin ? "block" : "none";
+  });
+
+  updateVendorDatalist();
+}
+
+function updateVendorDatalist(){
+  const compCartons = getCompanyCartons();
+  const names = [...new Set([
+    ...getCompanyVendors().map(v=>v.name),
+    ...compCartons.map(c=>c.outlet).filter(Boolean)
+  ])];
+  const dl = document.getElementById("vendorSuggestions");
+  if(dl){
+    dl.innerHTML = names.map(o=>`<option value="${esc(o)}">`).join("");
+  }
+}
+
+function toggleAuth(showRegister){
+  document.getElementById("createAdminBox").classList.add("hidden");
+  document.getElementById("signInBox").classList.toggle("hidden", showRegister);
+  document.getElementById("signUpCompanyBox").classList.toggle("hidden", !showRegister);
+  if(!showRegister) showAuthScreen();
+}
+
+function switchCompany(cid){
+  state.activeCompanyId = cid;
+  save(); setLogo(); syncHeader();
+  toast("Switched to " + currentCompany().name);
+  show("dashboard");
+}
+
+function getCompanyCartons(){ return state.cartons.filter(c => c.companyId === state.activeCompanyId); }
+function getCompanyProducts(){ return state.products.filter(p => p.companyId === state.activeCompanyId); }
+function getCompanyMovements(){ return state.movements.filter(m => m.companyId === state.activeCompanyId); }
+function getCompanyAudits(){ return state.audits.filter(a => a.companyId === state.activeCompanyId); }
+
+function stockByCat(){
+  const res={A:0,B:0,B2:0,C:0};
+  getCompanyCartons().forEach(c=>{
+    if(c.status==="IN STOCK"){
+      res.A += Number(c.grades?.A || 0);
+      res.B += Number(c.grades?.B || 0);
+      res.B2 += Number(c.grades?.B2 || 0);
+      res.C += Number(c.grades?.C || 0);
+    }
+  });
+  return res;
+}
+function totalStock(){
+  const s = stockByCat();
+  return s.A + s.B + s.B2 + s.C;
+}
+function activeCartons(){return getCompanyCartons().filter(x=>x.status==="IN STOCK" && (x.pcs > 0)).length}
+function getProduct(id){return state.products.find(x=>x.id===id)}
+
+/* ---- Vendor & pricing helpers ---- */
+function getCompanyVendors(){ return (state.vendors||[]).filter(v => v.companyId === state.activeCompanyId); }
+function findVendorByName(name){
+  const n = String(name||"").trim().toLowerCase();
+  if(!n) return null;
+  return (state.vendors||[]).find(v=>v.companyId===state.activeCompanyId && v.name.toLowerCase()===n) || null;
+}
+function vendorPct(name){ const v = findVendorByName(name); return v ? (Number(v.discountPct)||0) : 0; }
+function vendorPriceFor(productId, vendorName){
+  const rp = Number(getProduct(productId)?.retailPrice)||0;
+  return rp * (1 - vendorPct(vendorName)/100);
+}
+function unitPriceFor(carton){ return vendorPriceFor(carton?.productId, carton?.outlet); }
+function money(n){
+  const v = Number(n)||0;
+  return "৳" + v.toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function setProductPrice(pid, val){
+  const p = state.products.find(x=>x.id===pid); if(!p) return;
+  p.retailPrice = Number(val)||0;
+  recordAudit("PRODUCT", `Set retail price of ${p.name} to ${p.retailPrice}`);
+  save(); toast("Retail price updated.");
+}
+function setVendorPct(vid, val){
+  const v = (state.vendors||[]).find(x=>x.id===vid); if(!v) return;
+  v.discountPct = Number(val)||0;
+  recordAudit("VENDOR", `Set ${v.name} discount to ${v.discountPct}%`);
+  save(); toast("Vendor discount updated."); render.vendors();
+}
+function deleteVendor(vid){
+  if(state.user.role !== "Admin") return alert("Only Admin can delete vendors!");
+  const v = (state.vendors||[]).find(x=>x.id===vid); if(!v) return;
+  if(!confirm(`Delete vendor '${v.name}'? Carton records will keep the name.`)) return;
+  state.vendors = state.vendors.filter(x=>x.id!==vid);
+  recordAudit("VENDOR", "Deleted vendor "+v.name);
+  save(); updateVendorDatalist(); toast("Vendor deleted."); render.vendors();
+}
+function updateOutValue(){
+  const box = document.getElementById("outValueBox"); if(!box) return;
+  const c = state.cartons.find(x=>x.id===document.getElementById("outCartonSelect")?.value);
+  const qty = Number(document.getElementById("outPcsInput")?.value)||0;
+  if(!c){ box.innerHTML = `<span class="pill">Vendor Rate: -</span><span class="pill">Line Total: -</span>`; return; }
+  const up = unitPriceFor(c);
+  box.innerHTML = `<span class="pill">Vendor: ${esc(c.outlet||"Direct")} (${vendorPct(c.outlet)}% off)</span>
+    <span class="pill">Vendor Rate: ${money(up)}</span>
+    <span class="pill"><b>Line Total: ${money(up*qty)}</b></span>`;
+}
+
+function show(page){
+  if(!enforceSession()) return;
+  touchSeen();
+  if(!isAdmin() && (page === "audit" || page === "backup" || page === "companies" || page === "company" || page === "users")){
+    toast("Access Denied: Admin only feature.");
+    page = "dashboard";
+  }
+  document.querySelectorAll(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+page).classList.add("active");
+  const labels={dashboard:"Dashboard",in:"Stock IN",out:"Stock OUT",vendorReports:"Vendor Reports",cartons:"Carton Tracking",vendors:"Vendors & Pricing",products:"Products",reports:"Stock Reports",audit:"Audit Trail",backup:"Backup & Cloud",companies:"Companies",company:"Company Settings",users:"User Accounts"};
+  document.getElementById("pageTitle").textContent=labels[page];
+  render[page]();
+}
+function toggleSidebar(force){
+  const sb=document.querySelector(".sidebar"), sc=document.getElementById("navScrim");
+  const open = force===undefined ? !sb.classList.contains("open") : force;
+  sb.classList.toggle("open",open); sc.classList.toggle("show",open);
+}
+document.querySelectorAll(".nav[data-page]").forEach(b=>b.onclick=()=>{show(b.dataset.page);toggleSidebar(false);});
+document.getElementById("logoutBtn").onclick=()=>{
+  recordAudit("LOGOUT", "User logged out");
+  state.user.loggedIn=false;save();
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+  showAuthScreen();
+};
+
+const render={
+dashboard(){
+ const s=stockByCat();
+ const compCartons = getCompanyCartons();
+ const vendorMap = {};
+ const today = new Date();
+ const expiryAlerts = [];
+ const highDamageAlerts = [];
+ let stockValue = 0, damageValue = 0;
+
+ compCartons.forEach(c=>{
+   const up = unitPriceFor(c);
+   if(c.status==="IN STOCK"){
+     stockValue += up * Number(c.pcs||0);
+     damageValue += up * Number(c.grades?.C||0);
+     if(c.expiry){
+       const expDate = new Date(c.expiry);
+       const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+       if(diffDays <= 30){
+         expiryAlerts.push({ carton: c.cartonNo, days: diffDays, expiry: c.expiry });
+       }
+     }
+     const initialTotal = c.initialPcs || c.pcs;
+     const damagePcs = c.initialGrades?.C || c.grades?.C || 0;
+     if(initialTotal > 0 && (damagePcs / initialTotal) >= 0.20){
+       highDamageAlerts.push({ carton: c.cartonNo, damage: damagePcs, total: initialTotal, pct: Math.round((damagePcs/initialTotal)*100), value: up*damagePcs });
+     }
+   }
+
+   const o = c.outlet || "Direct Receive";
+   if(!vendorMap[o]) vendorMap[o] = { totalPcs: 0, cartons: 0, value: 0, damagePcs: 0, damageValue: 0 };
+   const g = c.initialGrades || c.grades || {};
+   vendorMap[o].totalPcs += Number(c.initialPcs || c.pcs);
+   vendorMap[o].cartons += 1;
+   vendorMap[o].value += up * Number(c.initialPcs || c.pcs);
+   vendorMap[o].damagePcs += Number(g.C || 0);
+   vendorMap[o].damageValue += up * Number(g.C || 0);
+ });
+
+ const vendorRows = Object.keys(vendorMap).map(k=>({ name: k, ...vendorMap[k] }));
+ const recent = getCompanyMovements().slice(0,10);
+
+ let alertsHtml = "";
+ if(expiryAlerts.length > 0 || highDamageAlerts.length > 0){
+   alertsHtml = `
+   <div class="alert-box">
+     <b>⚠️ Expiry & Quality Alerts:</b>
+     <ul style="margin:6px 0 0 16px;padding:0">
+       ${expiryAlerts.map(a=>`<li><b>${esc(a.carton)}:</b> Expiry (${a.expiry}) in ${a.days<0?'EXPIRED':a.days+' days'}!</li>`).join("")}
+       ${highDamageAlerts.map(a=>`<li><b>${esc(a.carton)}:</b> High Damage (${a.pct}% Grade C - ${a.damage}/${a.total} PCS = ${money(a.value)}).</li>`).join("")}
+     </ul>
+   </div>`;
+ }
+
+ document.getElementById("page-dashboard").innerHTML=`
+ ${alertsHtml}
+ <div class="cards">
+   <div class="metric card"><small>Total In-Stock</small><strong>${totalStock()}</strong><span>PCS</span></div>
+   <div class="metric card"><small>Stock Value</small><strong>${money(stockValue)}</strong><span>Vendor Rate</span></div>
+   <div class="metric card"><small>Total Damage Value</small><strong>${money(damageValue)}</strong><span>Grade C</span></div>
+   <div class="metric card"><small>Active Cartons</small><strong>${activeCartons()}</strong></div>
+   <div class="metric card"><small>A · Fresh</small><strong>${s.A}</strong><span>PCS</span></div>
+   <div class="metric card"><small>B · Usable</small><strong>${s.B}</strong><span>PCS</span></div>
+   <div class="metric card"><small>B2</small><strong>${s.B2}</strong><span>PCS</span></div>
+   <div class="metric card"><small>C · Damage</small><strong>${s.C}</strong><span>PCS</span></div>
+ </div>
+ <div class="two">
+  <div class="panel"><div class="section-head"><h2>Vendor Inflow & Damage Summary</h2></div>
+   <div class="table-wrap"><table class="table"><tr><th>Vendor / Source</th><th>Cartons</th><th>Received</th><th>Total Value</th><th>Damage</th><th>Damage Value</th></tr>
+   ${vendorRows.length?vendorRows.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${r.cartons}</td><td>${r.totalPcs} PCS</td><td><b>${money(r.value)}</b></td><td>${r.damagePcs} PCS</td><td><b>${money(r.damageValue)}</b></td></tr>`).join(""):`<tr><td colspan="6">No vendor receive records.</td></tr>`}</table></div>
+  </div>
+  <div class="panel"><div class="section-head"><h2>Recent Movement Activity</h2></div>
+   <div class="table-wrap"><table class="table"><tr><th>Date</th><th>Type</th><th>Carton</th><th>Grade/PCS</th><th>Invoice/Ref</th></tr>
+   ${recent.map(m=>`<tr><td>${esc(m.date)}</td><td><b>${m.type}</b></td><td>${esc(m.cartonNo)}</td><td>${esc(m.grade||"-")} · ${m.pcs} PCS</td><td>${esc(m.reference||"-")}</td></tr>`).join("")||`<tr><td colspan="5">No transactions recorded.</td></tr>`}
+   </table></div>
+  </div>
+ </div>`;
+},
+
+in(){
+ window.fillGrade = function(id){
+   const total = Number(document.getElementById("in_total_pcs")?.value) || 0;
+   if(total <= 0) return;
+   ["in_ga","in_gb","in_gb2","in_gc"].forEach(k=>{
+     const el = document.getElementById(k);
+     if(el) el.value = (k === id) ? total : 0;
+   });
+ };
+
+ window.aiScanPhoto = async function(input){
+   const file = input.files && input.files[0]; if(!file) return;
+   const msg = document.getElementById("aiScanMsg");
+   msg.textContent = "🔍 AI ছবি পড়ছে... একটু অপেক্ষা করুন";
+   try{
+     const b64 = await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+     const resp = await fetch("/api/public/scan-invoice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:b64})});
+     const out = await resp.json();
+     if(!resp.ok) throw new Error(out.error||"Scan failed");
+     const d = out.data||{};
+     const form = document.getElementById("inForm");
+     const set=(name,v)=>{const el=form.elements[name]; if(el && v!==undefined && v!==null && v!=="" && v!==0) el.value=v;};
+     set("po",d.po); set("cartonNo",d.cartonNo); set("outlet",d.outlet);
+     set("inDate",d.inDate); set("expiry",d.expiry); set("pcs",d.pcs);
+     ["grade_a","grade_b","grade_b2","grade_c"].forEach(g=>{ if(form.elements[g]) form.elements[g].value = Number(d[g]||0); });
+     if(!Number(d.pcs) ){
+       const sum=["grade_a","grade_b","grade_b2","grade_c"].reduce((s,g)=>s+Number(d[g]||0),0);
+       if(sum) form.elements["pcs"].value = sum;
+     }
+     if(d.product){
+       const sel=form.elements["productId"];
+       const hit=[...sel.options].find(o=>o.text.toLowerCase().includes(String(d.product).toLowerCase().slice(0,4)));
+       if(hit) sel.value=hit.value;
+     }
+     msg.textContent = "✅ ফিল হয়েছে — ভুল থাকলে এডিট করে সেভ করুন।" + (d.note?(" ("+d.note+")"):"");
+     toast("AI scan complete — check & edit");
+   }catch(err){
+     msg.textContent = "❌ পড়া যায়নি: " + err.message + " — আবার চেষ্টা করুন বা হাতে লিখুন।";
+   }
+   input.value="";
+ };
+
+ const products = getCompanyProducts();
+
+ document.getElementById("page-in").innerHTML=`
+ <div class="notice">Receive and Stock IN Carton directly for <b>${esc(currentCompany().name)}</b></div>
+ <div class="panel" style="margin-top:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+   <input type="file" id="aiPhoto" accept="image/*" capture="environment" style="display:none" onchange="aiScanPhoto(this)">
+   <button type="button" class="btn" onclick="document.getElementById('aiPhoto').click()">📷 Scan Photo (AI)</button>
+   <span class="muted" id="aiScanMsg" style="font-size:12px">ছবি দিলে AI নিজে থেকে PCS, Grade A/B/B2/C, Vendor ফিল করবে — আপনি চেক করে এডিট করে সেভ করবেন।</span>
+ </div>
+ <form id="inForm" class="panel form-grid" autocomplete="off">
+
+  <div class="field"><label class="required">PO / Invoice No.</label><input id="in_po" name="po" placeholder="e.g. INV-2026-01" required></div>
+  <div class="field"><label class="required">IN Date</label><input name="inDate" type="date" value="${new Date().toISOString().split('T')[0]}" required></div>
+  <div class="field"><label class="required">Product Name</label><select name="productId" required>${products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select></div>
+  <div class="field"><label class="required">Carton No.</label><input name="cartonNo" placeholder="CTN-0001" required></div>
+  <div class="field"><label class="required">Vendor / Return Source (Auto-suggest)</label><input name="outlet" list="vendorSuggestions" placeholder="Type or choose vendor..." required></div>
+  <div class="field"><label class="required">Total PCS</label><input id="in_total_pcs" name="pcs" type="number" min="1" required></div>
+  <div class="field"><label>Expiry Date (Optional)</label><input name="expiry" type="date"></div>
+
+   <div class="grade-box">
+     <div class="field"><label>A (Fresh)</label><input type="number" name="grade_a" id="in_ga" value="0" min="0" onclick="fillGrade('in_ga')" onfocus="fillGrade('in_ga')"></div>
+     <div class="field"><label>B (Usable)</label><input type="number" name="grade_b" id="in_gb" value="0" min="0" onclick="fillGrade('in_gb')" onfocus="fillGrade('in_gb')"></div>
+     <div class="field"><label>B2</label><input type="number" name="grade_b2" id="in_gb2" value="0" min="0" onclick="fillGrade('in_gb2')" onfocus="fillGrade('in_gb2')"></div>
+     <div class="field"><label>C (Damage)</label><input type="number" name="grade_c" id="in_gc" value="0" min="0" onclick="fillGrade('in_gc')" onfocus="fillGrade('in_gc')"></div>
+   </div>
+
+
+  <div class="actions"><button class="btn">Save Stock IN</button><button type="button" class="btn secondary" onclick="show('dashboard')">Cancel</button></div>
+ </form>`;
+
+ document.getElementById("inForm").onsubmit=e=>{
+   e.preventDefault(); const f=new FormData(e.target);
+   const cartonNo=f.get("cartonNo").trim();
+   if(getCompanyCartons().some(x=>x.cartonNo.toLowerCase()===cartonNo.toLowerCase())) return toast("Carton No. already exists in this company.");
+   
+   const totalPcs = Number(f.get("pcs"));
+   const ga = Number(f.get("grade_a")) || 0;
+   const gb = Number(f.get("grade_b")) || 0;
+   const gb2 = Number(f.get("grade_b2")) || 0;
+   const gc = Number(f.get("grade_c")) || 0;
+
+   if((ga + gb + gb2 + gc) !== totalPcs){
+     return alert(`Calculation Mismatch: Total PCS (${totalPcs}) must match sum of A+B+B2+C (${ga+gb+gb2+gc})!`);
+   }
+
+   const item={
+     id:uid("c"),
+     companyId: state.activeCompanyId,
+     productId:f.get("productId"),
+     cartonNo,
+     outlet: f.get("outlet").trim(),
+     initialPcs: totalPcs,
+     initialGrades: {A:ga, B:gb, B2:gb2, C:gc},
+     pcs:totalPcs,
+     grades:{A:ga, B:gb, B2:gb2, C:gc},
+     expiry:f.get("expiry")||"",
+     po:f.get("po").trim(),
+     inDate:f.get("inDate"),
+     status:"IN STOCK"
+   };
+
+   state.cartons.unshift(item);
+   state.movements.unshift({id:uid("m"),companyId:state.activeCompanyId,type:"IN",cartonId:item.id,cartonNo,grade:"ALL",pcs:item.pcs,reference:item.po,date:item.inDate,user:state.user.email});
+   recordAudit("STOCK IN", `Received ${cartonNo} (${totalPcs} PCS) from ${item.outlet}`);
+   save(); updateVendorDatalist(); toast("Stock IN saved successfully."); show("dashboard");
+ };
+},
+
+out(){
+ const available=getCompanyCartons().filter(x=>x.status==="IN STOCK"&&x.pcs>0);
+ document.getElementById("page-out").innerHTML=`
+ <div class="notice">Select carton to view available breakdown (A, B, B2, C) and dispatch.</div>
+ <form id="outForm" class="panel form-grid">
+  <div class="field" style="grid-column:span 2"><label class="required">Select Carton (Stock Breakdown)</label>
+    <select name="cartonId" id="outCartonSelect" onchange="updateOutGradeHints(this.value);updateOutValue()" required>
+      <option value="">-- Choose Carton --</option>
+      ${available.map(c=>`<option value="${c.id}">${esc(c.cartonNo)} | Prod: ${esc(getProduct(c.productId)?.name||"")} | Vendor: ${esc(c.outlet||"Direct")} | Rate: ${money(unitPriceFor(c))} | Total: ${c.pcs} [A:${c.grades.A}, B:${c.grades.B}, B2:${c.grades.B2}, C:${c.grades.C}]</option>`).join("")}
+    </select>
+  </div>
+  
+  <div class="field"><label class="required">Select Grade to Dispatch</label>
+    <select name="grade" id="outGradeSelect" onchange="updateOutValue()" required>
+      <option value="A">Grade A (Fresh)</option>
+      <option value="B">Grade B (Usable)</option>
+      <option value="B2">Grade B2</option>
+      <option value="C">Grade C (Damage / Disposal)</option>
+    </select>
+  </div>
+
+  <div class="field"><label class="required">Dispatch / OUT PCS</label><input name="pcs" id="outPcsInput" type="number" min="1" oninput="updateOutValue()" required></div>
+  <div class="field"><label class="required">OUT Date</label><input name="date" type="date" value="${new Date().toISOString().split('T')[0]}" required></div>
+  <div class="field"><label>Invoice / Reference</label><input name="reference" placeholder="e.g. OUT-4029"></div>
+  <div class="field" style="grid-column:span 2"><label>Remarks / Purpose</label><input name="reason"></div>
+  <div class="field" style="grid-column:span 2"><div class="kpis" id="outValueBox"><span class="pill">Vendor Rate: -</span><span class="pill">Line Total: -</span></div></div>
+  <div class="actions"><button class="btn">Confirm Stock OUT</button></div>
+ </form>`;
+
+ document.getElementById("outForm").onsubmit=e=>{
+  e.preventDefault(); const f=new FormData(e.target); 
+  const c=state.cartons.find(x=>x.id===f.get("cartonId")); 
+  const grade=f.get("grade");
+  const qty=Number(f.get("pcs"));
+
+  if(!c) return toast("Please select a valid carton.");
+  const availableInGrade = c.grades[grade] || 0;
+  if(qty > availableInGrade) return alert(`Not enough PCS in Grade ${grade}! Available right now: ${availableInGrade} PCS.`);
+
+  c.grades[grade] -= qty;
+  c.pcs -= qty;
+  if(c.pcs === 0) c.status="OUT";
+
+  state.movements.unshift({id:uid("m"),companyId:state.activeCompanyId,type:"OUT",cartonId:c.id,cartonNo:c.cartonNo,grade:grade,pcs:qty,reference:f.get("reference"),reason:f.get("reason"),date:f.get("date"),user:state.user.email});
+  recordAudit("STOCK OUT", `Dispatched ${qty} PCS (Grade ${grade}) from ${c.cartonNo}`);
+  save(); toast("Stock OUT recorded."); show("dashboard");
+ };
+},
+
+vendorReports(){
+ const compCartons = getCompanyCartons();
+ const vendorNames = [...new Set(compCartons.map(c=>c.outlet||"Direct Receive"))];
+ const selected = state.selectedVendorFilter || "ALL";
+ const fromDate = state.dateFilterFrom || "";
+ const toDate = state.dateFilterTo || "";
+
+ const filteredCartons = compCartons.filter(c=>{
+   const matchVendor = selected === "ALL" || (c.outlet||"Direct Receive") === selected;
+   let matchDate = true;
+   if(fromDate && c.inDate < fromDate) matchDate = false;
+   if(toDate && c.inDate > toDate) matchDate = false;
+   return matchVendor && matchDate;
+ });
+
+ let totalA = 0, totalB = 0, totalB2 = 0, totalC = 0, totalPcs = 0;
+ let valA = 0, valB = 0, valB2 = 0, valC = 0, valTotal = 0;
+ filteredCartons.forEach(c=>{
+   const g = c.initialGrades || c.grades;
+   const up = unitPriceFor(c);
+   totalA += Number(g?.A || 0);
+   totalB += Number(g?.B || 0);
+   totalB2 += Number(g?.B2 || 0);
+   totalC += Number(g?.C || 0);
+   totalPcs += Number(c.initialPcs || c.pcs);
+   valA += up * Number(g?.A || 0);
+   valB += up * Number(g?.B || 0);
+   valB2 += up * Number(g?.B2 || 0);
+   valC += up * Number(g?.C || 0);
+   valTotal += up * Number(c.initialPcs || c.pcs);
+ });
+ const damagePctVal = valTotal>0 ? Math.round((valC/valTotal)*1000)/10 : 0;
+
+ document.getElementById("page-vendorReports").innerHTML=`
+ <div class="panel no-print">
+  <div class="section-head">
+    <h2>🏪 Vendor Inflow & Analytics (Date & Vendor Filtered)</h2>
+    <div class="actions">
+      <button class="btn" onclick="printReport('landscape')">🖨️ Print Vendor Report (PDF)</button>
+    </div>
+  </div>
+  
+  <div class="filter-bar">
+    <div class="field" style="min-width:200px">
+      <label>Filter Vendor:</label>
+      <select id="vendorFilterDropdown" onchange="state.selectedVendorFilter=this.value;render.vendorReports()">
+        <option value="ALL" ${selected==='ALL'?'selected':''}>-- All Vendors --</option>
+        ${vendorNames.map(o=>`<option value="${esc(o)}" ${selected===o?'selected':''}>${esc(o)}</option>`).join("")}
+      </select>
+    </div>
+    <div class="field">
+      <label>From Date:</label>
+      <input type="date" id="of_from" value="${fromDate}" onchange="state.dateFilterFrom=this.value;render.vendorReports()">
+    </div>
+    <div class="field">
+      <label>To Date:</label>
+      <input type="date" id="of_to" value="${toDate}" onchange="state.dateFilterTo=this.value;render.vendorReports()">
+    </div>
+    <button class="btn secondary" onclick="state.dateFilterFrom='';state.dateFilterTo='';state.selectedVendorFilter='ALL';render.vendorReports()">Reset Filters</button>
+  </div>
+
+  <div class="kpis">
+    <span class="pill"><b>Filtered Vendors:</b> ${selected}</span>
+    <span class="pill"><b>Total Received:</b> ${totalPcs} PCS</span>
+    <span class="pill a">A: ${totalA} PCS · ${money(valA)}</span>
+    <span class="pill b">B: ${totalB} PCS · ${money(valB)}</span>
+    <span class="pill b2">B2: ${totalB2} PCS · ${money(valB2)}</span>
+    <span class="pill c">C (Damage): ${totalC} PCS · ${money(valC)}</span>
+    <span class="pill"><b>Total Value:</b> ${money(valTotal)}</span>
+    <span class="pill c"><b>Damage Value:</b> ${money(valC)} (${damagePctVal}%)</span>
+  </div>
+ </div>
+
+ <div id="vendorReportPaper" class="report-paper">
+  <div class="preview-head">
+    <div class="company-brand">
+      <img id="vendorReportLogo" class="report-logo">
+      <div><h2>${esc(currentCompany().name)}</h2><div class="muted">${esc(currentCompany().address||"")}</div></div>
+    </div>
+    ${printMeta("Vendor Inflow & Damage Statement",[`Vendor Filter: <b>${esc(selected)}</b>`,`Date Range: ${fromDate||'Beginning'} to ${toDate||'Present'}`])}
+  </div>
+  <div class="report-accent"></div>
+
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>IN Date</th>
+          <th>Vendor Name</th>
+          <th>Carton No.</th>
+          <th>Product</th>
+          <th>Unit Price</th>
+          <th>Total Received</th>
+          <th>Grade A</th>
+          <th>Grade B</th>
+          <th>Grade B2</th>
+          <th>Grade C (Damage)</th>
+          <th>Total Value</th>
+          <th>Damage Value</th>
+          <th>PO / Invoice</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredCartons.map(c=>{
+          const g = c.initialGrades || c.grades;
+          const up = unitPriceFor(c);
+          const tot = Number(c.initialPcs||c.pcs);
+          return `<tr>
+            <td>${esc(c.inDate)}</td>
+            <td><b>${esc(c.outlet||"Direct")}</b></td>
+            <td><b>${esc(c.cartonNo)}</b></td>
+            <td>${esc(getProduct(c.productId)?.name||"")}</td>
+            <td>${money(up)}</td>
+            <td><b>${tot} PCS</b></td>
+            <td><span class="badge a">${g?.A||0}</span><br><small>${money(up*(g?.A||0))}</small></td>
+            <td><span class="badge b">${g?.B||0}</span><br><small>${money(up*(g?.B||0))}</small></td>
+            <td><span class="badge b2">${g?.B2||0}</span><br><small>${money(up*(g?.B2||0))}</small></td>
+            <td><span class="badge c">${g?.C||0}</span><br><small>${money(up*(g?.C||0))}</small></td>
+            <td><b>${money(up*tot)}</b></td>
+            <td><b>${money(up*(g?.C||0))}</b></td>
+            <td>${esc(c.po)}</td>
+          </tr>`;
+        }).join("")||`<tr><td colspan="13">No inflow records found.</td></tr>`}
+      </tbody>
+      <tfoot style="font-weight:bold;background:#f8fafc">
+        <tr>
+          <td colspan="5">TOTAL SUMMARY</td>
+          <td>${totalPcs} PCS</td>
+          <td>${totalA}<br><small>${money(valA)}</small></td>
+          <td>${totalB}<br><small>${money(valB)}</small></td>
+          <td>${totalB2}<br><small>${money(valB2)}</small></td>
+          <td>${totalC}<br><small>${money(valC)}</small></td>
+          <td>${money(valTotal)}</td>
+          <td>${money(valC)}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  ${reportFooter()}
+ </div>`;
+ document.getElementById("vendorReportLogo").src=currentCompany().logo||logoFallback;
+},
+
+cartons(){
+ const q=(window.cartonSearch||"").toLowerCase();
+ const filterStatus = state.cartonStatusFilter || "ALL";
+ 
+ const rows=getCompanyCartons().filter(c=>{
+   const matchQuery = `${c.cartonNo} ${getProduct(c.productId)?.name||""} ${c.po} ${c.outlet}`.toLowerCase().includes(q);
+   let matchStatus = true;
+   if(filterStatus === "INSTOCK") matchStatus = c.status === "IN STOCK";
+   if(filterStatus === "OUT") matchStatus = c.status === "OUT";
+   return matchQuery && matchStatus;
+ });
+
+ const isAdmin = state.user.role === "Admin";
+
+ document.getElementById("page-cartons").innerHTML=`
+ <div class="filter-bar">
+   <div class="search" style="flex:2">
+     <input id="cartonSearch" value="${esc(window.cartonSearch||"")}" placeholder="Search Carton No., Vendor, Product, PO...">
+     <button class="btn" id="searchCartonBtn">Search</button>
+   </div>
+   <div class="field" style="flex:1;min-width:180px">
+     <label>Filter Stock Status:</label>
+     <select onchange="state.cartonStatusFilter=this.value;render.cartons()">
+       <option value="ALL" ${filterStatus==='ALL'?'selected':''}>All Cartons (${getCompanyCartons().length})</option>
+       <option value="INSTOCK" ${filterStatus==='INSTOCK'?'selected':''}>Active In-Stock Only (${activeCartons()})</option>
+       <option value="OUT" ${filterStatus==='OUT'?'selected':''}>Dispatched / Zero Stock</option>
+     </select>
+   </div>
+ </div>
+ 
+ <div class="panel"><div class="table-wrap"><table class="table"><tr><th>Carton</th><th>Product</th><th>Vendor</th><th>Unit Price</th><th>Total Rem.</th><th>A</th><th>B</th><th>B2</th><th>C (Damage)</th><th>Stock Value</th><th>Damage Value</th><th>Status</th><th>Actions</th></tr>
+ ${rows.map(c=>{const up=unitPriceFor(c);return `<tr>
+   <td><b>${esc(c.cartonNo)}</b></td>
+   <td>${esc(getProduct(c.productId)?.name||"")}</td>
+   <td><span class="badge a">${esc(c.outlet||"Direct")}</span></td>
+   <td>${money(up)}</td>
+   <td><b>${c.pcs}</b></td>
+   <td><span class="badge a">${c.grades?.A||0}</span><br><small>${money(up*(c.grades?.A||0))}</small></td>
+   <td><span class="badge b">${c.grades?.B||0}</span><br><small>${money(up*(c.grades?.B||0))}</small></td>
+   <td><span class="badge b2">${c.grades?.B2||0}</span><br><small>${money(up*(c.grades?.B2||0))}</small></td>
+   <td><span class="badge c">${c.grades?.C||0}</span><br><small>${money(up*(c.grades?.C||0))}</small></td>
+   <td><b>${money(up*c.pcs)}</b></td>
+   <td><b>${money(up*(c.grades?.C||0))}</b></td>
+   <td>${c.status === 'IN STOCK' ? '<span class="badge a">In Stock</span>' : '<span class="badge c">Out</span>'}</td>
+   <td>
+     <button class="btn small" onclick="openCarton('${c.id}')">History ${isAdmin?'& Undo':''}</button>
+     ${isAdmin?`<button class="btn small secondary" onclick="openEditCartonModal('${c.id}')">✏️ Edit</button>`:''}
+   </td>
+ </tr>`}).join("")||`<tr><td colspan="13">No cartons match your search/filter criteria.</td></tr>`}</table></div></div>`;
+ 
+ document.getElementById("searchCartonBtn").onclick=()=>{window.cartonSearch=document.getElementById("cartonSearch").value;render.cartons()};
+},
+
+vendors(){
+ const vendors = getCompanyVendors();
+ const products = getCompanyProducts();
+ const selId = state.selectedVendorId && vendors.some(v=>v.id===state.selectedVendorId) ? state.selectedVendorId : (vendors[0]?.id || "");
+ state.selectedVendorId = selId;
+ const v = vendors.find(x=>x.id===selId);
+ const pct = Number(v?.discountPct)||0;
+ const isAdmin = state.user.role === "Admin";
+
+ document.getElementById("page-vendors").innerHTML=`
+ <div class="panel no-print">
+  <div class="section-head"><h2>🏷️ Add Vendor</h2></div>
+  <form id="vendorForm" class="form-grid">
+    <div class="field"><label class="required">Vendor Name</label><input id="vd_name" required placeholder="e.g. Mirpur Vendor"></div>
+    <div class="field"><label class="required">Discount % (Retail theke kom)</label><input id="vd_pct" type="number" min="0" max="100" step="0.01" value="0" required></div>
+    <div class="field"><label>Phone</label><input id="vd_phone" placeholder="01XXXXXXXXX"></div>
+    <div class="field"><label>Address</label><input id="vd_address"></div>
+    <div class="actions" style="grid-column:span 2"><button class="btn">Save Vendor</button></div>
+  </form>
+ </div>
+
+ <div class="panel no-print"><div class="section-head"><h2>Vendor List</h2></div>
+  <div class="table-wrap"><table class="table"><tr><th>Vendor</th><th>Phone</th><th>Address</th><th>Discount %</th><th>Actions</th></tr>
+  ${vendors.map(x=>`<tr>
+    <td><b>${esc(x.name)}</b></td>
+    <td>${esc(x.phone||"-")}</td>
+    <td>${esc(x.address||"-")}</td>
+    <td><input type="number" min="0" max="100" step="0.01" value="${Number(x.discountPct)||0}" style="width:90px" onchange="setVendorPct('${x.id}', this.value)"></td>
+    <td>
+      <button class="btn small secondary" onclick="state.selectedVendorId='${x.id}';render.vendors()">📄 Price List</button>
+      ${isAdmin?`<button class="btn small danger" onclick="deleteVendor('${x.id}')">Delete</button>`:''}
+    </td>
+  </tr>`).join("")||`<tr><td colspan="5">No vendors yet. Upore add korun.</td></tr>`}
+  </table></div>
+ </div>
+
+ <div class="panel no-print"><div class="section-head"><h2>Vendor Price List</h2>
+   <div class="actions"><button class="btn" onclick="printReport('portrait')">🖨️ Print Price List</button></div></div>
+  <div class="filter-bar">
+    <div class="field" style="min-width:220px"><label>Select Vendor:</label>
+      <select onchange="state.selectedVendorId=this.value;render.vendors()">
+        ${vendors.map(x=>`<option value="${x.id}" ${x.id===selId?'selected':''}>${esc(x.name)} (${Number(x.discountPct)||0}%)</option>`).join("")||`<option value="">-- No vendor --</option>`}
+      </select>
+    </div>
+  </div>
+ </div>
+
+ <div id="reportPaper" class="report-paper">
+  <div class="preview-head">
+    <div class="company-brand">
+      <img id="vendorPriceLogo" class="report-logo">
+      <div><h2>${esc(currentCompany().name)}</h2><div class="muted">${esc(currentCompany().address||"")}</div></div>
+    </div>
+    ${printMeta("Vendor Price List",[`Vendor: <b>${esc(v?.name||"-")}</b>`,`Discount: <b>${pct}%</b>`])}
+  </div>
+  <div class="report-accent"></div>
+  <div class="table-wrap"><table class="table">
+   <thead><tr><th>Product</th><th>Retail Price</th><th>Discount %</th><th>Vendor Price</th></tr></thead>
+   <tbody>
+   ${products.map(p=>{
+     const rp = Number(p.retailPrice)||0;
+     return `<tr><td><b>${esc(p.name)}</b></td><td>${money(rp)}</td><td>${pct}%</td><td><b>${money(rp*(1-pct/100))}</b></td></tr>`;
+   }).join("")||`<tr><td colspan="4">No products. Products page e product ar retail price din.</td></tr>`}
+   </tbody>
+  </table></div>
+  ${reportFooter()}
+ </div>`;
+
+ const logoEl = document.getElementById("vendorPriceLogo");
+ if(logoEl) logoEl.src = currentCompany().logo || logoFallback;
+
+ document.getElementById("vendorForm").onsubmit=e=>{
+   e.preventDefault();
+   const name=document.getElementById("vd_name").value.trim();
+   if(!name) return;
+   if(vendors.some(x=>x.name.toLowerCase()===name.toLowerCase())) return toast("Vendor already exists.");
+   state.vendors.push({
+     id: uid("v"), companyId: state.activeCompanyId, name,
+     discountPct: Number(document.getElementById("vd_pct").value)||0,
+     phone: document.getElementById("vd_phone").value.trim(),
+     address: document.getElementById("vd_address").value.trim()
+   });
+   recordAudit("VENDOR", "Added vendor "+name);
+   save(); updateVendorDatalist(); toast("Vendor added."); render.vendors();
+ };
+},
+
+products(){
+ const products = getCompanyProducts();
+ const isAdmin = state.user.role === "Admin";
+ document.getElementById("page-products").innerHTML=`
+ <div class="panel"><form id="productForm" class="form-grid">
+   <div class="field"><label class="required">Product Name for ${esc(currentCompany().name)}</label><input id="productName" required></div>
+   <div class="field"><label class="required">Retail Price (Tk)</label><input id="productPrice" type="number" min="0" step="0.01" value="0" required></div>
+   <div class="actions" style="grid-column:span 2"><button class="btn">Add Product</button></div>
+ </form></div>
+ <div class="panel"><div class="table-wrap"><table class="table"><tr><th>Product Name</th><th>Retail Price</th><th>Actions</th></tr>
+ ${products.map(p=>`<tr>
+   <td><b>${esc(p.name)}</b></td>
+   <td><input type="number" min="0" step="0.01" style="width:120px" value="${Number(p.retailPrice)||0}" onchange="setProductPrice('${p.id}', this.value)"> Tk</td>
+   <td>${isAdmin?`<button class="btn small danger" onclick="deleteProduct('${p.id}')">Delete</button>`:'-'}</td>
+ </tr>`).join("")||`<tr><td colspan="3">No products yet.</td></tr>`}
+ </table></div></div>`;
+ document.getElementById("productForm").onsubmit=e=>{
+   e.preventDefault();
+   const n=document.getElementById("productName").value.trim();
+   if(!n)return;
+   if(products.some(p=>p.name.toLowerCase()===n.toLowerCase()))return toast("Product already exists.");
+   state.products.push({id:uid("p"),companyId:state.activeCompanyId,name:n,retailPrice:Number(document.getElementById("productPrice").value)||0});
+   recordAudit("PRODUCT", "Added product "+n);
+   save();toast("Product added.");render.products();
+ };
+},
+
+ reports(){
+  const s=stockByCat(); const comp = currentCompany();
+  const g = window.reportGrade || "ALL";
+  const all=getCompanyCartons();
+  const rows = g==="ALL" ? all : all.filter(c=>(c.grades?.[g]||0)>0);
+  const gradeTotal = g==="ALL" ? totalStock() : rows.reduce((t,c)=>t+(c.grades?.[g]||0),0);
+  const cols = g==="ALL" ? ["A","B","B2","C"] : [g];
+  const btn=(k,l)=>`<button class="btn small ${g===k?'':'secondary'}" onclick="setReportGrade('${k}')">${l}</button>`;
+
+  // ---- Value calculations (vendor rate = retail - vendor discount %) ----
+  let stockValue=0, pcsTotal=0;
+  const gradePcs={A:0,B:0,B2:0,C:0}, gradeVal={A:0,B:0,B2:0,C:0};
+  rows.forEach(c=>{
+    const up=unitPriceFor(c);
+    pcsTotal += Number(c.pcs||0);
+    stockValue += up*Number(c.pcs||0);
+    ["A","B","B2","C"].forEach(k=>{
+      const q=Number(c.grades?.[k]||0);
+      gradePcs[k]+=q; gradeVal[k]+=up*q;
+    });
+  });
+  const filteredValue = g==="ALL" ? stockValue : gradeVal[g];
+
+  document.getElementById("page-reports").innerHTML=`
+  <div class="panel no-print"><div class="section-head"><h2>Stock Balance Reports</h2><div class="actions"><button class="btn" onclick="printReport('landscape')">🖨️ Print Stock Report (PDF)</button><button class="btn secondary" onclick="exportCSV()">Export CSV</button></div></div>
+  <div class="kpis" style="margin-bottom:10px"><span class="pill">A: ${s.A} PCS</span><span class="pill">B: ${s.B} PCS</span><span class="pill">B2: ${s.B2} PCS</span><span class="pill">C: ${s.C} PCS</span><span class="pill">Total In-Stock: ${totalStock()} PCS</span><span class="pill"><b>Total Stock Value: ${money(stockValue)}</b></span></div>
+  <div class="actions"><b class="muted" style="margin-right:6px">Category Report:</b>${btn("ALL","All")}${btn("A","Grade A")}${btn("B","Grade B")}${btn("B2","Grade B2")}${btn("C","Grade C")}</div></div>
+  
+  <div id="reportPaper" class="report-paper">
+   <div class="preview-head">
+     <div class="company-brand">
+       <img id="reportLogo" class="report-logo">
+       <div><h2>${esc(comp.name)}</h2><div class="muted">${esc(comp.address||"")}</div></div>
+     </div>
+     ${printMeta(g==="ALL"?"Current Balance Report":"Grade "+g+" Stock Report",[])}
+   </div>
+   <div class="report-accent"></div>
+   <div class="kpis" style="margin-bottom:12px">
+     <span class="pill">${g==="ALL"?"Total":"Grade "+g} : ${gradeTotal} PCS</span>
+     <span class="pill">Cartons: ${rows.length}</span>
+     <span class="pill"><b>${g==="ALL"?"Total Stock Value":"Grade "+g+" Value"}: ${money(filteredValue)}</b></span>
+   </div>
+   <div class="kpis" style="margin-bottom:12px">
+     <span class="pill a">A: ${gradePcs.A} PCS · ${money(gradeVal.A)}</span>
+     <span class="pill b">B: ${gradePcs.B} PCS · ${money(gradeVal.B)}</span>
+     <span class="pill b2">B2: ${gradePcs.B2} PCS · ${money(gradeVal.B2)}</span>
+     <span class="pill c">C (Damage): ${gradePcs.C} PCS · ${money(gradeVal.C)}</span>
+     <span class="pill c"><b>Damage Value: ${money(gradeVal.C)}</b></span>
+   </div>
+   <div class="table-wrap"><table class="table"><thead><tr><th>Carton</th><th>Product</th><th>Source/Vendor</th><th>Rem. PCS</th><th>Unit Price</th><th>Stock Value</th>${cols.map(c=>`<th>${c}</th>`).join("")}<th>Expiry</th><th>PO/Invoice</th><th>Status</th></tr></thead><tbody>
+   ${rows.map(c=>{const up=unitPriceFor(c);return `<tr><td><b>${esc(c.cartonNo)}</b></td><td>${esc(getProduct(c.productId)?.name||"")}</td><td>${esc(c.outlet||"-")}</td><td><b>${c.pcs}</b></td><td>${money(up)}</td><td><b>${money(up*Number(c.pcs||0))}</b></td>${cols.map(k=>`<td>${c.grades?.[k]||0}<br><small class="muted">${money(up*Number(c.grades?.[k]||0))}</small></td>`).join("")}<td>${c.expiry||"-"}</td><td>${esc(c.po)}</td><td>${c.status}</td></tr>`}).join("")||`<tr><td colspan="${9+cols.length}">No records available.</td></tr>`}
+   ${rows.length?`<tr><td colspan="3"><b>TOTAL</b></td><td><b>${pcsTotal} PCS</b></td><td>-</td><td><b>${money(stockValue)}</b></td>${cols.map(k=>`<td><b>${gradePcs[k]}</b><br><small>${money(gradeVal[k])}</small></td>`).join("")}<td colspan="3"></td></tr>`:""}
+   </tbody></table></div>
+   ${reportFooter()}
+  </div>`;
+  document.getElementById("reportLogo").src=comp.logo||logoFallback;
+ },
+
+
+
+audit(){
+ const audits = getCompanyAudits();
+ document.getElementById("page-audit").innerHTML=`
+ <div class="panel">
+   <div class="section-head"><h2>📋 Audit Logs & Security History</h2></div>
+   <div class="table-wrap"><table class="table"><tr><th>Timestamp</th><th>User / Role</th><th>Action</th><th>Details</th></tr>
+   ${audits.map(a=>`<tr><td>${esc(a.date)}</td><td><b>${esc(a.user)}</b></td><td><span class="badge a">${esc(a.action)}</span></td><td>${esc(a.details)}</td></tr>`).join("")||`<tr><td colspan="4">No audit logs recorded yet.</td></tr>`}</table></div>
+ </div>`;
+},
+
+backup(){
+ document.getElementById("page-backup").innerHTML=`
+ <div class="two">
+  <div class="panel">
+    <div class="section-head"><h2>💾 Local Backup & Restore</h2></div>
+    <p class="muted">Download all data as JSON or restore from your local storage.</p>
+    <button class="btn mb-3" style="width:100%" onclick="downloadBackupJSON()">📥 Export Database (.json)</button>
+    <hr style="border:0;border-top:1px solid #e2e8f0;margin:14px 0">
+    <label class="field label">Restore from File:</label>
+    <input type="file" id="restoreFileInput" accept=".json" style="border:1px dashed #cbd5e1;padding:10px;border-radius:10px;width:100%;margin-bottom:8px">
+    <button class="btn secondary" style="width:100%" onclick="restoreBackupJSON()">🔄 Load Backup File</button>
+  </div>
+  <div class="panel">
+    <div class="section-head"><h2>☁️ Google Drive Backup / Sync</h2></div>
+    <p class="muted">Save database backup to Google Drive or import shared JSON from Drive URL.</p>
+    <button class="btn" style="width:100%;background:#0f9d58;margin-bottom:12px" onclick="openGoogleDriveSave()">🌐 Save Backup to Google Drive</button>
+    
+    <div class="field">
+      <label>Import Direct Drive File / Direct JSON URL:</label>
+      <input id="driveImportUrl" placeholder="https://drive.google.com/... or JSON Link">
+    </div>
+    <button class="btn outline mt-2" style="width:100%" onclick="importFromDriveUrl()">📥 Fetch & Sync from Link</button>
+  </div>
+ </div>`;
+},
+
+companies(){
+ document.getElementById("page-companies").innerHTML=`
+ <div class="panel"><div class="section-head"><h2>Create New Company Workspace</h2></div>
+  <form id="newCompanyForm" class="form-grid">
+    <div class="field"><label class="required">Company Name</label><input id="newCompName" required placeholder="e.g. Apex Foods Ltd."></div>
+    <div class="field"><label>Address</label><input id="newCompAddress" placeholder="e.g. Dhaka, Bangladesh"></div>
+    <div class="actions" style="grid-column:span 2"><button class="btn">Create & Switch</button></div>
+  </form>
+ </div>
+ <div class="panel"><div class="section-head"><h2>Registered Companies</h2></div>
+  <table class="table"><tr><th>Company Name</th><th>Address</th><th>Status & Switch</th><th>Remove Company</th></tr>
+  ${state.companies.map(c=>`<tr>
+    <td><b>${esc(c.name)}</b></td>
+    <td>${esc(c.address||"-")}</td>
+    <td><button class="btn small ${c.id===state.activeCompanyId?'secondary':''}" onclick="switchCompany('${c.id}')">${c.id===state.activeCompanyId?'Active':'Switch'}</button></td>
+    <td><button class="btn small danger" onclick="deleteCompany('${c.id}')">🗑️ Remove</button></td>
+  </tr>`).join("")}
+  </table>
+ </div>`;
+ document.getElementById("newCompanyForm").onsubmit=e=>{
+   e.preventDefault();
+   const name = document.getElementById("newCompName").value.trim();
+   const address = document.getElementById("newCompAddress").value.trim();
+   if(!name) return;
+   const newId = uid("comp");
+   state.companies.push({id:newId, name, address, logo:""});
+   state.activeCompanyId = newId;
+   recordAudit("COMPANY", "Created company workspace "+name);
+   save(); syncHeader(); setLogo();
+   toast(`Company '${name}' created!`);
+   show("dashboard");
+ };
+},
+
+company(){
+ const comp = currentCompany();
+ document.getElementById("page-company").innerHTML=`
+ <div class="panel"><form id="companyForm" class="form-stack">
+  <div class="field"><label class="required">Company Name</label><input id="companyNameInput" value="${esc(comp.name)}" required></div>
+  <div class="field"><label>Company Address</label><input id="companyAddressInput" value="${esc(comp.address||"")}"></div>
+  <div class="field"><label>Upload Company Logo</label><input id="companyLogoFile" type="file" accept="image/*"></div>
+  <div class="actions"><button class="btn">Save Information</button></div>
+ </form></div>`;
+ document.getElementById("companyForm").onsubmit=e=>{
+   e.preventDefault();
+   comp.name=document.getElementById("companyNameInput").value.trim();
+   comp.address=document.getElementById("companyAddressInput").value.trim();
+   const file=document.getElementById("companyLogoFile").files[0];
+   const finish=()=>{recordAudit("COMPANY", "Updated company info");save();setLogo();syncHeader();toast("Company updated.");render.company()};
+   if(file){const r=new FileReader();r.onload=()=>{comp.logo=r.result;finish()};r.readAsDataURL(file)}else finish();
+ };
+}
+};
+
+function deleteProduct(pid){
+  if(state.user.role !== "Admin") return alert("Only Admin can delete products!");
+  if(!confirm("Are you sure you want to delete this product?")) return;
+  state.products = state.products.filter(p=>p.id!==pid);
+  recordAudit("PRODUCT", "Deleted product "+pid);
+  save(); toast("Product deleted."); render.products();
+}
+
+function deleteCompany(cid){
+  if(state.user.role !== "Admin") return alert("Only Admin can delete companies!");
+  if(state.companies.length <= 1) return alert("You cannot delete the only company!");
+  const target = state.companies.find(c=>c.id===cid);
+  if(!confirm(`⚠️ Warning: Are you sure you want to completely delete '${target?.name}' and all its data?`)) return;
+
+  state.companies = state.companies.filter(c=>c.id !== cid);
+  state.cartons = state.cartons.filter(c=>c.companyId !== cid);
+  state.movements = state.movements.filter(m=>m.companyId !== cid);
+  state.products = state.products.filter(p=>p.companyId !== cid);
+  state.audits = state.audits.filter(a=>a.companyId !== cid);
+
+  if(state.activeCompanyId === cid){
+    state.activeCompanyId = state.companies[0].id;
+  }
+  save(); syncHeader(); setLogo(); toast("Company removed."); render.companies();
+}
+
+function updateOutGradeHints(cid){
+  const c = state.cartons.find(x=>x.id===cid);
+  if(!c) return;
+  const gradeSel = document.getElementById("outGradeSelect");
+  gradeSel.options[0].text = `Grade A (Fresh) — Avail: ${c.grades.A} PCS`;
+  gradeSel.options[1].text = `Grade B (Usable) — Avail: ${c.grades.B} PCS`;
+  gradeSel.options[2].text = `Grade B2 — Avail: ${c.grades.B2} PCS`;
+  gradeSel.options[3].text = `Grade C (Damage) — Avail: ${c.grades.C} PCS`;
+}
+
+function openEditCartonModal(id){
+  if(state.user.role !== "Admin") return alert("Only Admin can edit cartons!");
+  const c=state.cartons.find(x=>x.id===id); if(!c) return;
+  document.getElementById("modalRoot").innerHTML=`
+  <div class="modal"><div class="modal-card">
+    <div class="section-head"><h2>✏️ Edit / Fix Carton Data</h2><button class="btn secondary" onclick="closeModal()">Close</button></div>
+    <form id="editCartonForm" class="form-stack">
+      <div class="field"><label>Carton No.</label><input id="edt_carton" value="${esc(c.cartonNo)}" required></div>
+      <div class="field"><label>Source / Vendor</label><input id="edt_outlet" list="vendorSuggestions" value="${esc(c.outlet||"")}" required></div>
+      <div class="field"><label>PO / Invoice</label><input id="edt_po" value="${esc(c.po)}"></div>
+      
+      <div style="background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e2e8f0">
+        <label style="font-weight:bold;font-size:12px">Correct In-Stock Quantities:</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px">
+          <div><label style="font-size:11px">A</label><input id="edt_ga" type="number" value="${c.grades.A}" min="0"></div>
+          <div><label style="font-size:11px">B</label><input id="edt_gb" type="number" value="${c.grades.B}" min="0"></div>
+          <div><label style="font-size:11px">B2</label><input id="edt_gb2" type="number" value="${c.grades.B2}" min="0"></div>
+          <div><label style="font-size:11px">C</label><input id="edt_gc" type="number" value="${c.grades.C}" min="0"></div>
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button class="btn">Update Information</button>
+        <button type="button" class="btn danger" onclick="deleteCarton('${c.id}')">🗑️ Delete Carton</button>
+      </div>
+    </form>
+  </div></div>`;
+
+  document.getElementById("editCartonForm").onsubmit=e=>{
+    e.preventDefault();
+    const ga = Number(document.getElementById("edt_ga").value)||0;
+    const gb = Number(document.getElementById("edt_gb").value)||0;
+    const gb2 = Number(document.getElementById("edt_gb2").value)||0;
+    const gc = Number(document.getElementById("edt_gc").value)||0;
+
+    const oldTotal = c.pcs;
+    c.cartonNo = document.getElementById("edt_carton").value.trim();
+    c.outlet = document.getElementById("edt_outlet").value.trim();
+    c.po = document.getElementById("edt_po").value.trim();
+    c.grades = {A:ga, B:gb, B2:gb2, C:gc};
+    c.pcs = ga+gb+gb2+gc;
+    c.status = c.pcs>0?"IN STOCK":"OUT";
+
+    state.movements.unshift({
+      id: uid("m"),
+      companyId: state.activeCompanyId,
+      type: "ADJUST",
+      cartonId: c.id,
+      cartonNo: c.cartonNo,
+      grade: "ALL",
+      pcs: c.pcs - oldTotal,
+      reference: "Manual Edit",
+      reason: "Admin Quantity Correction",
+      date: new Date().toISOString().split('T')[0],
+      user: state.user.email
+    });
+
+    recordAudit("EDIT CARTON", `Adjusted carton ${c.cartonNo} (New Balance: ${c.pcs} PCS)`);
+    save(); updateVendorDatalist(); closeModal(); toast("Carton updated."); render.cartons();
+  };
+}
+
+function deleteCarton(cid){
+  if(state.user.role !== "Admin") return alert("Only Admin can delete cartons!");
+  if(!confirm("Are you sure you want to delete this carton permanently?")) return;
+  const target = state.cartons.find(c=>c.id===cid);
+  state.cartons = state.cartons.filter(c=>c.id!==cid);
+  state.movements = state.movements.filter(m=>m.cartonId!==cid);
+  recordAudit("DELETE CARTON", `Deleted carton ${target?.cartonNo}`);
+  save(); updateVendorDatalist(); closeModal(); toast("Carton deleted."); render.cartons();
+}
+
+function openCarton(id){
+ const c=state.cartons.find(x=>x.id===id); if(!c)return;
+ const moves=state.movements.filter(m=>m.cartonId===id);
+ const isAdmin = state.user.role === "Admin";
+ document.getElementById("modalRoot").innerHTML=`<div class="modal"><div class="modal-card">
+  <div class="section-head"><h2>${esc(c.cartonNo)}</h2><button class="btn secondary" onclick="closeModal()">Close</button></div>
+  <div class="kpis">
+    <span class="pill">Product: ${esc(getProduct(c.productId)?.name||"")}</span>
+    <span class="pill">Source Vendor: ${esc(c.outlet||"-")}</span>
+    <span class="pill">Unit Price: ${money(unitPriceFor(c))}</span>
+    <span class="pill">Remaining: ${c.pcs} · ${money(unitPriceFor(c)*c.pcs)}</span>
+    <span class="pill">A: ${c.grades?.A||0} · ${money(unitPriceFor(c)*(c.grades?.A||0))}</span>
+    <span class="pill">B: ${c.grades?.B||0} · ${money(unitPriceFor(c)*(c.grades?.B||0))}</span>
+    <span class="pill">B2: ${c.grades?.B2||0} · ${money(unitPriceFor(c)*(c.grades?.B2||0))}</span>
+    <span class="pill c">C Damage: ${c.grades?.C||0} · ${money(unitPriceFor(c)*(c.grades?.C||0))}</span>
+    <span class="pill">Status: ${c.status}</span>
+  </div>
+  <div class="panel">
+    <h3>Transaction History & Undo</h3>
+    <table class="table">
+      <tr><th>Date</th><th>Type</th><th>Grade</th><th>PCS</th><th>Reference</th><th>Actions</th></tr>
+      ${moves.map(m=>`<tr>
+        <td>${esc(m.date)}</td>
+        <td><b>${m.type}</b></td>
+        <td>${esc(m.grade||"-")}</td>
+        <td>${m.pcs}</td>
+        <td>${esc(m.reference||"-")}</td>
+        <td>
+          ${(isAdmin && m.type==='OUT')?`<button class="btn small danger" onclick="rollbackOutMovement('${m.id}')">↩️ Undo OUT</button>`:'-'}
+        </td>
+      </tr>`).join("")}
+    </table>
+  </div>
+ </div></div>`;
+}
+
+function rollbackOutMovement(moveId){
+  if(state.user.role !== "Admin") return alert("Only Admin can undo movements!");
+  const move = state.movements.find(m=>m.id===moveId);
+  if(!move || move.type!=="OUT") return;
+  const carton = state.cartons.find(c=>c.id===move.cartonId);
+  if(!carton) return alert("Carton not found!");
+
+  if(!confirm(`Reverse this dispatch (+${move.pcs} PCS to Grade ${move.grade})?`)) return;
+
+  carton.grades[move.grade] = (carton.grades[move.grade] || 0) + Number(move.pcs);
+  carton.pcs += Number(move.pcs);
+  carton.status = "IN STOCK";
+
+  state.movements = state.movements.filter(m=>m.id!==moveId);
+  recordAudit("UNDO OUT", `Reverted ${move.pcs} PCS (Grade ${move.grade}) back to ${carton.cartonNo}`);
+  save(); toast("Stock OUT reverted successfully."); openCarton(carton.id); render.cartons();
+}
+
+function downloadBackupJSON(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `inventory_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  recordAudit("BACKUP", "Exported JSON database backup");
+  toast("Database backup downloaded!");
+}
+
+function openGoogleDriveSave(){
+  downloadBackupJSON();
+  window.open("https://drive.google.com/drive/my-drive", "_blank");
+  toast("File downloaded! Upload this file to your Google Drive.");
+}
+
+function importFromDriveUrl(){
+  const url = document.getElementById("driveImportUrl").value.trim();
+  if(!url) return alert("Please enter a valid JSON link!");
+
+  fetch(url)
+    .then(res=>res.json())
+    .then(imported=>{
+      if(!imported.companies || !imported.cartons){
+        return alert("Invalid database structure from URL!");
+      }
+      if(confirm("⚠️ Overwrite current database with this cloud sync data?")){
+        state = imported;
+        recordAudit("CLOUD SYNC", "Synced database from cloud link");
+        save(); syncHeader(); setLogo(); show("dashboard");
+        toast("Cloud database synced successfully!");
+      }
+    })
+    .catch(err=>alert("Failed to fetch JSON from link: " + err.message));
+}
+
+function restoreBackupJSON(){
+  const fileInput = document.getElementById("restoreFileInput");
+  const file = fileInput.files[0];
+  if(!file) return alert("Please select a valid JSON backup file first!");
+
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!imported.companies || !imported.cartons){
+        return alert("Invalid backup file structure!");
+      }
+      if(confirm("⚠️ Overwrite current database with this backup file?")){
+        state = imported;
+        recordAudit("RESTORE", "Restored database from JSON file");
+        save(); syncHeader(); setLogo(); show("dashboard");
+        toast("Database restored successfully!");
+      }
+    }catch(err){
+      alert("Error reading JSON file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function closeModal(){document.getElementById("modalRoot").innerHTML=""}
+
+window.reportGrade="ALL";
+function setReportGrade(g){window.reportGrade=g;render.reports();}
+
+function exportCSV(){
+ const g=window.reportGrade||"ALL";
+ const cols = g==="ALL"?["A","B","B2","C"]:[g];
+ let list=getCompanyCartons(); if(g!=="ALL") list=list.filter(c=>(c.grades?.[g]||0)>0);
+ let csv=["Carton No","Product","Vendor","Total PCS","Unit Price","Stock Value",...cols.flatMap(k=>["Grade "+k+" PCS","Grade "+k+" Value"]),"Damage Value","Expiry","PO/Invoice","Status"].join(",")+"\n";
+ let tPcs=0,tVal=0; const tg={}; cols.forEach(k=>tg[k]={p:0,v:0}); let tDmg=0;
+ list.forEach(c=>{const up=unitPriceFor(c);
+   tPcs+=Number(c.pcs||0); tVal+=up*Number(c.pcs||0); tDmg+=up*Number(c.grades?.C||0);
+   cols.forEach(k=>{const q=Number(c.grades?.[k]||0);tg[k].p+=q;tg[k].v+=up*q;});
+   csv += [c.cartonNo,getProduct(c.productId)?.name||"",c.outlet||"-",c.pcs,up.toFixed(2),(up*c.pcs).toFixed(2),...cols.flatMap(k=>[c.grades?.[k]||0,(up*Number(c.grades?.[k]||0)).toFixed(2)]),(up*(c.grades?.C||0)).toFixed(2),c.expiry||"",c.po,c.status].map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")+"\n"});
+ csv += ["TOTAL","","",tPcs,"",tVal.toFixed(2),...cols.flatMap(k=>[tg[k].p,tg[k].v.toFixed(2)]),tDmg.toFixed(2),"","",""].map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")+"\n";
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`${currentCompany().name}_stock_report_${g}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+
+
+/* ---------- Users page ---------- */
+function relTime(iso){
+  if(!iso) return "Never";
+  const d=new Date(iso), diff=Date.now()-d.getTime();
+  const m=Math.floor(diff/60000);
+  if(m<1) return "Just now";
+  if(m<60) return m+" min ago";
+  const h=Math.floor(m/60); if(h<24) return h+" hr ago";
+  return d.toLocaleString();
+}
+function isOnline(a){ return a.lastSeenAt && (Date.now()-new Date(a.lastSeenAt).getTime()) < 120000 }
+function adminCount(){ return (state.users||[]).filter(u=>u.role==="Admin" && u.active!==false).length }
+
+render.users = function(){
+  if(!isAdmin()){ document.getElementById("page-users").innerHTML = `<div class="card">Access denied.</div>`; return; }
+  const rows = (state.users||[]).map(u=>`<tr>
+    <td><b>${esc(u.name)}</b></td>
+    <td>${esc(u.position||"-")}</td>
+    <td>${esc(u.email)}</td>
+    <td>${esc(u.role)}</td>
+    <td>${u.active===false?'<span class="pill c">Inactive</span>':'<span class="pill a">Active</span>'}</td>
+    <td>${isOnline(u)?'<span style="color:#15803d;font-weight:700">● Online</span>':esc(relTime(u.lastSeenAt))}</td>
+    <td>${esc(u.createdAt? new Date(u.createdAt).toLocaleDateString() : "-")}</td>
+    <td style="white-space:nowrap">
+      <button class="btn small" onclick="openUserModal('${u.id}')">Edit</button>
+      <button class="btn small secondary" onclick="toggleUserActive('${u.id}')">${u.active===false?"Activate":"Deactivate"}</button>
+      <button class="btn small danger" onclick="deleteUser('${u.id}')">Delete</button>
+    </td></tr>`).join("") || `<tr><td colspan="8" class="muted">No accounts yet.</td></tr>`;
+  document.getElementById("page-users").innerHTML = `
+    <div class="card">
+      <div class="card-head"><h2>👥 User Accounts</h2><button class="btn" onclick="openUserModal()">+ Add Account</button></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Position</th><th>Email</th><th>Role</th><th>Status</th><th>Online / Last active</th><th>Created</th><th>Action</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>`;
+};
+
+function openUserModal(id){
+  if(!isAdmin()) return;
+  const u = id ? accountById(id) : null;
+  document.getElementById("modalRoot").innerHTML = `
+  <div class="modal"><div class="modal-card">
+    <h3>${u?"Edit Account":"Add Account"}</h3>
+    <form id="userForm" class="form-stack">
+      <div class="field"><label class="required">Full Name</label><input id="uName" value="${esc(u?.name||"")}" required></div>
+      <div class="field"><label class="required">Position</label><input id="uPosition" value="${esc(u?.position||"")}" required></div>
+      <div class="field"><label class="required">Email</label><input id="uEmail" type="email" value="${esc(u?.email||"")}" required></div>
+      <div class="field"><label ${u?"":'class="required"'}>Password${u?" (leave blank to keep)":""}</label><input id="uPass" type="password" ${u?"":"required"}></div>
+      <div class="field"><label class="required">Role</label><select id="uRole"><option ${u?.role==="Admin"?"selected":""}>Admin</option><option ${u&&u.role==="User"?"selected":""}>User</option></select></div>
+      <div id="uErr" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600"></div>
+      <button class="btn">${u?"Save Changes":"Create Account"}</button>
+      <button type="button" class="btn secondary" onclick="closeModal()">Cancel</button>
+    </form>
+  </div></div>`;
+  document.getElementById("userForm").onsubmit = async e=>{
+    e.preventDefault();
+    const err=document.getElementById("uErr");
+    const name=document.getElementById("uName").value.trim();
+    const position=document.getElementById("uPosition").value.trim();
+    const email=document.getElementById("uEmail").value.trim().toLowerCase();
+    const pass=document.getElementById("uPass").value;
+    const role=document.getElementById("uRole").value;
+    const dup=(state.users||[]).some(x=>x.email===email && x.id!==(u?.id));
+    if(dup){ err.textContent="This email is already used by another account."; err.classList.remove("hidden"); return; }
+    if(u && u.role==="Admin" && role!=="Admin" && adminCount()<=1){
+      err.textContent="Cannot downgrade the last active Admin."; err.classList.remove("hidden"); return;
+    }
+    if(u){
+      Object.assign(u,{name,position,email,role});
+      if(pass) u.passHash = await hashString(pass);
+      recordAudit("USER", `Updated account ${email}`);
+    }else{
+      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
+      recordAudit("USER", `Created ${role} account ${email}`);
+    }
+    save(); enforceSession(); syncHeader(); closeModal(); render.users(); toast("Account saved.");
+  };
+}
+
+function toggleUserActive(id){
+  if(!isAdmin()) return;
+  const u=accountById(id); if(!u) return;
+  if(u.id===state.user.id) return alert("You cannot deactivate your own account.");
+  if(u.active!==false && u.role==="Admin" && adminCount()<=1) return alert("Cannot deactivate the last active Admin.");
+  u.active = u.active===false;
+  recordAudit("USER", `${u.active?"Activated":"Deactivated"} account ${u.email}`);
+  save(); render.users(); toast(u.active?"Account activated.":"Account deactivated.");
+}
+
+function deleteUser(id){
+  if(!isAdmin()) return;
+  const u=accountById(id); if(!u) return;
+  if(u.id===state.user.id) return alert("You cannot delete your own account.");
+  if(u.role==="Admin" && adminCount()<=1) return alert("Cannot delete the last active Admin.");
+  if(!confirm(`Delete account ${u.email}? This cannot be undone.`)) return;
+  state.users = state.users.filter(x=>x.id!==id);
+  recordAudit("USER", `Deleted account ${u.email}`);
+  save(); render.users(); toast("Account deleted.");
+}
+
+/* ---------- Auth ---------- */
+function loginError(msg){
+  const el=document.getElementById("loginError");
+  el.textContent=msg; el.classList.remove("hidden");
+}
+function showAuthScreen(){
+  const first = (state.users||[]).length === 0;
+  document.getElementById("createAdminBox").classList.toggle("hidden", !first);
+  document.getElementById("signInBox").classList.toggle("hidden", first);
+  document.getElementById("signUpCompanyBox").classList.add("hidden");
+}
+function enterApp(msg){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  syncHeader(); setLogo(); show("dashboard"); if(msg) toast(msg);
+}
+function signInAccount(a){
+  const nowIso=new Date().toISOString();
+  a.lastLoginAt=nowIso; a.lastSeenAt=nowIso;
+  state.user={id:a.id,name:a.name,position:a.position,email:a.email,role:a.role,loggedIn:true};
+  recordAudit("LOGIN", `${a.name} (${a.position}) signed in`);
+  save();
+}
+
+document.getElementById("loginForm").onsubmit=async e=>{
+ e.preventDefault();
+ document.getElementById("loginError").classList.add("hidden");
+ const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+ const compId=document.getElementById("loginCompanySelect").value;
+ const pass=document.getElementById("loginPass").value;
+ const passHash = await hashString(pass);
+ const a=(state.users||[]).find(u=>u.email===email && u.passHash===passHash);
+ if(!a) return loginError("Access denied. Invalid email or password.");
+ if(a.active===false) return loginError("Your account is inactive.");
+ state.activeCompanyId = compId || state.activeCompanyId;
+ signInAccount(a);
+ enterApp(`Welcome, ${a.name}!`);
+};
+
+document.getElementById("createAdminForm").onsubmit=async e=>{
+ e.preventDefault();
+ const name=document.getElementById("firstAdminName").value.trim();
+ const position=document.getElementById("firstAdminPosition").value.trim();
+ const email=document.getElementById("firstAdminEmail").value.trim().toLowerCase();
+ const pass=document.getElementById("firstAdminPass").value;
+ const a={id:uid("u"),name,position,email,passHash:await hashString(pass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ state.users.push(a);
+ signInAccount(a);
+ recordAudit("USER", `First Admin account created (${email})`);
+ enterApp("Admin account created.");
+};
+
+document.getElementById("quickCompanyForm").onsubmit=async e=>{
+ e.preventDefault();
+ const compName = document.getElementById("regCompName").value.trim();
+ const compAddress = document.getElementById("regCompAddress").value.trim();
+ const name = document.getElementById("regAdminName").value.trim();
+ const position = document.getElementById("regAdminPosition").value.trim();
+ const adminEmail = document.getElementById("regAdminEmail").value.trim().toLowerCase();
+ const adminPass = document.getElementById("regAdminPass").value;
+ if(!compName || !adminEmail) return;
+ if((state.users||[]).some(u=>u.email===adminEmail)) return alert("This email is already registered.");
+
+ const newCompId = uid("comp");
+ state.companies.push({id:newCompId, name:compName, address:compAddress, logo:""});
+ state.activeCompanyId = newCompId;
+ const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ state.users.push(a);
+ signInAccount(a);
+ recordAudit("COMPANY", `Registered workspace ${compName}`);
+ enterApp(`Company '${compName}' workspace ready!`);
+};
+
+syncHeader();
+setLogo();
+if(state.user?.loggedIn && enforceSession()){
+  enterApp();
+}else{
+  state.user.loggedIn=false;
+  document.getElementById("loginScreen").classList.remove("hidden");
+  showAuthScreen();
+}
+
+</script>
+</body>
+</html>
