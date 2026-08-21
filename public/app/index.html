@@ -428,6 +428,7 @@ function updateVendorDatalist(){
 
 function toggleAuth(showRegister){
   document.getElementById("createAdminBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
   document.getElementById("signInBox").classList.toggle("hidden", showRegister);
   document.getElementById("signUpCompanyBox").classList.toggle("hidden", !showRegister);
   if(!showRegister) showAuthScreen();
