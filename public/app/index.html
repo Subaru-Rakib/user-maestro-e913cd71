@@ -188,8 +188,8 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
     <h1>👤 Create Admin Account</h1>
     <p>First account — full access</p>
     <form id="createAdminForm" class="form-stack">
-      <div class="field"><label class="required">Full Name</label><input id="firstAdminName" placeholder="e.g. Md. Rakib Hasan" required></div>
-      <div class="field"><label class="required">Position</label><input id="firstAdminPosition" placeholder="e.g. QC" required></div>
+      <div class="field"><label class="required">Full Name</label><input id="firstAdminName" placeholder="Enter your full name" required></div>
+      <div class="field"><label class="required">Position</label><input id="firstAdminPosition" placeholder="Enter your position" required></div>
       <div class="field"><label class="required">Email Address</label><input id="firstAdminEmail" type="email" placeholder="admin@company.com" required></div>
       <div class="field"><label class="required">Password</label><input id="firstAdminPass" type="password" placeholder="••••••••" required></div>
       <div class="field"><label class="required">Security Question</label><select id="firstAdminQ" required></select></div>
@@ -203,10 +203,10 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
     <h1>🏢 Create Company</h1>
     <p>Register a new company workspace</p>
     <form id="quickCompanyForm" class="form-stack">
-      <div class="field"><label class="required">Company Name</label><input id="regCompName" placeholder="e.g. Apex Traders Ltd." required></div>
+      <div class="field"><label class="required">Company Name</label><input id="regCompName" placeholder="e.g. Enter company name" required></div>
       <div class="field"><label>Company Address</label><input id="regCompAddress" placeholder="e.g. Gulshan, Dhaka"></div>
-      <div class="field"><label class="required">Your Full Name</label><input id="regAdminName" placeholder="e.g. Md. Rakib Hasan" required></div>
-      <div class="field"><label class="required">Your Position</label><input id="regAdminPosition" placeholder="e.g. QC" required></div>
+      <div class="field"><label class="required">Your Full Name</label><input id="regAdminName" placeholder="Enter your full name" required></div>
+      <div class="field"><label class="required">Your Position</label><input id="regAdminPosition" placeholder="Enter your position" required></div>
       <div class="field"><label class="required">Admin Email</label><input id="regAdminEmail" type="email" placeholder="admin@company.com" required></div>
       <div class="field"><label class="required">Password</label><input id="regAdminPass" type="password" placeholder="••••••••" required></div>
       <div class="field"><label class="required">Security Question</label><select id="regAdminQ" required></select></div>
@@ -1762,3 +1762,4 @@ if(state.user?.loggedIn && enforceSession()){
 </script>
 </body>
 </html>
+
