@@ -494,7 +494,7 @@ function setVendorPct(vid, val){
   save(); toast("Vendor discount updated."); render.vendors();
 }
 function deleteVendor(vid){
-  if(state.user.role !== "Admin") return alert("Staff cannot delete vendors!");
+  if(state.user.role !== "Admin") return alert("Only Admin can delete vendors!");
   const v = (state.vendors||[]).find(x=>x.id===vid); if(!v) return;
   if(!confirm(`Delete vendor '${v.name}'? Carton records will keep the name.`)) return;
   state.vendors = state.vendors.filter(x=>x.id!==vid);
@@ -1241,7 +1241,7 @@ company(){
 };
 
 function deleteProduct(pid){
-  if(state.user.role !== "Admin") return alert("Staff cannot delete products!");
+  if(state.user.role !== "Admin") return alert("Only Admin can delete products!");
   if(!confirm("Are you sure you want to delete this product?")) return;
   state.products = state.products.filter(p=>p.id!==pid);
   recordAudit("PRODUCT", "Deleted product "+pid);
@@ -1249,7 +1249,7 @@ function deleteProduct(pid){
 }
 
 function deleteCompany(cid){
-  if(state.user.role !== "Admin") return alert("Staff cannot delete companies!");
+  if(state.user.role !== "Admin") return alert("Only Admin can delete companies!");
   if(state.companies.length <= 1) return alert("You cannot delete the only company!");
   const target = state.companies.find(c=>c.id===cid);
   if(!confirm(`⚠️ Warning: Are you sure you want to completely delete '${target?.name}' and all its data?`)) return;
@@ -1277,7 +1277,7 @@ function updateOutGradeHints(cid){
 }
 
 function openEditCartonModal(id){
-  if(state.user.role !== "Admin") return alert("Staff cannot edit cartons!");
+  if(state.user.role !== "Admin") return alert("Only Admin can edit cartons!");
   const c=state.cartons.find(x=>x.id===id); if(!c) return;
   document.getElementById("modalRoot").innerHTML=`
   <div class="modal"><div class="modal-card">
@@ -1339,7 +1339,7 @@ function openEditCartonModal(id){
 }
 
 function deleteCarton(cid){
-  if(state.user.role !== "Admin") return alert("Staff cannot delete cartons!");
+  if(state.user.role !== "Admin") return alert("Only Admin can delete cartons!");
   if(!confirm("Are you sure you want to delete this carton permanently?")) return;
   const target = state.cartons.find(c=>c.id===cid);
   state.cartons = state.cartons.filter(c=>c.id!==cid);
@@ -1385,7 +1385,7 @@ function openCarton(id){
 }
 
 function rollbackOutMovement(moveId){
-  if(state.user.role !== "Admin") return alert("Staff cannot undo movements!");
+  if(state.user.role !== "Admin") return alert("Only Admin can undo movements!");
   const move = state.movements.find(m=>m.id===moveId);
   if(!move || move.type!=="OUT") return;
   const carton = state.cartons.find(c=>c.id===move.cartonId);
