@@ -535,8 +535,7 @@ document.getElementById("logoutBtn").onclick=()=>{
   state.user.loggedIn=false;save();
   document.getElementById("app").classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
-  toggleAuth(false);
-  syncHeader();
+  showAuthScreen();
 };
 
 const render={
