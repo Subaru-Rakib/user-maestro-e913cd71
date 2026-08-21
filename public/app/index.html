@@ -1556,6 +1556,8 @@ function openUserModal(id){
       <div class="field"><label class="required">Position</label><input id="uPosition" value="${esc(u?.position||"")}" required></div>
       <div class="field"><label class="required">Email</label><input id="uEmail" type="email" value="${esc(u?.email||"")}" required></div>
       <div class="field"><label ${u?"":'class="required"'}>Password${u?" (leave blank to keep)":""}</label><input id="uPass" type="password" ${u?"":"required"}></div>
+      <div class="field"><label>Security Question (for password recovery)</label><select id="uSecQ">${SEC_QUESTIONS.map(q=>`<option value="${esc(q)}" ${u?.secQ===q?"selected":""}>${esc(q)}</option>`).join("")}</select></div>
+      <div class="field"><label>Answer${u&&u.secAHash?" (leave blank to keep)":""}</label><input id="uSecA" placeholder="Answer"></div>
       <div class="field"><label class="required">Role</label><select id="uRole"><option ${u?.role==="Admin"?"selected":""}>Admin</option><option ${u&&u.role==="User"?"selected":""}>User</option></select></div>
       <div id="uErr" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600"></div>
       <button class="btn">${u?"Save Changes":"Create Account"}</button>
@@ -1570,17 +1572,20 @@ function openUserModal(id){
     const email=document.getElementById("uEmail").value.trim().toLowerCase();
     const pass=document.getElementById("uPass").value;
     const role=document.getElementById("uRole").value;
+    const secQ=document.getElementById("uSecQ").value;
+    const secA=document.getElementById("uSecA").value;
     const dup=(state.users||[]).some(x=>x.email===email && x.id!==(u?.id));
     if(dup){ err.textContent="This email is already used by another account."; err.classList.remove("hidden"); return; }
     if(u && u.role==="Admin" && role!=="Admin" && adminCount()<=1){
       err.textContent="Cannot downgrade the last active Admin."; err.classList.remove("hidden"); return;
     }
     if(u){
-      Object.assign(u,{name,position,email,role});
+      Object.assign(u,{name,position,email,role,secQ});
       if(pass) u.passHash = await hashString(pass);
+      if(secA.trim()) u.secAHash = await hashString(normAnswer(secA));
       recordAudit("USER", `Updated account ${email}`);
     }else{
-      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
+      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),secQ,secAHash:secA.trim()?await hashString(normAnswer(secA)):null,role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
       recordAudit("USER", `Created ${role} account ${email}`);
     }
     save(); enforceSession(); syncHeader(); closeModal(); render.users(); toast("Account saved.");
@@ -1712,7 +1717,9 @@ document.getElementById("createAdminForm").onsubmit=async e=>{
  const position=document.getElementById("firstAdminPosition").value.trim();
  const email=document.getElementById("firstAdminEmail").value.trim().toLowerCase();
  const pass=document.getElementById("firstAdminPass").value;
- const a={id:uid("u"),name,position,email,passHash:await hashString(pass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ const secQ=document.getElementById("firstAdminQ").value;
+ const secAHash=await hashString(normAnswer(document.getElementById("firstAdminA").value));
+ const a={id:uid("u"),name,position,email,passHash:await hashString(pass),secQ,secAHash,role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
  state.users.push(a);
  signInAccount(a);
  recordAudit("USER", `First Admin account created (${email})`);
@@ -1733,7 +1740,9 @@ document.getElementById("quickCompanyForm").onsubmit=async e=>{
  const newCompId = uid("comp");
  state.companies.push({id:newCompId, name:compName, address:compAddress, logo:""});
  state.activeCompanyId = newCompId;
- const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ const secQ=document.getElementById("regAdminQ").value;
+ const secAHash=await hashString(normAnswer(document.getElementById("regAdminA").value));
+ const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),secQ,secAHash,role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
  state.users.push(a);
  signInAccount(a);
  recordAudit("COMPANY", `Registered workspace ${compName}`);
