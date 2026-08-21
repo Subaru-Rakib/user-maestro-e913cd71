@@ -1609,6 +1609,20 @@ function deleteUser(id){
 }
 
 /* ---------- Auth ---------- */
+const SEC_QUESTIONS = [
+  "What is your mother's name?",
+  "What was the name of your first school?",
+  "What is your favourite food?",
+  "In which city were you born?",
+  "What is your nickname?"
+];
+function fillSecQuestions(){
+  const opts = SEC_QUESTIONS.map(q=>`<option value="${esc(q)}">${esc(q)}</option>`).join("");
+  ["firstAdminQ","regAdminQ"].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
+fillSecQuestions();
+const normAnswer = s => (s||"").trim().toLowerCase().replace(/\s+/g," ");
+
 function loginError(msg){
   const el=document.getElementById("loginError");
   el.textContent=msg; el.classList.remove("hidden");
@@ -1618,7 +1632,52 @@ function showAuthScreen(){
   document.getElementById("createAdminBox").classList.toggle("hidden", !first);
   document.getElementById("signInBox").classList.toggle("hidden", first);
   document.getElementById("signUpCompanyBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
 }
+let fpAccount = null;
+function showForgot(){
+  fpAccount = null;
+  document.getElementById("signInBox").classList.add("hidden");
+  document.getElementById("createAdminBox").classList.add("hidden");
+  document.getElementById("signUpCompanyBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.remove("hidden");
+  document.getElementById("fpStep2").classList.add("hidden");
+  document.getElementById("fpError").classList.add("hidden");
+  document.getElementById("fpSubmit").textContent="Continue";
+  ["fpEmail","fpAnswer","fpNewPass"].forEach(id=>document.getElementById(id).value="");
+}
+function fpError(msg){
+  const el=document.getElementById("fpError");
+  el.textContent=msg; el.classList.remove("hidden");
+}
+document.getElementById("forgotForm").onsubmit=async e=>{
+  e.preventDefault();
+  document.getElementById("fpError").classList.add("hidden");
+  const email=document.getElementById("fpEmail").value.trim().toLowerCase();
+  if(!fpAccount){
+    const a=(state.users||[]).find(u=>u.email===email);
+    if(!a) return fpError("No account found with this email.");
+    if(!a.secQ || !a.secAHash) return fpError("No security question set for this account. Please ask an Admin to reset your password.");
+    fpAccount = a;
+    document.getElementById("fpQuestion").value = a.secQ;
+    document.getElementById("fpStep2").classList.remove("hidden");
+    document.getElementById("fpSubmit").textContent="Reset Password";
+    return;
+  }
+  const ans=document.getElementById("fpAnswer").value;
+  const np=document.getElementById("fpNewPass").value;
+  if(!ans || !np) return fpError("Answer and new password are required.");
+  if(np.length < 4) return fpError("Password must be at least 4 characters.");
+  if(await hashString(normAnswer(ans)) !== fpAccount.secAHash) return fpError("Incorrect answer. Try again.");
+  fpAccount.passHash = await hashString(np);
+  recordAudit("USER", `Password reset via security question (${fpAccount.email})`);
+  save();
+  showAuthScreen();
+  document.getElementById("loginEmail").value = fpAccount.email;
+  fpAccount = null;
+  toast("Password reset. Please sign in.");
+}
+
 function enterApp(msg){
   document.getElementById("loginScreen").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
