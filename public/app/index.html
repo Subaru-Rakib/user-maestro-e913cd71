@@ -399,7 +399,7 @@ function syncHeader(){
   const comp = currentCompany();
   if(!comp) return;
   document.getElementById("brandCompany").textContent = comp.name;
-  document.getElementById("userChip").textContent = `${state.user.name} · ${state.user.role}`;
+  document.getElementById("userChip").textContent = `${state.user.name||"-"} · ${state.user.position||"-"}`;
   
   const opts = state.companies.map(c=>`<option value="${c.id}" ${c.id===state.activeCompanyId?"selected":""}>${esc(c.name)}</option>`).join("");
   document.getElementById("sidebarCompanySelect").innerHTML = opts;
