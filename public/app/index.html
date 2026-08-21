@@ -162,8 +162,26 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
       <button class="btn">Sign In</button>
     </form>
     <div class="auth-footer">
+      <a onclick="showForgot()">Forgot password?</a>
+      &nbsp;·&nbsp;
       <a onclick="toggleAuth(true)">+ Register New Company</a>
     </div>
+  </div>
+
+  <div class="login-card hidden" id="forgotBox">
+    <h1>🔑 Reset Password</h1>
+    <p>Answer your security question to set a new password</p>
+    <form id="forgotForm" class="form-stack">
+      <div class="field"><label class="required">Email Address</label><input id="fpEmail" type="email" placeholder="you@example.com" required></div>
+      <div id="fpStep2" class="hidden">
+        <div class="field"><label>Security Question</label><input id="fpQuestion" disabled></div>
+        <div class="field"><label class="required">Your Answer</label><input id="fpAnswer" placeholder="Answer"></div>
+        <div class="field"><label class="required">New Password</label><input id="fpNewPass" type="password" placeholder="••••••••"></div>
+      </div>
+      <div id="fpError" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600;margin-bottom:6px"></div>
+      <button class="btn" id="fpSubmit">Continue</button>
+      <button type="button" class="btn secondary" onclick="showAuthScreen()">Back to Sign In</button>
+    </form>
   </div>
 
   <div class="login-card hidden" id="createAdminBox">
@@ -174,9 +192,12 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
       <div class="field"><label class="required">Position</label><input id="firstAdminPosition" placeholder="e.g. QC" required></div>
       <div class="field"><label class="required">Email Address</label><input id="firstAdminEmail" type="email" placeholder="admin@company.com" required></div>
       <div class="field"><label class="required">Password</label><input id="firstAdminPass" type="password" placeholder="••••••••" required></div>
+      <div class="field"><label class="required">Security Question</label><select id="firstAdminQ" required></select></div>
+      <div class="field"><label class="required">Answer</label><input id="firstAdminA" placeholder="Your answer" required></div>
       <button class="btn">Create & Sign In</button>
     </form>
   </div>
+
 
   <div class="login-card hidden" id="signUpCompanyBox">
     <h1>🏢 Create Company</h1>
@@ -188,6 +209,8 @@ button,input,select,textarea{font:inherit}.hidden{display:none!important}
       <div class="field"><label class="required">Your Position</label><input id="regAdminPosition" placeholder="e.g. QC" required></div>
       <div class="field"><label class="required">Admin Email</label><input id="regAdminEmail" type="email" placeholder="admin@company.com" required></div>
       <div class="field"><label class="required">Password</label><input id="regAdminPass" type="password" placeholder="••••••••" required></div>
+      <div class="field"><label class="required">Security Question</label><select id="regAdminQ" required></select></div>
+      <div class="field"><label class="required">Answer</label><input id="regAdminA" placeholder="Your answer" required></div>
       <button class="btn">Create & Launch</button>
       <button type="button" class="btn secondary" onclick="toggleAuth(false)">Back to Sign In</button>
     </form>
@@ -428,6 +451,7 @@ function updateVendorDatalist(){
 
 function toggleAuth(showRegister){
   document.getElementById("createAdminBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
   document.getElementById("signInBox").classList.toggle("hidden", showRegister);
   document.getElementById("signUpCompanyBox").classList.toggle("hidden", !showRegister);
   if(!showRegister) showAuthScreen();
@@ -1532,6 +1556,8 @@ function openUserModal(id){
       <div class="field"><label class="required">Position</label><input id="uPosition" value="${esc(u?.position||"")}" required></div>
       <div class="field"><label class="required">Email</label><input id="uEmail" type="email" value="${esc(u?.email||"")}" required></div>
       <div class="field"><label ${u?"":'class="required"'}>Password${u?" (leave blank to keep)":""}</label><input id="uPass" type="password" ${u?"":"required"}></div>
+      <div class="field"><label>Security Question (for password recovery)</label><select id="uSecQ">${SEC_QUESTIONS.map(q=>`<option value="${esc(q)}" ${u?.secQ===q?"selected":""}>${esc(q)}</option>`).join("")}</select></div>
+      <div class="field"><label>Answer${u&&u.secAHash?" (leave blank to keep)":""}</label><input id="uSecA" placeholder="Answer"></div>
       <div class="field"><label class="required">Role</label><select id="uRole"><option ${u?.role==="Admin"?"selected":""}>Admin</option><option ${u&&u.role==="User"?"selected":""}>User</option></select></div>
       <div id="uErr" class="hidden" style="color:#b91c1c;font-size:12px;font-weight:600"></div>
       <button class="btn">${u?"Save Changes":"Create Account"}</button>
@@ -1546,17 +1572,20 @@ function openUserModal(id){
     const email=document.getElementById("uEmail").value.trim().toLowerCase();
     const pass=document.getElementById("uPass").value;
     const role=document.getElementById("uRole").value;
+    const secQ=document.getElementById("uSecQ").value;
+    const secA=document.getElementById("uSecA").value;
     const dup=(state.users||[]).some(x=>x.email===email && x.id!==(u?.id));
     if(dup){ err.textContent="This email is already used by another account."; err.classList.remove("hidden"); return; }
     if(u && u.role==="Admin" && role!=="Admin" && adminCount()<=1){
       err.textContent="Cannot downgrade the last active Admin."; err.classList.remove("hidden"); return;
     }
     if(u){
-      Object.assign(u,{name,position,email,role});
+      Object.assign(u,{name,position,email,role,secQ});
       if(pass) u.passHash = await hashString(pass);
+      if(secA.trim()) u.secAHash = await hashString(normAnswer(secA));
       recordAudit("USER", `Updated account ${email}`);
     }else{
-      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
+      state.users.push({id:uid("u"),name,position,email,passHash:await hashString(pass),secQ,secAHash:secA.trim()?await hashString(normAnswer(secA)):null,role,active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null});
       recordAudit("USER", `Created ${role} account ${email}`);
     }
     save(); enforceSession(); syncHeader(); closeModal(); render.users(); toast("Account saved.");
@@ -1585,6 +1614,20 @@ function deleteUser(id){
 }
 
 /* ---------- Auth ---------- */
+const SEC_QUESTIONS = [
+  "What is your mother's name?",
+  "What was the name of your first school?",
+  "What is your favourite food?",
+  "In which city were you born?",
+  "What is your nickname?"
+];
+function fillSecQuestions(){
+  const opts = SEC_QUESTIONS.map(q=>`<option value="${esc(q)}">${esc(q)}</option>`).join("");
+  ["firstAdminQ","regAdminQ"].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
+fillSecQuestions();
+const normAnswer = s => (s||"").trim().toLowerCase().replace(/\s+/g," ");
+
 function loginError(msg){
   const el=document.getElementById("loginError");
   el.textContent=msg; el.classList.remove("hidden");
@@ -1594,7 +1637,52 @@ function showAuthScreen(){
   document.getElementById("createAdminBox").classList.toggle("hidden", !first);
   document.getElementById("signInBox").classList.toggle("hidden", first);
   document.getElementById("signUpCompanyBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.add("hidden");
 }
+let fpAccount = null;
+function showForgot(){
+  fpAccount = null;
+  document.getElementById("signInBox").classList.add("hidden");
+  document.getElementById("createAdminBox").classList.add("hidden");
+  document.getElementById("signUpCompanyBox").classList.add("hidden");
+  document.getElementById("forgotBox").classList.remove("hidden");
+  document.getElementById("fpStep2").classList.add("hidden");
+  document.getElementById("fpError").classList.add("hidden");
+  document.getElementById("fpSubmit").textContent="Continue";
+  ["fpEmail","fpAnswer","fpNewPass"].forEach(id=>document.getElementById(id).value="");
+}
+function fpError(msg){
+  const el=document.getElementById("fpError");
+  el.textContent=msg; el.classList.remove("hidden");
+}
+document.getElementById("forgotForm").onsubmit=async e=>{
+  e.preventDefault();
+  document.getElementById("fpError").classList.add("hidden");
+  const email=document.getElementById("fpEmail").value.trim().toLowerCase();
+  if(!fpAccount){
+    const a=(state.users||[]).find(u=>u.email===email);
+    if(!a) return fpError("No account found with this email.");
+    if(!a.secQ || !a.secAHash) return fpError("No security question set for this account. Please ask an Admin to reset your password.");
+    fpAccount = a;
+    document.getElementById("fpQuestion").value = a.secQ;
+    document.getElementById("fpStep2").classList.remove("hidden");
+    document.getElementById("fpSubmit").textContent="Reset Password";
+    return;
+  }
+  const ans=document.getElementById("fpAnswer").value;
+  const np=document.getElementById("fpNewPass").value;
+  if(!ans || !np) return fpError("Answer and new password are required.");
+  if(np.length < 4) return fpError("Password must be at least 4 characters.");
+  if(await hashString(normAnswer(ans)) !== fpAccount.secAHash) return fpError("Incorrect answer. Try again.");
+  fpAccount.passHash = await hashString(np);
+  recordAudit("USER", `Password reset via security question (${fpAccount.email})`);
+  save();
+  showAuthScreen();
+  document.getElementById("loginEmail").value = fpAccount.email;
+  fpAccount = null;
+  toast("Password reset. Please sign in.");
+}
+
 function enterApp(msg){
   document.getElementById("loginScreen").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
@@ -1629,7 +1717,9 @@ document.getElementById("createAdminForm").onsubmit=async e=>{
  const position=document.getElementById("firstAdminPosition").value.trim();
  const email=document.getElementById("firstAdminEmail").value.trim().toLowerCase();
  const pass=document.getElementById("firstAdminPass").value;
- const a={id:uid("u"),name,position,email,passHash:await hashString(pass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ const secQ=document.getElementById("firstAdminQ").value;
+ const secAHash=await hashString(normAnswer(document.getElementById("firstAdminA").value));
+ const a={id:uid("u"),name,position,email,passHash:await hashString(pass),secQ,secAHash,role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
  state.users.push(a);
  signInAccount(a);
  recordAudit("USER", `First Admin account created (${email})`);
@@ -1650,7 +1740,9 @@ document.getElementById("quickCompanyForm").onsubmit=async e=>{
  const newCompId = uid("comp");
  state.companies.push({id:newCompId, name:compName, address:compAddress, logo:""});
  state.activeCompanyId = newCompId;
- const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
+ const secQ=document.getElementById("regAdminQ").value;
+ const secAHash=await hashString(normAnswer(document.getElementById("regAdminA").value));
+ const a={id:uid("u"),name,position,email:adminEmail,passHash:await hashString(adminPass),secQ,secAHash,role:"Admin",active:true,createdAt:new Date().toISOString(),lastLoginAt:null,lastSeenAt:null};
  state.users.push(a);
  signInAccount(a);
  recordAudit("COMPANY", `Registered workspace ${compName}`);
