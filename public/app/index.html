@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pro Inventory &amp; Stock Management</title>
 <style>
 /* ============ 1. DESIGN TOKENS ============ */
@@ -34,9 +34,15 @@
   --shadow:0 1px 2px rgba(13,27,42,.04),0 14px 30px -16px rgba(13,27,42,.20);
   --shadow-lg:0 30px 70px -25px rgba(13,27,42,.42);
   --ring:0 0 0 4px rgba(15,118,110,.14);
+  --twmask:#fff;               /* table er pashe scroll-hint mask er rong */
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+html{-webkit-text-size-adjust:100%}          /* landscape e font boro hoye jay na */
+button,a,label,.nav{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+/* Modal ba mobile drawer khola thakle pichoner page ta scroll korbe na.
+   Lock ta <html> e boshe - body te dile page ta upore lafiye jay. */
+html:has(.modal),html:has(.nav-scrim.show){overflow:hidden}
 body{
   margin:0;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
@@ -65,30 +71,42 @@ a{color:var(--brand)}
 
 /* ============ 2. AUTH SCREENS ============ */
 .auth-shell{
-  min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;
+  min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1.05fr .95fr;
   background:linear-gradient(140deg,#04121a,#0c2c33 48%,#0a1522);
 }
+/* Left side of the login screen: logo + company name only, nothing else. */
 .auth-hero{
-  position:relative;padding:56px 60px;color:#e8f3f4;display:flex;flex-direction:column;
-  justify-content:space-between;overflow:hidden;
+  position:relative;padding:56px 60px;color:#e8f3f4;display:grid;place-items:center;
+  text-align:center;overflow:hidden;
 }
-.auth-hero::after{
+.auth-hero::before{                     /* faint blueprint grid, faded at the edges */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(circle at 50% 46%,#000 26%,transparent 70%);
+          mask-image:radial-gradient(circle at 50% 46%,#000 26%,transparent 70%);
+}
+.auth-hero::after{                      /* two soft colour washes */
   content:"";position:absolute;inset:0;pointer-events:none;
   background:
     radial-gradient(620px 380px at 12% 8%,rgba(45,212,191,.20),transparent 62%),
     radial-gradient(520px 340px at 88% 92%,rgba(234,88,12,.16),transparent 62%);
 }
 .auth-hero>*{position:relative;z-index:1}
-.auth-hero img{width:210px;height:70px;object-fit:contain;background:#fff;border-radius:14px;padding:8px}
-.auth-hero h2{font-size:34px;line-height:1.18;margin:26px 0 12px;letter-spacing:-1px;max-width:15em}
-.auth-hero p{color:#a8c4c6;margin:0;max-width:34em;font-size:15px}
-.hero-points{display:grid;gap:10px;margin:28px 0 0;padding:0;list-style:none}
-.hero-points li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#cfe3e4}
-.hero-points b{color:#fff;font-weight:700}
-.hero-dot{width:22px;height:22px;flex:0 0 22px;border-radius:8px;display:grid;place-items:center;
-  background:rgba(45,212,191,.16);border:1px solid rgba(45,212,191,.34);font-size:11px}
-.auth-foot{font-size:11.5px;color:#7f9ba0;letter-spacing:.3px}
-.auth-pane{display:grid;place-items:center;padding:40px 34px;background:rgba(255,255,255,.03)}
+.hero-mark{display:grid;justify-items:center;gap:20px}
+.auth-hero img{
+  width:250px;height:96px;object-fit:contain;background:#fff;border-radius:20px;padding:14px 18px;
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.14);
+}
+.hero-name{
+  font-size:31px;font-weight:800;line-height:1.2;letter-spacing:-.6px;margin:0;max-width:16em;
+}
+.hero-rule{width:66px;height:3px;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),rgba(45,212,191,0))}
+.auth-pane{display:grid;place-items:center;background:rgba(255,255,255,.03);
+  padding:40px max(34px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(34px,env(safe-area-inset-left))}
 .auth-card{
   width:min(430px,100%);background:#fff;border-radius:var(--radius-lg);padding:32px;
   box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,.7);
@@ -160,11 +178,13 @@ label.required::after{content:" *";color:var(--red)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
 
 /* ============ 5. APP SHELL ============ */
-.app{display:flex;min-height:100vh}
+.app{display:flex;min-height:100vh;min-height:100dvh}
 .sidebar{
   position:fixed;top:0;bottom:0;left:0;width:258px;z-index:6;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#061219,#0b2530 58%,#081320);color:#fff;padding:16px 13px 14px;
+  background:linear-gradient(180deg,#061219,#0b2530 58%,#081320);color:#fff;
+  padding:max(16px,env(safe-area-inset-top)) 13px calc(14px + env(safe-area-inset-bottom));
   border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
 }
 .brand{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
 .brand img{width:100%;max-width:214px;height:62px;object-fit:contain;background:#fff;border-radius:12px;padding:7px}
@@ -207,7 +227,7 @@ label.required::after{content:" *";color:var(--red)}
 .chip.role.user{background:#eef2f7;color:#334155;border-color:var(--line)}
 .hamburger{display:none;border:1px solid var(--line);background:#fff;border-radius:11px;font-size:19px;
   line-height:1;padding:8px 12px;cursor:pointer}
-.nav-scrim{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);z-index:5}
+.nav-scrim{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(2px);z-index:5}
 .nav-scrim.show{display:block}
 .page{display:none}
 .page.active{display:block;animation:fade .22s ease}
@@ -238,7 +258,8 @@ label.required::after{content:" *";color:var(--red)}
 .metric.m-amber::after{background:var(--amber)} .metric.m-amber .ico{background:#fdf4e3}
 .metric.m-indigo::after{background:var(--indigo)} .metric.m-indigo .ico{background:#eef0fe}
 .metric.m-red::after{background:var(--red)} .metric.m-red .ico{background:#fdeceb}
-.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line);background:#fff;max-height:none}
+.table-wrap{overflow:auto;border-radius:12px;border:1px solid var(--line);background:#fff;max-height:none;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .table-wrap.tall{max-height:520px}
 table.table{width:100%;border-collapse:separate;border-spacing:0}
 .table th,.table td{padding:10px 12px;text-align:left;font-size:12.8px;border-bottom:1px solid #eef3f8;
@@ -246,7 +267,9 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .table th{background:#f7fafc;color:#64748b;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;
   font-weight:800;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line)}
 .table td.wrap,.table th.wrap{white-space:normal;min-width:180px}
+.table th.num{text-align:right}
 .table tbody tr:last-child td{border-bottom:0}
+.table tbody tr:nth-child(even) td{background:#fbfcfe}      /* line gulo alada kore chena jay */
 .table tbody tr:hover td{background:#f8fbfe}
 .table tfoot td{background:#f6f9fc;font-weight:800;border-top:2px solid var(--line-2);position:sticky;bottom:0}
 .table .num{text-align:right;font-variant-numeric:tabular-nums}
@@ -293,8 +316,9 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .tot-strip .bad{color:#b42318;font-weight:800}
 .modal{position:fixed;inset:0;background:rgba(2,6,23,.62);backdrop-filter:blur(3px);display:grid;
   place-items:center;z-index:40;padding:18px}
-.modal-card{width:min(700px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;
-  padding:22px;box-shadow:var(--shadow-lg)}
+.modal-card{width:min(700px,96vw);max-height:90vh;max-height:90dvh;overflow:auto;background:#fff;
+  border-radius:20px;padding:22px;box-shadow:var(--shadow-lg);overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch}
 .modal-card.wide{width:min(940px,96vw)}
 .modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
 .modal-head h2{font-size:17px}
@@ -303,6 +327,27 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
   border-radius:50%;display:inline-block;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* Keyboard diye chalale ekhon dekha jay kothay ache. */
+.btn:focus-visible,.nav:focus-visible,.hamburger:focus-visible,.theme-btn:focus-visible,
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible,
+.search input:focus-visible,a:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* Jara animation kom chay (phone er setting), tader jonno bondho. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+/* Grade mix bar (dashboard) */
+.mixbar{display:flex;height:15px;border-radius:999px;overflow:hidden;background:var(--panel-2);
+  border:1px solid var(--line)}
+.mixbar span{display:block;height:100%}
+.mix-A{background:var(--green)}.mix-B{background:var(--amber)}
+.mix-B2{background:var(--indigo)}.mix-C{background:var(--red)}
+.mix-legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:11px;font-size:12.3px;color:var(--text-2)}
+.mix-dot{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px}
+/* FEFO er uporer (best) suggestion ta halka teal background pay. */
+.fefo-top{border-color:var(--brand)!important;background:#f2fbf9}
+.theme-btn{border:1px solid var(--line);background:var(--panel);border-radius:11px;font-size:15px;
+  line-height:1;padding:8px 11px;cursor:pointer;box-shadow:var(--shadow-xs)}
 
 /* ============ 7. REPORT PAPER ============ */
 .report-paper{background:#fff;border:1px solid var(--line-2);padding:28px;border-radius:16px;box-shadow:var(--shadow-sm)}
@@ -325,15 +370,21 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 @media(max-width:1080px){
   .auth-shell{grid-template-columns:1fr}
   .auth-hero{display:none}
-  .auth-pane{padding:28px 18px}
+  .auth-pane{padding:28px 18px calc(28px + env(safe-area-inset-bottom))}
   .grid-3{grid-template-columns:1fr}
 }
+
+/* ---- tablet + phone: sidebar ta drawer hoye jay ---- */
 @media(max-width:960px){
-  .hamburger{display:block}
-  .sidebar{transform:translateX(-100%);transition:transform .25s ease;width:270px;box-shadow:0 0 40px rgba(0,0,0,.45)}
+  .hamburger{display:block;padding:9px 13px;font-size:20px}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;width:min(86vw,280px);
+    box-shadow:0 0 40px rgba(0,0,0,.45)}
   .sidebar.open{transform:none}
-  .main{margin-left:0;padding:12px 12px 34px}
-  .topbar{padding:11px 13px;border-radius:15px;top:6px}
+  .nav{padding:11px 12px;font-size:14px}                  /* angul diye tipte shohoj */
+  .main{margin-left:0;
+    padding:12px max(12px,env(safe-area-inset-right)) calc(34px + env(safe-area-inset-bottom))
+            max(12px,env(safe-area-inset-left))}
+  .topbar{padding:11px 13px;border-radius:15px;top:6px;flex-wrap:wrap;gap:10px}
   .tb-title{flex:1;min-width:0}
   .tb-title h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tb-right{width:100%;order:3;justify-content:flex-start}
@@ -345,32 +396,77 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
   .line-item{grid-template-columns:1fr 100px auto}
   .panel{padding:13px;border-radius:14px}
   .table th,.table td{padding:9px 10px;font-size:12px}
-  .btn{padding:11px 14px}
-  .field input,.field select,.field textarea{font-size:16px}
+  .btn{padding:11px 14px;min-height:42px}                 /* 42px = comfortable tap */
+  .btn.small{min-height:36px}.btn.tiny{min-height:32px}
+  .field input,.field select,.field textarea{font-size:16px}   /* iOS focus e zoom kore na */
   .report-paper{padding:15px}
   .modal{padding:8px}.modal-card{padding:15px;border-radius:15px}
-  .toast{right:10px;left:10px;bottom:10px;text-align:center;max-width:none}
+  .toast{right:10px;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));
+    text-align:center;max-width:none}
+  /* Table ta pashe scroll baki thakle dhare ekta chhaya dekhabe - hint. */
+  .table-wrap{
+    background:
+      radial-gradient(farthest-side at 0 50%,rgba(13,27,42,.17),transparent) left center/13px 100% no-repeat,
+      radial-gradient(farthest-side at 100% 50%,rgba(13,27,42,.17),transparent) right center/13px 100% no-repeat,
+      linear-gradient(var(--twmask),var(--twmask)) left center/22px 100% no-repeat local,
+      linear-gradient(var(--twmask),var(--twmask)) right center/22px 100% no-repeat local,
+      var(--twmask);
+  }
+}
+
+/* ---- phone ---- */
+@media(max-width:600px){
+  .main{padding-top:10px}
+  .topbar{padding:10px 12px;border-radius:14px;top:4px}
+  .eyebrow{font-size:9px;letter-spacing:1.3px}
+  .tb-title h1{font-size:17px}
+  .chip{padding:7px 11px;font-size:11.5px}
+  .panel-head h2{font-size:12px}
+  .filter-bar{gap:9px}
+  .filter-bar .field,.filter-bar .search{flex:1 1 100%;min-width:0;width:100%}
+  .btn-row .btn,.actions .btn{flex:1 1 150px}             /* ek line e du'ta button */
+  .table th,.table td{padding:8px 9px;font-size:11.8px}
+  .report-paper{padding:12px;border-radius:12px}
+  .report-head{gap:12px}
+  .report-meta,.report-title-box{text-align:left}
+  .report-title-box{display:block}
+  .report-logo{width:132px;height:44px}
+  .sign-row{gap:14px}
+  /* Modal ta niche theke uthe ashe - hater angul er kachhei thake. */
+  .modal{padding:0;place-items:end}
+  .modal-card,.modal-card.wide{width:100%;max-height:92vh;max-height:92dvh;
+    border-radius:18px 18px 0 0;padding:16px 14px calc(18px + env(safe-area-inset-bottom))}
+  .modal-head h2{font-size:15.5px}
 }
 @media(max-width:460px){
   .cards{grid-template-columns:1fr}
   .line-item{grid-template-columns:1fr;gap:8px}
   .auth-card{padding:22px}
+  .metric strong{font-size:20px}
+  .tot-strip{font-size:12px}
+}
+
+/* ---- phone landscape (kom uchchota) ---- */
+@media(max-height:520px){
+  .modal-card{max-height:96vh;max-height:96dvh}
+  .auth-pane{padding-top:16px;padding-bottom:16px}
+  .auth-card{padding:20px}
 }
 
 /* ============ 8b. MISC BLOCKS ============ */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 @media(max-width:1080px){.split{grid-template-columns:1fr}}
-.logo-preview{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:var(--r-md);background:#f7f9fc;
+.logo-preview{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:var(--radius-sm);background:#f7f9fc;
   display:flex;align-items:center;justify-content:center}
 .logo-preview img{max-width:100%;max-height:92px;object-fit:contain}
 .storage-grid{display:grid;grid-template-columns:1fr;gap:14px}
-.storage-card{border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:var(--r-md);
+.storage-card{border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:var(--radius-sm);
   padding:15px 17px;background:#f9fbfd}
 .storage-card.good{border-left-color:var(--brand);background:#f2fbf9}
 .storage-card b{font-size:15px}
 .storage-card p{margin:5px 0 11px;font-size:13.3px;line-height:1.62}
 .storage-card code{background:#e8eef6;padding:1px 6px;border-radius:5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
-.rp-h3{margin:20px 0 9px;font-size:14.5px;font-weight:800;letter-spacing:.2px;color:var(--ink);
+.rp-h3{margin:20px 0 9px;font-size:14.5px;font-weight:800;letter-spacing:.2px;color:inherit;
   border-bottom:2px solid var(--line);padding-bottom:6px}
 .cloud-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:0 0 auto;
   box-shadow:0 0 0 3px rgba(15,118,110,.12)}
@@ -379,11 +475,117 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .cloud-dot.err{background:#dc2626}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ============ 9. PRINT (clone into #printHost) ============ */
+/* ============ 10. DARK MODE ==================================================
+   Light theme ta ekdom age jemon chilo temon-i ache - dark mode purota ei block
+   theke ashe (html e data-theme="dark" boshle). Report paper ta kagojer moto
+   shada-i thake, karon oita print e jay. */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0a1219;
+  --panel:#101c26;
+  --panel-2:#13232f;
+  --text:#e8f1f6;
+  --text-2:#c3d3df;
+  --muted:#8ba1b2;
+  --line:#1e3140;
+  --line-2:#27414f;
+  --brand:#2dd4bf;
+  --brand-2:#0f766e;
+  --brand-3:#14b8a6;
+  --green:#34d399;
+  --amber:#fbbf24;
+  --red:#f87171;
+  --indigo:#a5b4fc;
+  --sky:#38bdf8;
+  --twmask:#101c26;
+  --shadow-xs:0 1px 2px rgba(0,0,0,.45);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4),0 4px 14px -6px rgba(0,0,0,.6);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 16px 34px -18px rgba(0,0,0,.72);
+  --shadow-lg:0 30px 70px -25px rgba(0,0,0,.8);
+  --ring:0 0 0 4px rgba(45,212,191,.22);
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(1100px 560px at 100% -12%,rgba(45,212,191,.10),transparent 62%),
+    radial-gradient(880px 480px at -12% 108%,rgba(234,88,12,.06),transparent 60%),
+    var(--bg);
+}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#2b4757;background-clip:content-box}
+html[data-theme="dark"] .topbar{background:rgba(16,28,38,.84);border-color:#1c2f3d}
+html[data-theme="dark"] .panel-head h2{color:#a8bccb}
+html[data-theme="dark"] .chip{background:#13232f;border-color:var(--line);color:var(--text-2)}
+html[data-theme="dark"] .chip.role{background:#2dd4bf;color:#04212a;border-color:#2dd4bf}
+html[data-theme="dark"] .chip.role.user{background:#1d3341;color:#d3e5ef;border-color:var(--line)}
+html[data-theme="dark"] .hamburger,html[data-theme="dark"] .theme-btn{background:#13232f;color:var(--text)}
+/* tables */
+html[data-theme="dark"] .table-wrap{background:var(--panel)}
+html[data-theme="dark"] .table th{background:#16283a;color:#93a9b9;border-bottom-color:var(--line)}
+html[data-theme="dark"] .table th,html[data-theme="dark"] .table td{border-bottom-color:#1b2d3b}
+html[data-theme="dark"] .table tbody tr:nth-child(even) td{background:rgba(255,255,255,.022)}
+html[data-theme="dark"] .table tbody tr:hover td{background:rgba(45,212,191,.07)}
+html[data-theme="dark"] .table tfoot td{background:#16283a;border-top-color:var(--line-2)}
+/* boxes */
+html[data-theme="dark"] .subtle-box,html[data-theme="dark"] .logo-preview{background:#13232f}
+html[data-theme="dark"] .line-item,html[data-theme="dark"] .field input[type=file]{background:var(--panel-2)}
+html[data-theme="dark"] .grade-box{background:linear-gradient(180deg,#13232f,#0f1e29);border-color:#24404f}
+html[data-theme="dark"] .storage-card{background:#13232f}
+html[data-theme="dark"] .storage-card.good{background:rgba(45,212,191,.09)}
+html[data-theme="dark"] .fefo-top{background:rgba(45,212,191,.13)}
+html[data-theme="dark"] .storage-card code{background:#1d3341}
+html[data-theme="dark"] .notice{background:rgba(45,212,191,.10);color:#9ce9dc;border-color:rgba(45,212,191,.28)}
+html[data-theme="dark"] .alert-box{background:rgba(248,113,113,.10);color:#fca5a5;border-color:rgba(248,113,113,.30)}
+html[data-theme="dark"] .modal-card{background:var(--panel)}
+html[data-theme="dark"] .toast{background:#1d3341;border:1px solid var(--line)}
+/* form controls */
+html[data-theme="dark"] .field input:hover,html[data-theme="dark"] .field select:hover{border-color:#31505f}
+html[data-theme="dark"] .field input:focus,html[data-theme="dark"] .field select:focus,
+html[data-theme="dark"] .field textarea:focus,html[data-theme="dark"] .search input:focus{background:#16283a}
+html[data-theme="dark"] .field input:disabled{background:#152532;color:#8ba1b2}
+html[data-theme="dark"] .field label,html[data-theme="dark"] .panel-head .sub{color:#9db2c1}
+html[data-theme="dark"] .form-msg.err{background:rgba(248,113,113,.13);color:#fca5a5;border-color:rgba(248,113,113,.34)}
+html[data-theme="dark"] .form-msg.ok{background:rgba(45,212,191,.13);color:#8fe8d9;border-color:rgba(45,212,191,.32)}
+/* buttons */
+html[data-theme="dark"] .btn.secondary{background:#1d3341;color:#e3eff6;border-color:var(--line)}
+html[data-theme="dark"] .btn.secondary:hover{background:#24404f}
+html[data-theme="dark"] .btn.ghost{border-color:var(--line-2)}
+html[data-theme="dark"] .btn.ghost:hover{background:rgba(255,255,255,.06)}
+html[data-theme="dark"] .btn.outline{border-color:#2c4859}
+/* badges + pills */
+html[data-theme="dark"] .badge.a{background:rgba(52,211,153,.16);color:#8ff0c4}
+html[data-theme="dark"] .badge.b{background:rgba(251,191,36,.16);color:#fcd47f}
+html[data-theme="dark"] .badge.b2{background:rgba(165,180,252,.16);color:#c7cffd}
+html[data-theme="dark"] .badge.c{background:rgba(248,113,113,.16);color:#fca5a5}
+html[data-theme="dark"] .badge.neutral{background:#1d3341;color:#cadae5}
+html[data-theme="dark"] .badge.teal{background:rgba(45,212,191,.16);color:#8fe8d9}
+html[data-theme="dark"] .pill{background:#13232f;border-color:var(--line);color:var(--text-2)}
+html[data-theme="dark"] .pill.a{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.30)}
+html[data-theme="dark"] .pill.b{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.30)}
+html[data-theme="dark"] .pill.b2{background:rgba(165,180,252,.12);border-color:rgba(165,180,252,.30)}
+html[data-theme="dark"] .pill.c{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.30)}
+html[data-theme="dark"] .pill.strong{background:#0b2b30;color:#c9fff5;border-color:#17635b}
+html[data-theme="dark"] .metric .ico{background:#1b2f3d}
+html[data-theme="dark"] .empty b{color:var(--text-2)}
+/* Report paper: dark mode eo shada kagoj-i thake, tai bhitorer shob kichhu
+   abar light token diye chole. */
+html[data-theme="dark"] .report-paper{
+  --panel:#ffffff; --panel-2:#fbfdff; --text:#0d1b2a; --text-2:#334155; --muted:#71829a;
+  --line:#e7edf5; --line-2:#dde6f1; --twmask:#fff;
+  background:#fff;color:#0d1b2a;border-color:#dde6f1;
+}
+html[data-theme="dark"] .report-paper .table-wrap{background:#fff;border-color:#e7edf5}
+html[data-theme="dark"] .report-paper .table th{background:#f7fafc;color:#64748b;border-bottom-color:#e7edf5}
+html[data-theme="dark"] .report-paper .table th,html[data-theme="dark"] .report-paper .table td{border-bottom-color:#eef3f8}
+html[data-theme="dark"] .report-paper .table tbody tr:nth-child(even) td{background:#fbfcfe}
+html[data-theme="dark"] .report-paper .table tbody tr:hover td{background:#f8fbfe}
+html[data-theme="dark"] .report-paper .table tfoot td{background:#f6f9fc}
+html[data-theme="dark"] .report-paper .pill{background:#f8fafc;color:#334155;border-color:#e7edf5}
+
+/* ============ 11. PRINT (clone into #printHost) ============ */
 #printHost{display:none}
 @page{size:A4 portrait;margin:12mm}
 @media print{
-  html,body{background:#fff!important}
+  html,body{background:#fff!important;color:#0d1b2a!important}
+  html[data-theme="dark"] #printHost .table th{background:#f7fafc!important;color:#64748b!important}
   body.printing>*{display:none!important}
   body.printing>#printHost{display:block!important}
   #printHost{color:#0d1b2a;font-size:11px}
@@ -408,24 +610,24 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
   #printHost .report-foot{margin-top:20px!important;font-size:9.5px!important}
 }
 </style>
+<script>
+  /* Theme ta page ta draw howar agei boshe jay, nahole dark mode e protibar
+     ek jhalok shada flash dekha jay. Baki theme code niche, main script e. */
+  /* ei key ta niche THEME_KEY er shathe ek-i thakte hobe */
+  try{ document.documentElement.setAttribute("data-theme",
+    localStorage.getItem("cartonTheme_v1")==="dark" ? "dark" : "light") }catch(e){}
+</script>
 </head>
 <body>
 
 <!-- ============================== AUTH ============================== -->
 <div id="authScreen" class="auth-shell">
   <section class="auth-hero">
-    <div>
+    <div class="hero-mark">
       <img id="authLogo" alt="Company logo">
-      <h2>Inventory &amp; Carton Control, built for real warehouses.</h2>
-      <p>Multi-company stock in / dispatch, multi-product cartons, grade-wise quality tracking, vendor pricing and printable reports.</p>
-      <ul class="hero-points">
-        <li><span class="hero-dot">📦</span><div><b>One carton, many products</b> — grade A/B/B2/C breakdown per carton.</div></li>
-        <li><span class="hero-dot">🏷️</span><div><b>Vendor pricing</b> — retail price minus vendor discount, value auto-calculated.</div></li>
-        <li><span class="hero-dot">🖨️</span><div><b>Print-ready reports</b> — stock balance, vendor inflow and damage statements.</div></li>
-        <li><span class="hero-dot">🔒</span><div><b>Separate admin console</b> — admin sign-in needs an extra Admin PIN.</div></li>
-      </ul>
+      <h2 class="hero-name" id="authHeroName">Inventory Control System</h2>
+      <span class="hero-rule"></span>
     </div>
-    <div class="auth-foot" id="authHeroFoot">INVENTORY CONTROL SYSTEM</div>
   </section>
 
   <section class="auth-pane">
@@ -441,63 +643,31 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
         <div class="field"><label class="required">Password</label><input id="suPass" type="password" placeholder="Minimum 4 characters" required></div>
         <div class="field"><label class="required">Admin PIN</label><input id="suPin" inputmode="numeric" placeholder="4–8 digit PIN" required>
           <div class="hint">Admins must enter this PIN together with email &amp; password.</div></div>
-        <div class="field"><label class="required">Security Question</label><select id="suQ" required></select></div>
-        <div class="field"><label class="required">Answer</label><input id="suA" placeholder="Used to recover a forgotten password" required></div>
         <div id="setupMsg" class="form-msg err hidden"></div>
         <button class="btn block">Create Admin &amp; Continue</button>
       </form>
     </div>
 
-    <!-- Normal user sign-in -->
+    <!-- One sign-in card for everyone. The PIN field only appears when the
+         email + password belong to an admin account. -->
     <div class="auth-card hidden" id="signInCard">
-      <span class="auth-badge">🔐 Staff sign in</span>
+      <span class="auth-badge">🔐 User Login</span>
       <h1>Stock Management</h1>
       <p id="signInSub">Sign in with your work email and password.</p>
       <form id="signInForm" class="form-stack" autocomplete="off">
         <div class="field"><label class="required">Email Address</label><input id="siEmail" type="email" placeholder="you@company.com" required></div>
         <div class="field"><label class="required">Password</label><input id="siPass" type="password" placeholder="••••••••" required></div>
-        <div id="signInMsg" class="form-msg err hidden"></div>
-        <button class="btn block">Sign In</button>
-      </form>
-      <div class="auth-links">
-        <a onclick="showAuth('forgot')">Forgot password?</a>
-        <a onclick="showAuth('admin')">🔒 Admin login</a>
-      </div>
-    </div>
-
-    <!-- Admin sign-in (different door: PIN required) -->
-    <div class="auth-card admin hidden" id="adminSignInCard">
-      <span class="auth-badge">🛡️ Admin console</span>
-      <h1>Administrator Sign In</h1>
-      <p>Admin accounts need the Admin PIN in addition to email and password.</p>
-      <form id="adminSignInForm" class="form-stack" autocomplete="off">
-        <div class="field"><label class="required">Admin Email</label><input id="asEmail" type="email" placeholder="admin@company.com" required></div>
-        <div class="field"><label class="required">Password</label><input id="asPass" type="password" placeholder="••••••••" required></div>
-        <div class="field"><label class="required">Admin PIN</label><input id="asPin" type="password" inputmode="numeric" placeholder="Admin PIN" required></div>
-        <div id="adminSignInMsg" class="form-msg err hidden"></div>
-        <button class="btn block">Enter Admin Console</button>
-        <button type="button" class="btn secondary block" onclick="showAuth('signin')">← Staff sign in</button>
-      </form>
-      <div class="auth-links"><a onclick="showAuth('forgot')">Forgot password?</a><span class="muted">PIN lost? Ask another admin.</span></div>
-    </div>
-
-    <!-- Forgot password: security question -->
-    <div class="auth-card hidden" id="forgotCard">
-      <span class="auth-badge">🔑 Password recovery</span>
-      <h1>Reset your password</h1>
-      <p>Answer your security question correctly to set a new password.</p>
-      <form id="forgotForm" class="form-stack" autocomplete="off">
-        <div class="field"><label class="required">Email Address</label><input id="fpEmail" type="email" placeholder="you@company.com" required></div>
-        <div id="fpStep2" class="hidden" style="display:grid;gap:14px">
-          <div class="field"><label>Security Question</label><input id="fpQuestion" disabled></div>
-          <div class="field"><label class="required">Your Answer</label><input id="fpAnswer" placeholder="Your answer"></div>
-          <div class="field"><label class="required">New Password</label><input id="fpNewPass" type="password" placeholder="Minimum 4 characters"></div>
-          <div class="field"><label class="required">Confirm New Password</label><input id="fpNewPass2" type="password" placeholder="Retype new password"></div>
+        <div class="field hidden" id="siPinWrap">
+          <label class="required" id="siPinLabel">Admin PIN</label>
+          <input id="siPin" type="password" inputmode="numeric" placeholder="Admin PIN" autocomplete="off">
+          <div class="hint" id="siPinHint">Admin accounts need this PIN as well.</div>
         </div>
-        <div id="fpMsg" class="form-msg err hidden"></div>
-        <button class="btn block" id="fpSubmit">Continue</button>
-        <button type="button" class="btn secondary block" onclick="showAuth('signin')">← Back to sign in</button>
+        <div id="signInMsg" class="form-msg err hidden"></div>
+        <button class="btn block" id="siSubmit">Sign In</button>
       </form>
+      <div class="auth-links" style="justify-content:center;text-align:center">
+        <span class="muted">Admin? The PIN box appears automatically. Lost your password? An admin can reset it for you.</span>
+      </div>
     </div>
   </section>
 </div>
@@ -550,6 +720,8 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
       <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="tb-title"><span class="eyebrow">INVENTORY CONTROL</span><h1 id="pageTitle">Dashboard</h1></div>
       <div class="tb-right">
+        <button class="theme-btn" id="themeBtn" type="button" onclick="toggleTheme()"
+          title="Switch to dark mode" aria-label="Switch theme">🌙</button>
         <span class="cloud-dot" id="cloudDot" style="display:none"></span>
         <span class="chip" id="userChip">–</span>
         <span class="chip role" id="roleChip">USER</span>
@@ -597,7 +769,12 @@ const logoFallback = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
 /* ---------------- small utils ---------------- */
 function uid(p){ return p+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7) }
 function now(){ return new Date().toLocaleString() }
-function today(){ return new Date().toISOString().split("T")[0] }
+/* Local date. toISOString() UTC dey, tai Dhaka te raat 12ta-6ta r moddhe
+   Stock IN / OUT gotokal er tarikh e boshe jachhilo. */
+function today(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
 function esc(s){ return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])) }
 function num(v){ const n=Number(v); return Number.isFinite(n)?n:0 }
 function money(n){ return "৳" + num(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) }
@@ -656,7 +833,6 @@ function sha256js(ascii){
   }
   return H.map(x=>(x>>>0).toString(16).padStart(8,"0")).join("");
 }
-const normAnswer = s => String(s||"").trim().toLowerCase().replace(/\s+/g," ");
 function toast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.classList.remove("hidden");
@@ -861,8 +1037,8 @@ function recordAudit(action, details){
 function setLogo(){
   const src = currentCompany()?.logo || logoFallback;
   document.querySelectorAll("#authLogo,#brandLogo").forEach(x=>x.src=src);
-  const foot=document.getElementById("authHeroFoot");
-  if(foot) foot.textContent = (currentCompany()?.name || "Inventory Control System").toUpperCase();
+  const heroName=document.getElementById("authHeroName");
+  if(heroName) heroName.textContent = currentCompany()?.name || "Inventory Control System";
 }
 function syncHeader(){
   const comp=currentCompany(); if(!comp) return;
@@ -892,10 +1068,56 @@ function switchCompany(cid){
   toast("Switched to "+currentCompany().name);
   show("dashboard");
 }
+/* ---- light / dark theme ------------------------------------------------------
+   Choice ta ei browser er nijer jinis (localStorage), tai cloud e jay na - ek
+   device e dark rakhle onno device er kichhu bodlay na. */
+const THEME_KEY="cartonTheme_v1";
+function currentTheme(){
+  try{ return localStorage.getItem(THEME_KEY)==="dark" ? "dark" : "light" }catch(e){ return "light" }
+}
+function applyTheme(t){
+  const dark = t==="dark";
+  const de = document.documentElement;
+  if(de && de.setAttribute) de.setAttribute("data-theme", dark?"dark":"light");
+  const b=document.getElementById("themeBtn");
+  if(b){
+    b.textContent = dark ? "☀️" : "🌙";
+    b.title = dark ? "Switch to light mode" : "Switch to dark mode";
+  }
+}
+function toggleTheme(){
+  const t = currentTheme()==="dark" ? "light" : "dark";
+  try{ localStorage.setItem(THEME_KEY,t) }catch(e){}
+  applyTheme(t);
+  toast(t==="dark" ? "Dark mode on." : "Light mode on.");
+}
+applyTheme(currentTheme());          /* page ta আঁকার age-i theme boshe jay */
+
 function toggleSidebar(force){
   const sb=document.getElementById("sidebar"), sc=document.getElementById("navScrim");
   const open = force===undefined ? !sb.classList.contains("open") : force;
   sb.classList.toggle("open",open); sc.classList.toggle("show",open);
+}
+/* Phone: drawer ta bam dike swipe korle bondho hoye jabe, ar screen boro hole
+   (phone ghurale / tab e) drawer state ta chhere dey - nahole atke thake. */
+function wireDrawerGestures(){
+  const sb=document.getElementById("sidebar");
+  if(!sb || !sb.addEventListener) return;                 /* test er DOM e nei */
+  let x0=null, y0=null;
+  sb.addEventListener("touchstart",e=>{
+    const t=e.touches && e.touches[0]; if(!t) return;
+    x0=t.clientX; y0=t.clientY;
+  },{passive:true});
+  sb.addEventListener("touchend",e=>{
+    const t=e.changedTouches && e.changedTouches[0];
+    if(x0===null || !t) return;
+    const dx=t.clientX-x0, dy=Math.abs(t.clientY-y0);
+    x0=null;
+    if(dx<-45 && dy<45) toggleSidebar(false);
+  },{passive:true});
+  if(window.addEventListener) window.addEventListener("resize",()=>{
+    if(window.innerWidth>960 && sb.classList.contains("open")) toggleSidebar(false);
+  });
 }
 const ADMIN_PAGES = ["users","companies","company","audit"];
 const PAGE_TITLES = {
@@ -977,10 +1199,29 @@ function reportFooter(){
 const render = {};
 
 /* ------------------------------- DASHBOARD ------------------------------- */
+/* Kon grade e koto mal ache - ek nojore dekhar bar. */
+function gradeMix(s){
+  const total = GRADES.reduce((t,k)=>t+num(s?.[k]),0);
+  if(total<=0) return "";
+  const share = k => num(s[k])/total*100;
+  return `
+  <div class="panel">
+    <div class="panel-head" style="margin-bottom:11px">
+      <div><h2>Grade mix</h2>
+        <div class="sub">Share of the ${pcs(total)} PCS you are holding right now</div></div>
+    </div>
+    <div class="mixbar">
+      ${GRADES.map(k=>`<span class="mix-${k}" style="width:${share(k).toFixed(2)}%" title="${esc(GRADE_LABEL[k])} — ${pcs(s[k])} PCS"></span>`).join("")}
+    </div>
+    <div class="mix-legend">
+      ${GRADES.map(k=>`<span><i class="mix-dot mix-${k}"></i>${esc(GRADE_LABEL[k])} · <b>${pcs(s[k])}</b> · ${share(k).toFixed(1)}%</span>`).join("")}
+    </div>
+  </div>`;
+}
+
 render.dashboard = function(){
   const s = stockByGrade();
   const cartons = companyCartons();
-  const todayD = new Date();
   const expiryAlerts=[], damageAlerts=[];
   let stockValue=0, damageValue=0;
   const vendorMap={};
@@ -990,8 +1231,8 @@ render.dashboard = function(){
       stockValue  += cartonValue(c);
       damageValue += gradeValue(c,"C");
       if(c.expiry){
-        const days = Math.ceil((new Date(c.expiry)-todayD)/86400000);
-        if(days<=30) expiryAlerts.push({ carton:c.cartonNo, days, expiry:c.expiry });
+        const days = expiryInfo(c).days;          /* FEFO panel er shathe ek-i hishab */
+        if(days!==null && days<=30) expiryAlerts.push({ carton:c.cartonNo, days, expiry:c.expiry });
       }
       const initTotal = num(c.initialPcs)||num(c.pcs);
       const dmg = num((c.initialGrades||c.grades)?.C);
@@ -1011,11 +1252,12 @@ render.dashboard = function(){
   const recent = companyMovements().slice(0,10);
   const prodRows = productStock().slice(0,8);
 
+  expiryAlerts.sort((a,b)=>a.days-b.days);   /* jeta age shesh hobe seta upore */
   const alerts = (expiryAlerts.length||damageAlerts.length) ? `
     <div class="alert-box">
       <b>⚠️ Expiry &amp; quality alerts</b>
       <ul>
-        ${expiryAlerts.map(a=>`<li><b>${esc(a.carton)}</b> — expiry ${esc(a.expiry)} ${a.days<0?"<b>EXPIRED</b>":"in "+a.days+" day(s)"}</li>`).join("")}
+        ${expiryAlerts.map(a=>`<li><b>${esc(a.carton)}</b> — expiry ${esc(a.expiry)} ${a.days<0?"<b>EXPIRED</b>":a.days===0?"<b>expires today</b>":"in "+a.days+" day(s)"}</li>`).join("")}
         ${damageAlerts.map(a=>`<li><b>${esc(a.carton)}</b> — high damage ${a.pct}% (Grade C ${pcs(a.dmg)}/${pcs(a.total)} PCS = ${money(a.value)})</li>`).join("")}
       </ul>
     </div>` : "";
@@ -1044,6 +1286,8 @@ render.dashboard = function(){
       <strong>${pcs(s.C)}</strong><span class="foot">PCS</span></div>
   </div>
 
+  ${gradeMix(s)}
+
   <div class="grid-2">
     <div class="panel">
       <div class="panel-head"><h2>Vendor inflow &amp; damage</h2></div>
@@ -1052,7 +1296,7 @@ render.dashboard = function(){
         <tbody>${vendorRows.length? vendorRows.map(r=>`<tr>
           <td><b>${esc(r.name)}</b></td><td class="num">${r.cartons}</td><td class="num">${pcs(r.pcs)}</td>
           <td class="num"><b>${money(r.value)}</b></td><td class="num">${pcs(r.dmgPcs)}</td><td class="num">${money(r.dmgValue)}</td>
-        </tr>`).join("") : emptyRow(6,"No receive records yet","Stock IN korle ekhane vendor summary dekha jabe.")}</tbody>
+        </tr>`).join("") : emptyRow(6,"No receive records yet","Vendor summary will appear here after your first Stock IN.")}</tbody>
       </table></div>
     </div>
 
@@ -1110,7 +1354,7 @@ function drawInLines(){
 }
 function addInLine(){
   const products = companyProducts();
-  if(!products.length) return toast("Products page theke product add korun.");
+  if(!products.length) return toast("Add a product on the Products page first.");
   inLines.push({ key:uid("l"), productId:products[0].id, pcs:0 });
   drawInLines();
 }
@@ -1125,7 +1369,7 @@ function inTotals(){
   box.innerHTML = `
     <span class="pill">Products total: <b>${pcs(p)}</b> PCS</span>
     <span class="pill">Grades total: <b>${pcs(g)}</b> PCS</span>
-    <span class="${ok?"ok":"bad"}">${p===0?"⚠️ Product PCS din":ok?"✅ Match — save korte parben":"❌ Product total ar grade total match korche na"}</span>`;
+    <span class="${ok?"ok":"bad"}">${p===0?"⚠️ Enter product PCS":ok?"✅ Match — ready to save":"❌ Product total and grade total do not match"}</span>`;
 }
 function inFillGrade(k){
   const total=inProductTotal(); if(total<=0) return;
@@ -1138,16 +1382,16 @@ render.in = function(){
   inLines = products.length ? [{ key:uid("l"), productId:products[0].id, pcs:0 }] : [];
 
   document.getElementById("page-in").innerHTML = `
-  <div class="notice">Receiving stock for <b>${esc(currentCompany().name)}</b>. Ek carton-e joto product dorkar add korun — grade breakdown (A/B/B2/C) puro carton-er jonno.</div>
+  <div class="notice">Receiving stock for <b>${esc(currentCompany().name)}</b>. Add as many products to one carton as you need — the grade breakdown (A/B/B2/C) covers the whole carton.</div>
 
-  ${products.length? "" : `<div class="alert-box">Kono product nei. Age <a onclick="show('products')"><b>Products</b></a> page theke product add korun.</div>`}
+  ${products.length? "" : `<div class="alert-box">No products yet. Add one on the <a onclick="show('products')"><b>Products</b></a> page first.</div>`}
 
   <div class="panel no-print">
-    <div class="panel-head"><h2>📷 AI photo scan <span class="sub">Challan/invoice-er chobi dile field guli auto fill hobe</span></h2></div>
+    <div class="panel-head"><h2>📷 AI photo scan <span class="sub">Upload a challan or invoice photo and the fields fill in automatically</span></h2></div>
     <div class="btn-row" style="align-items:center">
       <input type="file" id="aiPhoto" accept="image/*" capture="environment" class="hidden" onchange="aiScanPhoto(this)">
       <button type="button" class="btn" id="aiScanBtn" onclick="document.getElementById('aiPhoto').click()">📷 Scan photo</button>
-      <span class="muted" id="aiScanMsg" style="font-size:12.5px">Chobi tulun ba gallery theke din — AI PCS, grade, vendor, invoice number pore fill korbe. Erpor check kore save korun.</span>
+      <span class="muted" id="aiScanMsg" style="font-size:12.5px">Take a photo or choose one from the gallery — the AI reads PCS, grade, vendor and invoice number and fills the form. Check the values before saving.</span>
     </div>
   </div>
 
@@ -1159,7 +1403,7 @@ render.in = function(){
       <div class="field"><label class="required">Carton No.</label><input name="cartonNo" id="in_carton" placeholder="CTN-0001" required></div>
       <div class="field"><label>Vendor / return source <span class="optional-tag">(optional)</span></label>
         <input name="outlet" id="in_outlet" list="vendorSuggestions" placeholder="Type or choose vendor…">
-        <div class="hint">Fanka rakhle "Direct" hisebe count hobe.</div></div>
+        <div class="hint">If left empty this counts as "Direct".</div></div>
       <div class="field"><label>Expiry date <span class="optional-tag">(optional)</span></label><input name="expiry" type="date"></div>
       <div class="field"><label>Remarks <span class="optional-tag">(optional)</span></label><input name="note" placeholder="Any note about this carton"></div>
 
@@ -1198,16 +1442,16 @@ render.in = function(){
     e.preventDefault();
     const f = new FormData(e.target);
     const cartonNo = String(f.get("cartonNo")||"").trim();
-    if(!cartonNo) return toast("Carton No. dorkar.");
+    if(!cartonNo) return toast("Carton No. is required.");
     if(companyCartons().some(c=>c.cartonNo.toLowerCase()===cartonNo.toLowerCase()))
-      return toast("Ei carton No. already ache ei company-te.");
+      return toast("This Carton No. already exists in this company.");
 
     const items = inLines.filter(l=>num(l.pcs)>0).map(l=>({ id:uid("li"), productId:l.productId, pcs:num(l.pcs), initialPcs:num(l.pcs) }));
-    if(!items.length) return toast("Onto ekta product-er PCS din.");
+    if(!items.length) return toast("Enter PCS for at least one product.");
 
     const grades={}; GRADES.forEach(k=>grades[k]=num(f.get("grade_"+k)));
     const gTotal=gradeSum(grades), iTotal=items.reduce((t,i)=>t+i.pcs,0);
-    if(gTotal!==iTotal) return alert(`Mismatch!\nProduct total = ${iTotal} PCS\nGrade total (A+B+B2+C) = ${gTotal} PCS\n\nDuita same hote hobe.`);
+    if(gTotal!==iTotal) return alert(`Mismatch!\nProduct total = ${iTotal} PCS\nGrade total (A+B+B2+C) = ${gTotal} PCS\n\nThe two totals must be the same.`);
 
     const carton = {
       id:uid("c"), companyId:state.activeCompanyId, cartonNo,
@@ -1253,7 +1497,7 @@ async function aiScanPhoto(input){
   const msg=document.getElementById("aiScanMsg");
   const btn=document.getElementById("aiScanBtn");
   const setMsg=(t)=>{ if(msg) msg.innerHTML=t };
-  btn.disabled=true; setMsg(`<span class="spinner" style="border-color:#cbd5e1;border-top-color:#0f766e"></span> AI chobi porche… ektu opekkha korun`);
+  btn.disabled=true; setMsg(`<span class="spinner" style="border-color:#cbd5e1;border-top-color:#0f766e"></span> AI is reading the photo… one moment`);
   try{
     const image = await compressImage(file);
     const resp = await fetch("/api/public/scan-invoice",{
@@ -1296,13 +1540,13 @@ async function aiScanPhoto(input){
     const iTotal=inProductTotal();
     if(gTotal===0 && iTotal>0){ const a=document.getElementById("in_gA"); if(a) a.value=iTotal }
     inTotals();
-    setMsg(`✅ Fill hoyeche — <b>check kore</b> save korun.${d.note?" <span class='muted'>("+esc(d.note)+")</span>":""}`);
-    toast("AI scan complete — data check korun");
+    setMsg(`✅ Filled in — <b>check the values</b> before saving.${d.note?" <span class='muted'>("+esc(d.note)+")</span>":""}`);
+    toast("AI scan complete — please check the values");
   }catch(err){
     const m=String(err.message||err);
     const hint = /not configured/i.test(m)
-      ? "AI key set nei. Lovable project-e <b>LOVABLE_API_KEY</b> add korte hobe."
-      : "Abar chesta korun, ba haate likhe din.";
+      ? "No AI key found. Add <b>LOVABLE_API_KEY</b> to the Lovable project."
+      : "Try again, or type the values in by hand.";
     setMsg(`❌ Pora jaini: ${esc(m)} — ${hint}`);
   }finally{ btn.disabled=false }
 }
@@ -1312,6 +1556,89 @@ function outCarton(){ return state.cartons.find(c=>c.id===document.getElementByI
 function outItem(){
   const c=outCarton(); if(!c) return null;
   return cartonItems(c).find(i=>i.id===document.getElementById("outProductSelect")?.value) || null;
+}
+
+/* ---- FEFO: First Expired, First Out -----------------------------------------
+   Cartons that carry an expiry date go first, soonest one at the top. A carton
+   with no expiry date falls back to plain FIFO on its IN date, so old stock
+   still moves before new stock instead of sitting at the bottom of the list. */
+function fefoKey(c){
+  const e = c && c.expiry ? Date.parse(c.expiry) : NaN;
+  const i = c && c.inDate ? Date.parse(c.inDate) : NaN;
+  return { exp: isNaN(e) ? Infinity : e, inD: isNaN(i) ? Infinity : i, no: String(c?.cartonNo||"") };
+}
+function fefoSort(x,y){
+  const a=fefoKey(x), b=fefoKey(y);
+  return (a.exp-b.exp) || (a.inD-b.inD) || a.no.localeCompare(b.no);
+}
+function expiryInfo(c){
+  if(!c || !c.expiry) return { text:"no expiry date", cls:"", days:null };
+  const days = Math.ceil((new Date(c.expiry) - new Date(today()))/86400000);
+  if(days<0)   return { text:`EXPIRED ${-days} day(s) ago`, cls:"c", days };
+  if(days===0) return { text:"expires today", cls:"c", days };
+  if(days<=30) return { text:`expires in ${days} day(s)`, cls:"b", days };
+  return { text:`expires ${c.expiry}`, cls:"a", days };
+}
+/* Every carton that still holds this product, best one to dispatch first. */
+function fefoCandidates(productId){
+  const rows=[];
+  companyCartons().forEach(c=>{
+    if(c.status!=="IN STOCK" || num(c.pcs)<=0) return;
+    cartonItems(c).forEach(i=>{
+      if(i.productId!==productId || num(i.pcs)<=0) return;
+      rows.push({ carton:c, item:i, pcs:num(i.pcs) });
+    });
+  });
+  rows.sort((p,q)=>fefoSort(p.carton,q.carton));
+  return rows;
+}
+/* Product-wise total of what is still in stock, for the smart-pick dropdown. */
+function fefoProducts(){
+  const map=new Map();
+  companyCartons().forEach(c=>{
+    if(c.status!=="IN STOCK" || num(c.pcs)<=0) return;
+    cartonItems(c).forEach(i=>{
+      if(num(i.pcs)<=0) return;
+      map.set(i.productId, num(map.get(i.productId))+num(i.pcs));
+    });
+  });
+  return [...map.entries()].filter(([id])=>id && getProduct(id))   /* naam nei erokom line bad */
+    .map(([id,p])=>({id,pcs:p}))
+    .sort((x,y)=>productName(x.id).localeCompare(productName(y.id)));
+}
+function fefoSuggest(){
+  const box=document.getElementById("fefoBox"); if(!box) return;
+  const pid=document.getElementById("fefoProduct")?.value||"";
+  if(!pid){
+    box.innerHTML=`<div class="muted" style="font-size:12.5px">Choose a product and the carton to dispatch first will show up here.</div>`;
+    return;
+  }
+  const list=fefoCandidates(pid);
+  if(!list.length){
+    box.innerHTML=`<div class="alert-box" style="margin:0">No carton in stock holds this product right now.</div>`;
+    return;
+  }
+  box.innerHTML = list.slice(0,3).map((s,idx)=>{
+    const e=expiryInfo(s.carton);
+    return `<div class="subtle-box${idx===0?" fefo-top":""}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:170px">
+        <b>${idx===0?"⭐ Dispatch this first — ":""}${esc(s.carton.cartonNo)}</b>
+        <div class="muted" style="font-size:12.3px">${pcs(s.pcs)} PCS left · ${esc(vendorOf(s.carton))} · IN ${esc(s.carton.inDate||"—")}</div>
+      </div>
+      <span class="pill ${e.cls}">${esc(e.text)}</span>
+      <button type="button" class="btn small" onclick="fefoUse('${s.carton.id}','${s.item.id}')">Use this carton</button>
+    </div>`;
+  }).join("") + (list.length>3
+    ? `<div class="muted" style="font-size:12px">${list.length-3} more carton(s) also hold this product.</div>` : "");
+}
+/* The suggestion buttons just fill the dispatch form below. */
+function fefoUse(cartonId,itemId){
+  const cs=document.getElementById("outCartonSelect"); if(!cs) return;
+  cs.value=cartonId; outRefresh();
+  const q=document.getElementById("outPcs"); if(q) q.value="";   /* age type kora PCS ta muche jay */
+  const ps=document.getElementById("outProductSelect");
+  if(ps){ ps.value=itemId; outValue() }
+  toast("Carton selected. Now choose the grade and PCS.");
 }
 function outRefresh(){
   const c=outCarton();
@@ -1353,20 +1680,34 @@ function outValue(){
     <span class="pill ${grade==="C"?"c":""}">Grade ${esc(grade)} available: <b>${pcs(gAvail)}</b></span>
     <span class="pill">Vendor rate: <b>${money(rate)}</b></span>
     <span class="pill strong">Line total: ${money(rate*qty)}</span>
-    ${problem?`<span class="pill c"><b>⚠️ Available theke beshi</b></span>`:""}`;
+    ${problem?`<span class="pill c"><b>⚠️ More than available</b></span>`:""}`;
 }
 
 render.out = function(){
-  const available = companyCartons().filter(c=>c.status==="IN STOCK" && num(c.pcs)>0);
+  const available = companyCartons().filter(c=>c.status==="IN STOCK" && num(c.pcs)>0).sort(fefoSort);
   document.getElementById("page-out").innerHTML = `
-  <div class="notice">Carton select korle product ar grade-wise available stock dekhabe. Dispatch product-wise hoy.</div>
-  ${available.length? "" : `<div class="alert-box">Dispatch korar moto kono stock nei.</div>`}
+  <div class="notice">The carton list is sorted by expiry — whatever expires soonest sits at the top. Dispatch is done product by product.</div>
+  ${available.length? "" : `<div class="alert-box">There is no stock available to dispatch.</div>`}
+
+  <div class="panel" style="border-left:3px solid var(--brand)">
+    <div class="panel-head" style="margin-bottom:11px">
+      <div><h2>⏱️ Smart release (FEFO)</h2>
+        <div class="sub">First Expired, First Out — pick the product, and the app tells you which carton to open first.</div></div>
+    </div>
+    <div class="field" style="max-width:520px"><label>Product</label>
+      <select id="fefoProduct" onchange="fefoSuggest()">
+        <option value="">— choose a product —</option>
+        ${fefoProducts().map(p=>`<option value="${p.id}">${esc(productName(p.id))} — ${pcs(p.pcs)} PCS in stock</option>`).join("")}
+      </select></div>
+    <div id="fefoBox" style="display:grid;gap:8px;margin-top:12px"></div>
+  </div>
+
   <form id="outForm" class="panel">
     <div class="form-grid">
       <div class="field span2"><label class="required">Select carton</label>
         <select name="cartonId" id="outCartonSelect" onchange="outRefresh()" required>
           <option value="">— choose carton —</option>
-          ${available.map(c=>`<option value="${c.id}">${esc(c.cartonNo)} · ${esc(vendorOf(c))} · ${pcs(c.pcs)} PCS [A:${pcs(c.grades.A)} B:${pcs(c.grades.B)} B2:${pcs(c.grades.B2)} C:${pcs(c.grades.C)}] · ${cartonItems(c).length} product(s)</option>`).join("")}
+          ${available.map(c=>`<option value="${c.id}">${esc(c.cartonNo)} · ${esc(vendorOf(c))}${c.expiry?" · exp "+esc(c.expiry):""} · ${pcs(c.pcs)} PCS [A:${pcs(c.grades.A)} B:${pcs(c.grades.B)} B2:${pcs(c.grades.B2)} C:${pcs(c.grades.C)}] · ${cartonItems(c).length} product(s)</option>`).join("")}
         </select></div>
 
       <div class="field"><label class="required">Product</label>
@@ -1396,13 +1737,13 @@ render.out = function(){
     e.preventDefault();
     const f=new FormData(e.target);
     const c=state.cartons.find(x=>x.id===f.get("cartonId"));
-    if(!c) return toast("Carton select korun.");
+    if(!c) return toast("Please select a carton.");
     const it=cartonItems(c).find(i=>i.id===f.get("itemId"));
-    if(!it) return toast("Product select korun.");
+    if(!it) return toast("Please select a product.");
     const grade=f.get("grade"), qty=num(f.get("pcs"));
-    if(qty<=0) return toast("PCS din.");
-    if(qty>num(it.pcs)) return alert(`Ei product-e matro ${num(it.pcs)} PCS ache.`);
-    if(qty>num(c.grades?.[grade])) return alert(`Grade ${grade}-e matro ${num(c.grades?.[grade])} PCS ache.`);
+    if(qty<=0) return toast("Please enter PCS.");
+    if(qty>num(it.pcs)) return alert(`This product only has ${num(it.pcs)} PCS left.`);
+    if(qty>num(c.grades?.[grade])) return alert(`Grade ${grade} only has ${num(c.grades?.[grade])} PCS left.`);
 
     it.pcs = num(it.pcs)-qty;
     c.grades[grade] = num(c.grades[grade])-qty;
@@ -1416,6 +1757,7 @@ render.out = function(){
     save(); toast(`Stock OUT saved — ${qty} PCS`); show("cartons");
   };
   outRefresh();
+  fefoSuggest();
 };
 
 /* ------------------------------ CARTON TRACKING ------------------------------ */
@@ -1470,7 +1812,7 @@ render.cartons = function(){
           <button class="btn small secondary" onclick="openCartonModal('${c.id}')">👁 Details</button>
           ${admin? `<button class="btn small" onclick="openEditCartonModal('${c.id}')">✏️ Edit</button>`:""}
         </td>
-      </tr>`).join("") : emptyRow(13,"No cartons found","Search/filter change korun ba Stock IN korun.")}</tbody>
+      </tr>`).join("") : emptyRow(13,"No cartons found","Change the search or filter, or receive new stock.")}</tbody>
     </table></div>
   </div>`;
 
@@ -1576,7 +1918,7 @@ function editTotals(){
   const p=editLines.reduce((t,l)=>t+num(l.pcs),0);
   const g=GRADES.reduce((t,k)=>t+num(document.getElementById("ed_g"+k)?.value),0);
   box.innerHTML=`<span class="pill">Products: <b>${pcs(p)}</b></span><span class="pill">Grades: <b>${pcs(g)}</b></span>
-    <span class="${p===g?"ok":"bad"}">${p===g?"✅ Match":"❌ Match korche na"}</span>`;
+    <span class="${p===g?"ok":"bad"}">${p===g?"✅ Match":"❌ Does not match"}</span>`;
 }
 
 function openEditCartonModal(id){
@@ -1631,9 +1973,9 @@ function openEditCartonModal(id){
     const iTotal=items.reduce((t,i)=>t+num(i.pcs),0), gTotal=gradeSum(grades);
     if(iTotal!==gTotal) return alert(`Mismatch!\nProducts = ${iTotal} PCS\nGrades = ${gTotal} PCS`);
     const newNo=document.getElementById("ed_carton").value.trim();
-    if(!newNo) return toast("Carton No. dorkar.");
+    if(!newNo) return toast("Carton No. is required.");
     if(companyCartons().some(x=>x.id!==c.id && x.cartonNo.toLowerCase()===newNo.toLowerCase()))
-      return toast("Ei carton No. onno carton-e ache.");
+      return toast("Another carton already uses this Carton No.");
 
     const oldTotal=num(c.pcs);
     c.cartonNo=newNo;
@@ -1658,7 +2000,7 @@ function openEditCartonModal(id){
 function deleteCarton(cid){
   if(!isAdmin()) return alert("Only admin can delete cartons.");
   const c=state.cartons.find(x=>x.id===cid); if(!c) return;
-  if(!confirm(`Delete carton ${c.cartonNo} permanently? Ei carton-er shob movement-o muche jabe.`)) return;
+  if(!confirm(`Delete carton ${c.cartonNo} permanently? All movements of this carton will be deleted as well.`)) return;
   state.cartons=state.cartons.filter(x=>x.id!==cid);
   state.movements=state.movements.filter(m=>m.cartonId!==cid);
   recordAudit("DELETE CARTON", `Deleted carton ${c.cartonNo}`);
@@ -1686,28 +2028,29 @@ render.products = function(){
       <thead><tr><th class="wrap">Product</th><th class="num">Retail price</th><th class="num">In stock</th><th class="num">Stock value</th><th>Actions</th></tr></thead>
       <tbody>${products.length? products.map(p=>`<tr>
         <td class="wrap"><b>${esc(p.name)}</b></td>
-        <td class="num"><input type="number" min="0" step="0.01" style="width:120px" value="${num(p.retailPrice)}"
-            onchange="setProductPrice('${p.id}',this.value)"></td>
+        <td class="num">${admin? `<input type="number" min="0" step="0.01" style="width:120px" value="${num(p.retailPrice)}"
+            onchange="setProductPrice('${p.id}',this.value)">` : `<b>${money(num(p.retailPrice))}</b>`}</td>
         <td class="num">${pcs(stockMap[p.id]?.pcs||0)} PCS</td>
         <td class="num"><b>${money(stockMap[p.id]?.value||0)}</b></td>
         <td>${admin? `<button class="btn small secondary" onclick="renameProduct('${p.id}')">Rename</button>
              <button class="btn small danger" onclick="deleteProduct('${p.id}')">Delete</button>`:"—"}</td>
-      </tr>`).join("") : emptyRow(5,"No products yet","Upore form theke product add korun.")}</tbody>
+      </tr>`).join("") : emptyRow(5,"No products yet","Add one using the form above.")}</tbody>
     </table></div>
   </div>`;
 
   document.getElementById("productForm").onsubmit = e=>{
     e.preventDefault();
     const n=document.getElementById("pName").value.trim(); if(!n) return;
-    if(products.some(p=>p.name.toLowerCase()===n.toLowerCase())) return toast("Ei product already ache.");
+    if(products.some(p=>p.name.toLowerCase()===n.toLowerCase())) return toast("This product already exists.");
     state.products.push({ id:uid("p"), companyId:state.activeCompanyId, name:n, retailPrice:num(document.getElementById("pPrice").value) });
     recordAudit("PRODUCT", "Added product "+n);
     save(); toast("Product added."); render.products();
   };
 };
 function setProductPrice(pid,val){
+  if(!isAdmin()) return toast("Only an Admin can change prices.");
   const p=getProduct(pid); if(!p) return;
-  p.retailPrice=num(val);
+  p.retailPrice=Math.max(0,num(val));            /* minus dam hote pare na */
   recordAudit("PRODUCT", `Set retail price of ${p.name} to ${p.retailPrice}`);
   save(); toast("Retail price updated."); render.products();
 }
@@ -1722,7 +2065,7 @@ function renameProduct(pid){
 function deleteProduct(pid){
   if(!isAdmin()) return alert("Only admin can delete products.");
   const used = state.cartons.some(c=>cartonItems(c).some(i=>i.productId===pid && num(i.pcs)>0));
-  if(used) return alert("Ei product-er stock ache — age stock OUT korun, tarpor delete korun.");
+  if(used) return alert("This product still has stock — dispatch it first, then delete.");
   if(!confirm("Delete this product?")) return;
   const p=getProduct(pid);
   state.products=state.products.filter(x=>x.id!==pid);
@@ -1744,7 +2087,7 @@ render.vendors = function(){
     <div class="panel-head"><h2>🏷️ Add vendor</h2></div>
     <form id="vendorForm" class="form-grid">
       <div class="field"><label class="required">Vendor name</label><input id="vName" required placeholder="e.g. Mirpur Vendor"></div>
-      <div class="field"><label class="required">Discount % <span class="optional-tag">(retail theke kom)</span></label>
+      <div class="field"><label class="required">Discount % <span class="optional-tag">(off the retail price)</span></label>
         <input id="vPct" type="number" min="0" max="100" step="0.01" value="0" required></div>
       <div class="field"><label>Phone <span class="optional-tag">(optional)</span></label><input id="vPhone" placeholder="01XXXXXXXXX"></div>
       <div class="field"><label>Address <span class="optional-tag">(optional)</span></label><input id="vAddress"></div>
@@ -1760,14 +2103,14 @@ render.vendors = function(){
         const val=list.reduce((t,c)=>t+cartonValue(c,true),0);
         return `<tr>
           <td><b>${esc(x.name)}</b></td><td>${esc(x.phone||"—")}</td><td class="wrap">${esc(x.address||"—")}</td>
-          <td class="num"><input type="number" min="0" max="100" step="0.01" style="width:90px" value="${num(x.discountPct)}"
-              onchange="setVendorPct('${x.id}',this.value)"></td>
+          <td class="num">${admin? `<input type="number" min="0" max="100" step="0.01" style="width:90px" value="${num(x.discountPct)}"
+              onchange="setVendorPct('${x.id}',this.value)">` : `<b>${num(x.discountPct)}%</b>`}</td>
           <td class="num">${list.length}</td><td class="num"><b>${money(val)}</b></td>
           <td class="nowrap">
             <button class="btn small secondary" onclick="state.selectedVendorId='${x.id}';save();render.vendors()">📄 Price list</button>
             ${admin? `<button class="btn small danger" onclick="deleteVendor('${x.id}')">Delete</button>`:""}
           </td></tr>`;
-      }).join("") : emptyRow(7,"No vendors yet","Upore form theke vendor add korun — ba Stock IN-e vendor name likhle automatic add hobe.")}</tbody>
+      }).join("") : emptyRow(7,"No vendors yet","Add one using the form above — or type a vendor name during Stock IN and it is added automatically.")}</tbody>
     </table></div>
   </div>
 
@@ -1799,7 +2142,7 @@ render.vendors = function(){
   document.getElementById("vendorForm").onsubmit = e=>{
     e.preventDefault();
     const name=document.getElementById("vName").value.trim(); if(!name) return;
-    if(vendors.some(x=>x.name.toLowerCase()===name.toLowerCase())) return toast("Vendor already ache.");
+    if(vendors.some(x=>x.name.toLowerCase()===name.toLowerCase())) return toast("This vendor already exists.");
     state.vendors.push({ id:uid("v"), companyId:state.activeCompanyId, name,
       discountPct:num(document.getElementById("vPct").value),
       phone:document.getElementById("vPhone").value.trim(),
@@ -1809,15 +2152,16 @@ render.vendors = function(){
   };
 };
 function setVendorPct(vid,val){
+  if(!isAdmin()) return toast("Only an Admin can change vendor discount.");
   const v=state.vendors.find(x=>x.id===vid); if(!v) return;
-  v.discountPct=num(val);
+  v.discountPct=Math.min(100,Math.max(0,num(val)));   /* 0 theke 100 er baire na */
   recordAudit("VENDOR", `Set ${v.name} discount to ${v.discountPct}%`);
   save(); toast("Vendor discount updated."); render.vendors();
 }
 function deleteVendor(vid){
   if(!isAdmin()) return alert("Only admin can delete vendors.");
   const v=state.vendors.find(x=>x.id===vid); if(!v) return;
-  if(!confirm(`Delete vendor '${v.name}'? Carton record-e name theke jabe.`)) return;
+  if(!confirm(`Delete vendor '${v.name}'? The name stays on existing carton records.`)) return;
   state.vendors=state.vendors.filter(x=>x.id!==vid);
   recordAudit("VENDOR","Deleted vendor "+v.name);
   save(); updateVendorDatalist(); toast("Vendor deleted."); render.vendors();
@@ -1960,7 +2304,8 @@ function exportStockCSV(){
   const head=["Carton No","Invoice/PO","Vendor","IN Date","Expiry","Product","Received PCS","Remaining PCS","Unit Rate","Line Value","Carton A","Carton B","Carton B2","Carton C","Carton Total","Status","Remarks"];
   const lines=[head.map(csvCell).join(",")];
   rows.forEach(c=>{
-    const items=cartonItems(c); if(!items.length) items.push({productId:"",pcs:0,initialPcs:0});
+    /* copy - age direct c.items e push korchilo, oita state nashto korto */
+    const items = cartonItems(c).length ? cartonItems(c) : [{productId:"",pcs:0,initialPcs:0}];
     items.forEach((i,ix)=>{
       lines.push([ c.cartonNo, c.po||"", vendorOf(c), c.inDate||"", c.expiry||"",
         productName(i.productId), num(i.initialPcs), num(i.pcs),
@@ -2033,7 +2378,7 @@ render.vendorReports = function(){
           <td class="num">${money(d.recvVal)}</td><td class="num"><b>${money(d.stockVal)}</b></td>
           <td class="num">${pcs(d.dmg)}</td><td class="num">${money(d.dmgVal)}</td>
           <td class="num"><span class="badge ${dp>=20?"c":dp>=10?"b":"a"}">${dp.toFixed(1)}%</span></td></tr>`;
-      }).join("") : emptyRow(11,"No vendor data","Stock IN korle vendor-wise report ekhane dekhabe.")}</tbody>
+      }).join("") : emptyRow(11,"No vendor data","Vendor-wise reports appear here after your first Stock IN.")}</tbody>
       ${data.length?`<tfoot><tr><th>TOTAL</th><th class="num">—</th><th class="num">${T.cartons}</th>
         <th class="num">${pcs(T.got)}</th><th class="num">${pcs(T.out)}</th><th class="num">${pcs(T.rem)}</th>
         <th class="num">${money(T.recvVal)}</th><th class="num">${money(T.stockVal)}</th>
@@ -2062,14 +2407,6 @@ function exportVendorCSV(){
 }
 
 /* ------------------------------ USER ACCOUNTS ------------------------------ */
-const SEC_QUESTIONS = [
-  "What is your mother's maiden name?",
-  "What was the name of your first school?",
-  "What is your favourite food?",
-  "In which city were you born?",
-  "What is your childhood nickname?"
-];
-
 render.users = function(){
   const users=state.users;
   document.getElementById("page-users").innerHTML = `
@@ -2082,9 +2419,6 @@ render.users = function(){
       <div class="field"><label class="required">Temporary password</label><input id="nuPass" type="text" required placeholder="Minimum 4 characters"></div>
       <div class="field"><label class="required">Role</label>
         <select id="nuRole"><option value="User">User (operations only)</option><option value="Admin">Admin (full access)</option></select></div>
-      <div class="field"><label class="required">Security question</label>
-        <select id="nuQ">${SEC_QUESTIONS.map(q=>`<option value="${esc(q)}">${esc(q)}</option>`).join("")}</select></div>
-      <div class="field"><label class="required">Security answer</label><input id="nuA" required placeholder="Needed for password recovery"></div>
       <div id="nuMsg" class="form-msg err hidden span2"></div>
       <div class="actions span2"><button class="btn">Create account</button></div>
     </form>
@@ -2113,18 +2447,15 @@ render.users = function(){
     const msg=document.getElementById("nuMsg");
     const email=document.getElementById("nuEmail").value.trim().toLowerCase();
     const pass=document.getElementById("nuPass").value;
-    const ans=document.getElementById("nuA").value;
     const showErr=t=>{ msg.textContent=t; msg.classList.remove("hidden") };
     msg.classList.add("hidden");
-    if(pass.length<4) return showErr("Password kompokkhe 4 character hote hobe.");
-    if(!normAnswer(ans)) return showErr("Security answer dorkar.");
-    if(state.users.some(u=>u.email.toLowerCase()===email)) return showErr("Ei email already registered.");
+    if(pass.length<4) return showErr("Password must be at least 4 characters.");
+    if(state.users.some(u=>u.email.toLowerCase()===email)) return showErr("This email is already registered.");
     state.users.push({
       id:uid("u"), name:document.getElementById("nuName").value.trim(),
       position:document.getElementById("nuPosition").value.trim(), email,
       role:document.getElementById("nuRole").value, active:true,
       passHash:await hashString(pass),
-      secQ:document.getElementById("nuQ").value, secAHash:await hashString(normAnswer(ans)),
       createdAt:new Date().toISOString(), lastSeenAt:null
     });
     recordAudit("USER","Created account "+email);
@@ -2133,32 +2464,36 @@ render.users = function(){
 };
 
 async function resetUserPassword(uidStr){
+  if(!isAdmin()) return alert("Admin only.");
   const u=accountById(uidStr); if(!u) return;
   const p=prompt(`Set a new password for ${u.email}:`); if(p===null) return;
-  if(String(p).length<4) return toast("Password kompokkhe 4 character.");
+  if(String(p).length<4) return toast("Password must be at least 4 characters.");
   u.passHash=await hashString(p);
   recordAudit("USER","Reset password for "+u.email);
   save(); toast("Password updated.");
 }
 function toggleUserRole(uidStr){
+  if(!isAdmin()) return alert("Admin only.");
   const u=accountById(uidStr); if(!u) return;
-  if(u.role==="Admin" && adminCount()<=1) return alert("At least one active admin dorkar.");
+  if(u.role==="Admin" && adminCount()<=1) return alert("At least one active admin is required.");
   u.role = u.role==="Admin" ? "User" : "Admin";
   recordAudit("USER",`Changed role of ${u.email} to ${u.role}`);
   save(); enforceSession(); syncHeader(); toast("Role updated."); render.users();
 }
 function toggleUserActive(uidStr){
+  if(!isAdmin()) return alert("Admin only.");
   const u=accountById(uidStr); if(!u) return;
-  if(u.active!==false && u.role==="Admin" && adminCount()<=1) return alert("Last active admin deactivate kora jabe na.");
+  if(u.active!==false && u.role==="Admin" && adminCount()<=1) return alert("The last active admin cannot be switched off.");
   u.active = u.active===false;
   recordAudit("USER",`${u.active?"Activated":"Deactivated"} ${u.email}`);
   save(); toast("Status updated."); render.users();
   if(u.id===state.user.id && u.active===false) forceLogout("Your account was deactivated.");
 }
 function deleteUser(uidStr){
+  if(!isAdmin()) return alert("Admin only.");
   const u=accountById(uidStr); if(!u) return;
-  if(u.id===state.user.id) return alert("Nijer account delete kora jabe na.");
-  if(u.role==="Admin" && adminCount()<=1) return alert("Last admin delete kora jabe na.");
+  if(u.id===state.user.id) return alert("You cannot delete your own account.");
+  if(u.role==="Admin" && adminCount()<=1) return alert("The last admin cannot be deleted.");
   if(!confirm(`Delete account ${u.email}?`)) return;
   state.users=state.users.filter(x=>x.id!==uidStr);
   recordAudit("USER","Deleted account "+u.email);
@@ -2217,9 +2552,9 @@ function renameCompany(cid){
   save(); setLogo(); syncHeader(); render.companies();
 }
 function deleteCompany(cid){
-  if(state.companies.length<=1) return alert("Onto ekta company thakte hobe.");
+  if(state.companies.length<=1) return alert("At least one company must remain.");
   const c=state.companies.find(x=>x.id===cid); if(!c) return;
-  if(!confirm(`Delete '${c.name}' and ALL its cartons, products, vendors and movements? Ei kaj undo hobe na.`)) return;
+  if(!confirm(`Delete '${c.name}' and ALL its cartons, products, vendors and movements? This cannot be undone.`)) return;
   state.companies=state.companies.filter(x=>x.id!==cid);
   state.cartons=state.cartons.filter(x=>x.companyId!==cid);
   state.products=state.products.filter(x=>x.companyId!==cid);
@@ -2256,7 +2591,7 @@ render.company = function(){
 
     <div class="panel">
       <div class="panel-head"><h2>🛡️ Admin PIN <span class="sub">${pinSet?"Configured":"Not set"}</span></h2></div>
-      <p class="muted" style="margin:0 0 12px">Admin accounts email + password + <b>Admin PIN</b> — tinta lagbe. Ei PIN shob admin-er jonno ek-i.</p>
+      <p class="muted" style="margin:0 0 12px">Admin accounts need all three: email, password and the <b>Admin PIN</b>. The same PIN applies to every admin.</p>
       <form id="pinForm" class="form-stack" autocomplete="off">
         ${pinSet?`<div class="field"><label class="required">Current PIN</label><input id="pinOld" type="password" inputmode="numeric" required></div>`:""}
         <div class="field"><label class="required">New Admin PIN</label><input id="pinNew" type="password" inputmode="numeric" placeholder="4–8 digits" required></div>
@@ -2265,15 +2600,12 @@ render.company = function(){
         <div class="actions"><button class="btn">🔐 ${pinSet?"Change":"Set"} Admin PIN</button></div>
       </form>
       <hr class="sep">
-      <div class="panel-head" style="padding:0"><h2>🔑 My password &amp; security question</h2></div>
+      <div class="panel-head" style="padding:0"><h2>🔑 My password</h2></div>
       <form id="myPassForm" class="form-stack" autocomplete="off">
         <div class="field"><label class="required">Current password</label><input id="mpOld" type="password" required></div>
         <div class="field"><label class="required">New password</label><input id="mpNew" type="password" required placeholder="Minimum 4 characters"></div>
-        <div class="field"><label>Security question</label>
-          <select id="mpQ">${SEC_QUESTIONS.map(q=>`<option value="${esc(q)}" ${currentAccount()?.secQ===q?"selected":""}>${esc(q)}</option>`).join("")}</select></div>
-        <div class="field"><label>New answer <span class="optional-tag">(fanka rakhle age-r ta thakbe)</span></label><input id="mpA"></div>
         <div id="mpMsg" class="form-msg err hidden"></div>
-        <div class="actions"><button class="btn">Update my credentials</button></div>
+        <div class="actions"><button class="btn">Change my password</button></div>
       </form>
     </div>
   </div>
@@ -2284,8 +2616,8 @@ render.company = function(){
       <div class="storage-card ${cloud.on?"good":""}">
         <b>${cloud.on?"✅ Supabase cloud database — connected":"💾 This browser only (offline mode)"}</b>
         <p class="muted">${cloud.on
-          ? "Data Supabase Postgres-e save hocche. Je kono device / browser theke same data pabe, ar browser clear korleo data thakbe."
-          : "Ekhon data shudhu ei browser-e ache. Browser data clear korle ba onno device-e gele ei data pawa jabe na. Niche Supabase connect korun."}</p>
+          ? "Data is stored in Supabase Postgres. Every device and browser sees the same data, and clearing the browser does not lose it."
+          : "Right now the data lives only in this browser. Clearing browser data, or opening the app on another device, means this data is gone. Connect Supabase below."}</p>
         <div class="kpis">
           <span class="pill">Cartons: <b>${state.cartons.length}</b></span>
           <span class="pill">Movements: <b>${state.movements.length}</b></span>
@@ -2301,7 +2633,7 @@ render.company = function(){
 
       <div class="storage-card">
         <b>🔗 ${cloud.on?"Change cloud connection":"Connect Supabase (cloud database)"}</b>
-        <p class="muted">Supabase dashboard → <b>Project Settings → Data API</b> theke <b>Project URL</b> ar <b>publishable / anon key</b> copy kore niche boshan. Ekbar-i korte hobe.</p>
+        <p class="muted">In your Supabase dashboard go to <b>Project Settings → Data API</b>, copy the <b>Project URL</b> and the <b>publishable / anon key</b>, and paste them below. This is a one-time step.</p>
         <form id="cloudForm" class="form-stack" autocomplete="off">
           <div class="field"><label class="required">Project URL</label>
             <input id="cfUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" value="${esc(cfg?.supabaseUrl||DEFAULT_SUPABASE_URL)}"></div>
@@ -2312,7 +2644,7 @@ render.company = function(){
           <div id="cloudMsg" class="form-msg err hidden"></div>
           <div class="actions"><button class="btn">🔌 Test &amp; connect</button></div>
         </form>
-        <div class="hint">Age Supabase-e <code>supabase/schema.sql</code> file-er SQL ta run kore nite hobe (SQL Editor → paste → Run).</div>
+        <div class="hint">Run the SQL from <code>supabase/schema.sql</code> in Supabase once before this (SQL Editor → paste → Run).</div>
       </div>
     </div>
   </div>`;
@@ -2324,8 +2656,8 @@ render.company = function(){
     const url=normalizeSupabaseUrl(document.getElementById("cfUrl").value);
     const key=document.getElementById("cfKey").value.trim();
     const doc=document.getElementById("cfDoc").value.trim()||"main";
-    if(!/^https:\/\/[\w.-]+/.test(url)) return err("Project URL ta 'https://' diye shuru hote hobe.");
-    if(key.length<20) return err("Key ta thik mone hocche na — abar copy korun.");
+    if(!/^https:\/\/[\w.-]+/.test(url)) return err("The Project URL must start with 'https://'.");
+    if(key.length<20) return err("That key does not look right — please copy it again.");
 
     msg.textContent="Connecting…"; msg.className="form-msg"; msg.classList.remove("hidden");
     try{
@@ -2333,21 +2665,21 @@ render.company = function(){
         { headers:{ apikey:key, Authorization:"Bearer "+key } });
       const body=await r.text();
       if(!r.ok){
-        if(r.status===401||r.status===403) return err("Key reject holo. Publishable/anon key ta abar check korun.");
+        if(r.status===401||r.status===403) return err("The key was rejected. Please check the publishable / anon key.");
         if(/relation .*app_state.* does not exist|Could not find the table/i.test(body))
-          return err("'app_state' table nei. Age Supabase SQL Editor-e supabase/schema.sql run korun.");
-        return err(`Connect holo na (${r.status}): ${body.slice(0,120)}`);
+          return err("The 'app_state' table is missing. Run supabase/schema.sql in the Supabase SQL Editor first.");
+        return err(`Could not connect (${r.status}): ${body.slice(0,120)}`);
       }
       writeCloudCfg({ supabaseUrl:url, supabaseAnonKey:key, docId:doc });
       const ok=await cloudInit();
-      if(!ok){ writeCloudCfg(null); return err("Connect test pass korlo, kintu data load holo na. Table permission (RLS policy) check korun.") }
+      if(!ok){ writeCloudCfg(null); return err("The connection worked but the data did not load. Please check the table permissions (RLS policy).") }
       await cloudPush(true);
       recordAudit("STORAGE","Connected Supabase cloud database");
       setLogo(); syncHeader();
-      toast("Cloud connected — data ekhon Supabase-e save hobe.");
+      toast("Cloud connected — data is now saved to Supabase.");
       render.company();
     }catch(ex){
-      err("Network error: "+ex.message+" — URL thik ache kina dekhun.");
+      err("Network error: "+ex.message+" — check that the URL is correct.");
     }
   };
 
@@ -2366,10 +2698,10 @@ render.company = function(){
     const nw=document.getElementById("pinNew").value.trim(), n2=document.getElementById("pinNew2").value.trim();
     if(pinSet){
       const old=document.getElementById("pinOld").value.trim();
-      if(await hashString(old) !== state.security.adminPinHash) return err("Current PIN thik na.");
+      if(await hashString(old) !== state.security.adminPinHash) return err("The current PIN is incorrect.");
     }
-    if(!/^\d{4,8}$/.test(nw)) return err("PIN 4 theke 8 ta digit hote hobe.");
-    if(nw!==n2) return err("Dui bar-er PIN mile na.");
+    if(!/^\d{4,8}$/.test(nw)) return err("The PIN must be 4 to 8 digits.");
+    if(nw!==n2) return err("The two PINs do not match.");
     state.security.adminPinHash = await hashString(nw);
     recordAudit("SECURITY", pinSet? "Changed admin PIN" : "Set admin PIN");
     save(); toast("Admin PIN saved."); render.company();
@@ -2379,16 +2711,13 @@ render.company = function(){
     e.preventDefault();
     const msg=document.getElementById("mpMsg"); msg.classList.add("hidden");
     const err=t=>{ msg.textContent=t; msg.classList.remove("hidden") };
-    const a=currentAccount(); if(!a) return err("Account pawa jacche na.");
-    if(await hashString(document.getElementById("mpOld").value) !== a.passHash) return err("Current password thik na.");
+    const a=currentAccount(); if(!a) return err("Account not found.");
+    if(await hashString(document.getElementById("mpOld").value) !== a.passHash) return err("The current password is incorrect.");
     const nw=document.getElementById("mpNew").value;
-    if(nw.length<4) return err("Notun password kompokkhe 4 character.");
+    if(nw.length<4) return err("The new password must be at least 4 characters.");
     a.passHash=await hashString(nw);
-    a.secQ=document.getElementById("mpQ").value;
-    const ans=document.getElementById("mpA").value;
-    if(normAnswer(ans)) a.secAHash=await hashString(normAnswer(ans));
-    recordAudit("SECURITY","Updated own password / security question");
-    save(); toast("Credentials updated."); render.company();
+    recordAudit("SECURITY","Changed own password");
+    save(); toast("Password updated."); render.company();
   };
 };
 
@@ -2397,7 +2726,7 @@ function storageSize(){
 }
 function uploadLogo(input){
   const f=input.files?.[0]; if(!f) return;
-  if(f.size>1024*1024) return toast("Logo 1MB-er kom hote hobe.");
+  if(f.size>1024*1024) return toast("The logo must be smaller than 1 MB.");
   const r=new FileReader();
   r.onload=()=>{ currentCompany().logo=r.result; recordAudit("COMPANY","Updated logo"); save(); setLogo(); toast("Logo updated."); render.company() };
   r.readAsDataURL(f);
@@ -2460,7 +2789,7 @@ function cloudHeaders(extra){
   }, extra||{});
 }
 const LS_CLOUD = "cartonCloudConfig_v1";
-/* Rakib's project URL + publishable (browser-safe) key, prefilled so the connect
+/* Project URL + publishable (browser-safe) key, prefilled so the connect
    form is ready to go. Change them any time in Company → Data storage. */
 const DEFAULT_SUPABASE_URL = "https://zcoleigfrvidcywymqlz.supabase.co";
 const DEFAULT_SUPABASE_KEY = "sb_publishable_nI_asC7CY-FAgH_5xx32XQ_7GmlNYu_";
@@ -2543,7 +2872,7 @@ function cloudQueue(){
 }
 async function cloudPushAll(){ await cloudPush(true); toast("Pushed to cloud.") }
 function cloudDisconnect(){
-  if(!confirm("Cloud disconnect korben? Data ei browser-e thakbe, kintu ar cloud-e save hobe na.")) return;
+  if(!confirm("Disconnect the cloud? Data stays in this browser but will no longer be saved to Supabase.")) return;
   writeCloudCfg(null);
   cloud.ready=false; cloud.url=""; cloud.key="";
   _saveLocal();
@@ -2567,19 +2896,29 @@ const _saveLocal = save;
 save = function(){ _saveLocal(); cloudQueue() };
 
 /* ============================== AUTH SCREENS ============================== */
-const AUTH_CARDS = { setup:"setupCard", signin:"signInCard", admin:"adminSignInCard", forgot:"forgotCard" };
-let fpUser=null;
+/* One sign-in card for everyone. Admins get an extra PIN step inside the same
+   card instead of a separate console door. */
+const AUTH_CARDS = { setup:"setupCard", signin:"signInCard" };
+let pinStage=false;          /* true while the Admin PIN box is showing */
 
 function showAuth(view){
   const needSetup = state.users.length===0;
-  const v = needSetup ? "setup" : (view || "signin");
+  let v = needSetup ? "setup" : (view || "signin");
+  if(!AUTH_CARDS[v]) v="signin";        /* "admin" and "forgot" no longer exist */
+  resetPinStage();
   Object.values(AUTH_CARDS).forEach(id=>document.getElementById(id).classList.add("hidden"));
   document.getElementById(AUTH_CARDS[v]).classList.remove("hidden");
   document.querySelectorAll("#authScreen .form-msg").forEach(m=>m.classList.add("hidden"));
-  if(v!=="forgot"){ fpUser=null; document.getElementById("fpStep2").classList.add("hidden");
-    document.getElementById("fpSubmit").textContent="Continue"; document.getElementById("forgotForm").reset() }
-  const first=document.querySelector(`#${AUTH_CARDS[v]} input:not([disabled])`);
+  const first=document.querySelector(`#${AUTH_CARDS[v]} input:not([disabled]):not(.hidden)`);
   if(first) setTimeout(()=>first.focus(),80);
+}
+function resetPinStage(){
+  pinStage=false;
+  const wrap=document.getElementById("siPinWrap");
+  if(!wrap) return;
+  wrap.classList.add("hidden");
+  document.getElementById("siPin").value="";
+  document.getElementById("siSubmit").textContent="Sign In";
 }
 function authErr(id,msg){
   const el=document.getElementById(id);
@@ -2605,113 +2944,118 @@ function signInAs(account){
 
 /* ---- first-run setup: creates the first Admin + the Admin PIN ---- */
 function wireSetup(){
-  const q=document.getElementById("suQ");
-  q.innerHTML = SEC_QUESTIONS.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
   document.getElementById("setupForm").onsubmit = async e=>{
     e.preventDefault();
     const pin=document.getElementById("suPin").value.trim();
     const pass=document.getElementById("suPass").value;
-    const ans=document.getElementById("suA").value;
-    if(pass.length<4) return authErr("setupMsg","Password kompokkhe 4 character hote hobe.");
-    if(!/^\d{4,8}$/.test(pin)) return authErr("setupMsg","Admin PIN 4–8 ta digit hote hobe.");
-    if(!normAnswer(ans)) return authErr("setupMsg","Security answer dorkar.");
+    if(pass.length<4) return authErr("setupMsg","Password must be at least 4 characters.");
+    if(!/^\d{4,8}$/.test(pin)) return authErr("setupMsg","The Admin PIN must be 4 to 8 digits.");
     const acc={
       id:uid("u"), name:document.getElementById("suName").value.trim(),
       position:document.getElementById("suPosition").value.trim(),
       email:document.getElementById("suEmail").value.trim().toLowerCase(),
       role:"Admin", active:true, passHash:await hashString(pass),
-      secQ:q.value, secAHash:await hashString(normAnswer(ans)),
       createdAt:new Date().toISOString(), lastSeenAt:null
     };
     state.users=[acc];
     state.security.adminPinHash = await hashString(pin);
     save();
     signInAs(acc);
-    toast("Admin account ready. Users page theke baki account banate parben.");
+    toast("Admin account ready. You can add the other accounts from the Users page.");
   };
 }
 
-/* ---- staff sign in (admins must use the admin door) ---- */
+/* ---- sign in: one card for staff and admin ---- */
 function wireSignIn(){
   document.getElementById("signInForm").onsubmit = async e=>{
     e.preventDefault();
     const email=document.getElementById("siEmail").value.trim().toLowerCase();
     const pass=document.getElementById("siPass").value;
+    const pin=document.getElementById("siPin").value.trim();
     const acc=state.users.find(u=>u.email.toLowerCase()===email);
-    if(!acc || await hashString(pass)!==acc.passHash) return authErr("signInMsg","Email ba password thik na.");
-    if(acc.active===false) return authErr("signInMsg","Ei account inactive. Admin-ke bolun.");
-    if(acc.role==="Admin"){
-      authErr("signInMsg","Admin account — 'Admin login' door use korun (PIN lagbe).");
-      setTimeout(()=>{ showAuth("admin"); document.getElementById("asEmail").value=email },900);
+    if(!acc || await hashString(pass)!==acc.passHash){
+      resetPinStage();
+      return authErr("signInMsg","Email or password is incorrect.");
+    }
+    if(acc.active===false){
+      resetPinStage();
+      return authErr("signInMsg","This account is switched off. Please ask an admin.");
+    }
+    if(acc.role!=="Admin") return signInAs(acc);
+
+    /* Admin: one extra step in the same card. Older workspaces have no PIN yet,
+       so the first admin to sign in creates it here. */
+    const firstPin = !state.security?.adminPinHash;
+    if(!pinStage){
+      pinStage=true;
+      document.getElementById("siPinWrap").classList.remove("hidden");
+      document.getElementById("siPinLabel").textContent = firstPin ? "New Admin PIN (4–8 digits)" : "Admin PIN";
+      document.getElementById("siPin").placeholder      = firstPin ? "Create a PIN" : "Admin PIN";
+      document.getElementById("siPinHint").textContent  = firstPin
+        ? "No Admin PIN has been set yet. Choose one now — it will be required from next time."
+        : "Admin accounts need this PIN as well.";
+      document.getElementById("siSubmit").textContent   = firstPin ? "Set PIN & Sign In" : "Continue as Admin";
+      document.getElementById("signInMsg").classList.add("hidden");
+      setTimeout(()=>document.getElementById("siPin").focus(),80);
       return;
     }
-    signInAs(acc);
-  };
-}
-
-/* ---- admin sign in: email + password + Admin PIN ---- */
-function wireAdminSignIn(){
-  document.getElementById("adminSignInForm").onsubmit = async e=>{
-    e.preventDefault();
-    const email=document.getElementById("asEmail").value.trim().toLowerCase();
-    const pass=document.getElementById("asPass").value;
-    const pin=document.getElementById("asPin").value.trim();
-    const acc=state.users.find(u=>u.email.toLowerCase()===email);
-    if(!acc || await hashString(pass)!==acc.passHash) return authErr("adminSignInMsg","Email ba password thik na.");
-    if(acc.role!=="Admin") return authErr("adminSignInMsg","Ei account admin na — staff sign in use korun.");
-    if(acc.active===false) return authErr("adminSignInMsg","Ei admin account inactive.");
-    if(!state.security?.adminPinHash) return authErr("adminSignInMsg","Admin PIN set kora nei. Recovery-r jonno onno admin-ke bolun.");
+    if(firstPin){
+      if(!/^\d{4,8}$/.test(pin)) return authErr("signInMsg","The new Admin PIN must be 4 to 8 digits.");
+      state.security = Object.assign({adminPinHash:null}, state.security||{});
+      state.security.adminPinHash = await hashString(pin);
+      save();
+      recordAudit("SECURITY","Admin PIN set for the first time by "+email);
+      signInAs(acc);
+      toast("Admin PIN saved. Please write it down.");
+      return;
+    }
     if(await hashString(pin)!==state.security.adminPinHash){
+      if(!pin) return authErr("signInMsg","Please enter the Admin PIN.");
       recordAudit("SECURITY","Failed admin PIN attempt for "+email);
-      return authErr("adminSignInMsg","Admin PIN thik na.");
+      return authErr("signInMsg","The Admin PIN is incorrect.");
     }
     signInAs(acc);
   };
 }
 
-/* ---- forgot password: security question -> new password ---- */
-function wireForgot(){
-  document.getElementById("forgotForm").onsubmit = async e=>{
-    e.preventDefault();
-    const email=document.getElementById("fpEmail").value.trim().toLowerCase();
-
-    if(!fpUser){
-      const acc=state.users.find(u=>u.email.toLowerCase()===email);
-      if(!acc) return authErr("fpMsg","Ei email diye kono account nei.");
-      if(!acc.secQ || !acc.secAHash) return authErr("fpMsg","Ei account-e security question set nei — admin-ke password reset korte bolun.");
-      fpUser=acc;
-      document.getElementById("fpQuestion").value=acc.secQ;
-      document.getElementById("fpStep2").classList.remove("hidden");
-      document.getElementById("fpSubmit").textContent="Reset password";
-      document.getElementById("fpMsg").classList.add("hidden");
-      setTimeout(()=>document.getElementById("fpAnswer").focus(),80);
-      return;
-    }
-
-    if(fpUser.email.toLowerCase()!==email) return authErr("fpMsg","Email change hoyeche — abar Continue chapun.");
-    const ans=document.getElementById("fpAnswer").value;
-    const p1=document.getElementById("fpNewPass").value, p2=document.getElementById("fpNewPass2").value;
-    if(await hashString(normAnswer(ans))!==fpUser.secAHash){
-      recordAudit("SECURITY","Wrong security answer for "+fpUser.email);
-      return authErr("fpMsg","Answer thik na. Abar cheshta korun.");
-    }
-    if(p1.length<4) return authErr("fpMsg","Notun password kompokkhe 4 character.");
-    if(p1!==p2) return authErr("fpMsg","Dui bar-er password mile na.");
-    fpUser.passHash=await hashString(p1);
-    save();
-    state.audits.unshift({ id:uid("aud"), companyId:state.activeCompanyId, user:fpUser.email,
-      action:"PASSWORD RESET", details:"Reset via security question", date:now() });
-    save();
-    authOk("fpMsg","Password change hoye gelo! Ekhon sign in korun.");
-    const doneEmail = fpUser.email, wasAdmin = fpUser.role==="Admin";
-    setTimeout(()=>{ showAuth(wasAdmin?"admin":"signin");
-      const box=document.getElementById(wasAdmin?"asEmail":"siEmail"); if(box) box.value=doneEmail; }, 1400);
-  };
+/* ---- built-in owner account --------------------------------------------------
+   The owner asked for his own admin login to be part of the app, so a fresh
+   browser (or an old workspace whose password was lost) can always get in.
+   It runs ONCE per workspace: the ownerSeeded flag means a password he changes
+   later is never silently reset back to this one. */
+const OWNER_ACCOUNT = {
+  email:"mdrakib6577@gmail.com",
+  passHash:"162e079d23183abfd97eea7c1bc9ca1113aa002a7e8481a6a1d42d21ea71a80a",  /* SHA-256 */
+  name:"Md Rakib",
+  position:"Owner"
+};
+function ensureOwnerAccount(){
+  if(state.security.ownerSeeded) return false;
+  const acc = state.users.find(u=>String(u.email||"").toLowerCase()===OWNER_ACCOUNT.email);
+  if(acc){
+    acc.role="Admin"; acc.active=true; acc.passHash=OWNER_ACCOUNT.passHash;
+    if(!acc.name) acc.name=OWNER_ACCOUNT.name;
+  }else{
+    state.users.push({
+      id:uid("u"), name:OWNER_ACCOUNT.name, position:OWNER_ACCOUNT.position,
+      email:OWNER_ACCOUNT.email, role:"Admin", active:true,
+      passHash:OWNER_ACCOUNT.passHash,
+      createdAt:new Date().toISOString(), lastSeenAt:null
+    });
+  }
+  state.security.ownerSeeded = true;
+  /* The PIN is cleared with it: an older workspace may already hold a PIN the
+     owner does not know, which would lock him out just as badly as a lost
+     password. He is asked to choose a fresh one on his next sign-in. */
+  state.security.adminPinHash = null;
+  recordAudit("SECURITY","Owner account restored from the built-in details; Admin PIN cleared so a new one can be set");
+  save();
+  return true;
 }
 
 /* ================================ BOOT ================================ */
 async function boot(){
-  wireSetup(); wireSignIn(); wireAdminSignIn(); wireForgot();
+  wireSetup(); wireSignIn(); wireDrawerGestures();
 
   document.getElementById("logoutBtn").onclick = ()=>{
     if(!confirm("Sign out now?")) return;
@@ -2722,17 +3066,30 @@ async function boot(){
     showAuth("signin");
   };
   document.querySelectorAll(".nav[data-page]").forEach(b=>{
-    b.onclick=()=>{ show(b.dataset.page); if(window.matchMedia("(max-width:1080px)").matches) toggleSidebar(false) };
+    b.onclick=()=>{ show(b.dataset.page); if(window.matchMedia("(max-width:960px)").matches) toggleSidebar(false) };
   });
+  applyTheme(currentTheme());
   document.addEventListener("keydown",e=>{
     if(e.key==="Escape") closeModal();
-    if(e.key==="p" && (e.ctrlKey||e.metaKey) && document.querySelector(".page.active .report-paper")){
+    /* "/" chaple oi page er search box e cursor chole jay (modal khola thakle na) */
+    const modalOpen = !!document.getElementById("modalRoot")?.children?.length;
+    if(e.key==="/" && !modalOpen && !/^(INPUT|SELECT|TEXTAREA)$/.test(e.target?.tagName||"")){
+      const box=document.querySelector(".page.active .search input");
+      if(box){ e.preventDefault(); box.focus() }
+    }
+    if((e.key||"").toLowerCase()==="p" && (e.ctrlKey||e.metaKey) && document.querySelector(".page.active .report-paper")){
       e.preventDefault();
-      printPaper(document.querySelector(".page.active .report-paper").id,"landscape");
+      const paper=document.querySelector(".page.active .report-paper");
+      /* price list ta portrait, baki report gulo landscape */
+      printPaper(paper.id, paper.id==="vendorPricePaper" ? "portrait" : "landscape");
     }
   });
 
+  /* Ekhono login kora na thakle login card ta shathe shathe dekhai - cloud slow
+     hole o shada screen boshe thakbe na. Login kora thakle flash hobe na. */
+  if(!state.user?.loggedIn && state.users.length) showAuth("signin");
   await cloudInit();
+  ensureOwnerAccount();
   setLogo();
 
   if(state.users.length===0){ showAuth("setup"); return }
@@ -2743,7 +3100,12 @@ async function boot(){
   }
   showAuth("signin");
 }
-boot();
+boot().catch(err=>{
+  console.error(err);
+  /* kono karone boot fail korleo login card ta thake - kintu app already
+     khule gele oi card ta hidden container er bhitor, tai tokhon kichhu na */
+  if(document.getElementById("app")?.classList.contains("hidden")) showAuth("signin");
+});
 </script>
 </body>
 </html>
