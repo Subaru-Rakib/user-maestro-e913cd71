@@ -609,6 +609,44 @@ html[data-theme="dark"] .report-paper .pill{background:#f8fafc;color:#334155;bor
   #printHost .report-logo{width:140px!important;height:48px!important}
   #printHost .report-foot{margin-top:20px!important;font-size:9.5px!important}
 }
+
+/* ============ 11. EXCEL IMPORT PREVIEW =======================================
+   Upload er por je preview table ta ashe - oita jate boro sheet eo thik dekhay. */
+.imp-panel .hint{margin-top:2px}
+.imp-modal{width:min(1180px,97vw)}
+.imp-table th{white-space:nowrap}
+.imp-table td{vertical-align:middle}
+.imp-in{padding:6px 8px;font-size:12.5px;border-radius:8px;border:1px solid var(--line-2);
+  background:var(--panel);color:var(--text);max-width:230px}
+.imp-in:focus{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
+tr.imp-bad td{background:#fff6f6}
+tr.imp-bad .imp-in{border-color:#f3b9b9}
+tr.imp-msg td{padding-top:0;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.imp-e{color:#b42318;font-size:12px;font-weight:700;margin:2px 0}
+.imp-n{color:var(--muted);font-size:11.8px;margin:2px 0}
+html[data-theme="dark"] tr.imp-bad td{background:#2a1618}
+html[data-theme="dark"] tr.imp-bad .imp-in{border-color:#6b2b2b}
+html[data-theme="dark"] .imp-e{color:#fca5a5}
+
+/* ============ 12. DATA-LOCATION BADGE + LOCAL-ONLY WARNING ===================
+   Cloud off thakle user jate bujhte pare data sudhu ei device e ache. */
+.cloud-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;
+  padding:5px 10px;border-radius:999px;letter-spacing:.2px;white-space:nowrap;border:1px solid transparent}
+.cloud-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.cloud-badge.on{color:#0f7a52;background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.30)}
+.cloud-badge.off{color:#b45309;background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.36)}
+.cloud-badge.err{color:#b42318;background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.34)}
+.local-warn{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+  background:#fff8ec;border:1px solid #f2c879;border-left:5px solid #e19b1e;border-radius:14px;
+  padding:13px 15px;margin-bottom:14px}
+.local-warn .lw-text{font-size:13.4px;line-height:1.6;max-width:760px}
+.local-warn .lw-text b{color:#8a5a00}
+.local-warn .lw-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+html[data-theme="dark"] .local-warn{background:#2a2213;border-color:#6b4e1c;border-left-color:#c98f2a}
+html[data-theme="dark"] .local-warn .lw-text b{color:#e9c67a}
+html[data-theme="dark"] .cloud-badge.on{color:#5fd0a0;background:rgba(22,163,74,.18)}
+html[data-theme="dark"] .cloud-badge.off{color:#e6b45c;background:rgba(245,158,11,.16)}
+html[data-theme="dark"] .cloud-badge.err{color:#fca5a5;background:rgba(220,38,38,.18)}
 </style>
 <script>
   /* Theme ta page ta draw howar agei boshe jay, nahole dark mode e protibar
@@ -722,6 +760,7 @@ html[data-theme="dark"] .report-paper .pill{background:#f8fafc;color:#334155;bor
       <div class="tb-right">
         <button class="theme-btn" id="themeBtn" type="button" onclick="toggleTheme()"
           title="Switch to dark mode" aria-label="Switch theme">🌙</button>
+        <span class="cloud-badge off" id="cloudBadge" title="Where your data is saved"><span class="dot"></span><span id="cloudBadgeText">Local only</span></span>
         <span class="cloud-dot" id="cloudDot" style="display:none"></span>
         <span class="chip" id="userChip">–</span>
         <span class="chip role" id="roleChip">USER</span>
@@ -933,7 +972,12 @@ function migrateState(s){
 }
 
 let state = migrateState(readRaw());
-function save(){ try{ localStorage.setItem(LS, JSON.stringify(state)) }catch(e){ toast("Storage full — could not save!") } }
+/* Every save stamps state.savedAt. That stamp is the whole basis of "the
+   newest copy wins" when this device and the cloud disagree, so there is a
+   second, raw writer for the one case where restamping would be a lie: storing
+   a document that arrived from another device. */
+function writeStateRaw(){ try{ localStorage.setItem(LS, JSON.stringify(state)); return true }catch(e){ toast("Storage full — could not save!"); return false } }
+function save(){ state.savedAt = new Date().toISOString(); return writeStateRaw() }
 
 /* ---------------- scoped selectors ---------------- */
 function currentCompany(){ return state.companies.find(c=>c.id===state.activeCompanyId) || state.companies[0] }
@@ -1263,6 +1307,7 @@ render.dashboard = function(){
     </div>` : "";
 
   document.getElementById("page-dashboard").innerHTML = `
+  ${localWarnBanner()}
   ${alerts}
   <div class="cards">
     <div class="metric card m-teal"><div class="metric-top"><small>Total in-stock</small><span class="ico">📦</span></div>
@@ -1386,14 +1431,7 @@ render.in = function(){
 
   ${products.length? "" : `<div class="alert-box">No products yet. Add one on the <a onclick="show('products')"><b>Products</b></a> page first.</div>`}
 
-  <div class="panel no-print">
-    <div class="panel-head"><h2>📷 AI photo scan <span class="sub">Upload a challan or invoice photo and the fields fill in automatically</span></h2></div>
-    <div class="btn-row" style="align-items:center">
-      <input type="file" id="aiPhoto" accept="image/*" capture="environment" class="hidden" onchange="aiScanPhoto(this)">
-      <button type="button" class="btn" id="aiScanBtn" onclick="document.getElementById('aiPhoto').click()">📷 Scan photo</button>
-      <span class="muted" id="aiScanMsg" style="font-size:12.5px">Take a photo or choose one from the gallery — the AI reads PCS, grade, vendor and invoice number and fills the form. Check the values before saving.</span>
-    </div>
-  </div>
+  ${importPanel('in')}
 
   <form id="inForm" class="panel" autocomplete="off">
     <div class="form-grid">
@@ -1477,78 +1515,728 @@ render.in = function(){
   };
 };
 
-/* ---------- AI photo scan (compress first, then send) ---------- */
-async function compressImage(file, maxSide=1500, quality=0.82){
-  const dataUrl = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file) });
-  try{
-    const img = await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=dataUrl });
-    const scale = Math.min(1, maxSide/Math.max(img.width,img.height));
-    if(scale===1 && dataUrl.length < 900000) return dataUrl;
-    const cv=document.createElement("canvas");
-    cv.width=Math.round(img.width*scale); cv.height=Math.round(img.height*scale);
-    cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
-    return cv.toDataURL("image/jpeg", quality);
-  }catch(e){ return dataUrl }
+/* ===================== EXCEL / CSV IMPORT (admin only) =====================
+   Reads .xlsx and .csv fully offline — no library, no internet, no server.
+   Flow: choose file → editable preview → fix what is red → Approve & save.
+   Nothing touches the data until Approve is pressed.
+   ========================================================================= */
+
+/* ---- raw DEFLATE (that is all a .xlsx zip needs) ---- */
+async function xlInflate(bytes){
+  if(typeof DecompressionStream!=="function")
+    throw new Error("This browser cannot open .xlsx files. Save the sheet as CSV and upload that instead.");
+  const ds=new DecompressionStream("deflate-raw");
+  const w=ds.writable.getWriter();
+  w.write(bytes).catch(()=>{}); w.close().catch(()=>{});   /* the read below reports the real error */
+  const rd=ds.readable.getReader(), chunks=[]; let len=0;
+  for(;;){ const r=await rd.read(); if(r.done) break; chunks.push(r.value); len+=r.value.length }
+  const out=new Uint8Array(len); let at=0;
+  chunks.forEach(c=>{ out.set(c,at); at+=c.length });
+  return out;
+}
+/* ---- minimal zip reader: walks the central directory ---- */
+async function xlUnzip(u8){
+  const dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
+  let eocd=-1;
+  for(let i=u8.length-22;i>=0;i--){ if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break } }
+  if(eocd<0) throw new Error("This file is not a real .xlsx workbook.");
+  const count=dv.getUint16(eocd+10,true);
+  let p=dv.getUint32(eocd+16,true);
+  const out={};
+  for(let n=0;n<count;n++){
+    if(p+46>u8.length || dv.getUint32(p,true)!==0x02014b50) break;
+    const method=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true);
+    const nLen=dv.getUint16(p+28,true), eLen=dv.getUint16(p+30,true), cLen=dv.getUint16(p+32,true);
+    const lho=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u8.subarray(p+46,p+46+nLen));
+    if(lho+30>u8.length) throw new Error("This .xlsx file looks damaged. Open it in Excel and save it again.");
+    const at=lho+30+dv.getUint16(lho+26,true)+dv.getUint16(lho+28,true);
+    const raw=u8.subarray(at,at+csize);
+    if(!name.endsWith("/")) out[name] = method===0 ? raw : await xlInflate(raw);
+    p += 46+nLen+eLen+cLen;
+  }
+  return out;
+}
+function xlUtf8(u8){ return new TextDecoder("utf-8").decode(u8) }
+function xlUnesc(s){
+  return String(s).replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+    .replace(/&#x([0-9a-fA-F]+);/g,(m,h)=>String.fromCharCode(parseInt(h,16)))
+    .replace(/&#(\d+);/g,(m,d)=>String.fromCharCode(+d))
+    .replace(/&amp;/g,"&");
+}
+/* shared strings table: every text cell in the sheet points here */
+function xlStrings(xml){
+  const out=[]; const si=/<si\b[^>]*>([\s\S]*?)<\/si>/g; let m;
+  while((m=si.exec(xml))){
+    let s=""; const t=/<t\b[^>]*>([\s\S]*?)<\/t>/g; let x;
+    while((x=t.exec(m[1]))) s+=x[1];
+    out.push(xlUnesc(s));
+  }
+  return out;
+}
+function xlColNum(ref){                              /* "C7" -> 2 */
+  const m=/^([A-Z]+)/.exec(String(ref).toUpperCase()); if(!m) return 0;
+  let c=0; for(const ch of m[1]) c=c*26+(ch.charCodeAt(0)-64);
+  return c-1;
+}
+function xlRowNum(ref){ const m=/(\d+)$/.exec(String(ref)); return m? +m[1] : 0 }
+/* Excel keeps dates as a day number. 1900-based, and it believes 1900 was a leap year. */
+function xlSerialToISO(n){
+  n=Math.floor(Number(n));
+  /* 110000 is somewhere in 2201. Without a ceiling, someone typing 240826 in a
+     plain cell got a year-2559 date that looked valid all the way to save. */
+  if(!Number.isFinite(n) || n<=0 || n>110000) return "";
+  const days = n>59 ? n-1 : n;
+  const d=new Date(Date.UTC(1899,11,31)+days*86400000);
+  const y=d.getUTCFullYear();
+  if(!(y>=1900 && y<=2200)) return "";
+  const p=x=>String(x).padStart(2,"0");
+  return y+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate());
+}
+/* which cell styles are date formats — so 46265 shows up as 2026-08-24 */
+function xlDateStyles(stylesXml){
+  const ids=new Set([14,15,16,17,22,45,46,47]);
+  const on=new Set();
+  if(!stylesXml) return on;
+  const nf=/<numFmt\b([^>]*)\/>/g; let m;
+  while((m=nf.exec(stylesXml))){
+    const id=/numFmtId="(\d+)"/.exec(m[1]), code=/formatCode="([^"]*)"/.exec(m[1]);
+    if(!id||!code) continue;
+    const c=xlUnesc(code[1]).replace(/\[[^\]]*\]/g,"").replace(/"[^"]*"/g,"").toLowerCase();
+    if(/(yy|dd|mmm)/.test(c) || (/[dy]/.test(c) && /m/.test(c))) ids.add(+id[1]);
+  }
+  const block=/<cellXfs\b[^>]*>([\s\S]*?)<\/cellXfs>/.exec(stylesXml);
+  if(block){
+    const xf=/<xf\b([^>]*?)(?:\/>|>[\s\S]*?<\/xf>)/g; let x, i=0;
+    while((x=xf.exec(block[1]))){
+      const id=/numFmtId="(\d+)"/.exec(x[1]);
+      if(id && ids.has(+id[1])) on.add(i);
+      i++;
+    }
+  }
+  return on;
+}
+/* sheet XML -> array of rows, each row an array of values */
+function xlSheetGrid(xml, strings, dateStyles){
+  const body=/<sheetData\b[^>]*>([\s\S]*)<\/sheetData>/.exec(xml);
+  const src=body? body[1] : xml;
+  const rows={}; let maxRow=0;
+  const cell=/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let m;
+  while((m=cell.exec(src))){
+    const attrs=m[1]||"", inner=m[2]||"";
+    const ref=/r="([A-Za-z]+\d+)"/.exec(attrs); if(!ref) continue;
+    const R=xlRowNum(ref[1]), C=xlColNum(ref[1]);
+    if(!R) continue;
+    const tm=/t="([^"]+)"/.exec(attrs), sm=/s="(\d+)"/.exec(attrs);
+    const type=tm? tm[1] : "n", style=sm? +sm[1] : -1;
+    let val="";
+    if(type==="inlineStr"){
+      let s=""; const t=/<t\b[^>]*>([\s\S]*?)<\/t>/g; let x;
+      while((x=t.exec(inner))) s+=x[1];
+      val=xlUnesc(s);
+    } else {
+      const vm=/<v\b[^>]*>([\s\S]*?)<\/v>/.exec(inner);
+      const raw=vm? vm[1] : "";
+      if(type==="s") val = strings[+raw]!==undefined ? strings[+raw] : "";
+      else if(type==="str") val = xlUnesc(raw);
+      else if(type==="b") val = raw==="1" ? "TRUE" : "FALSE";
+      else if(type==="e") val = "";
+      else if(raw==="") val = "";
+      else if(dateStyles.has(style)) val = xlSerialToISO(raw);
+      else val = Number(raw);
+    }
+    if(!rows[R]) rows[R]=[];
+    rows[R][C]=val;
+    if(R>maxRow) maxRow=R;
+  }
+  const grid=[];
+  for(let r=1;r<=maxRow;r++) grid.push(rows[r]||[]);
+  return grid;
+}
+function xlBlankRow(r){ return !r || r.every(c=>c===undefined || String(c).trim()==="") }
+/* first filled row is the header; every row after it becomes an object */
+function xlGridToRows(grid){
+  let h=0; while(h<grid.length && xlBlankRow(grid[h])) h++;
+  const headers=(grid[h]||[]).map(c=>String(c===undefined?"":c).trim());
+  /* two columns with the same heading must not overwrite each other */
+  const dupKey=[], seenH=new Set();
+  headers.forEach((k,i)=>{
+    let key=k, n=2;
+    while(key && seenH.has(key)) key=k+" ("+(n++)+")";
+    seenH.add(key); dupKey[i]=key;
+  });
+  const rows=[];
+  for(let r=h+1;r<grid.length;r++){
+    if(xlBlankRow(grid[r])) continue;
+    const o={};
+    headers.forEach((k,i)=>{ if(k) o[dupKey[i]] = grid[r][i]===undefined ? "" : grid[r][i] });
+    rows.push(o);
+  }
+  return { headers:dupKey.filter(Boolean), rows };
+}
+function xlParseCsv(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  const sep = (text.split("\n")[0]||"").split(";").length > (text.split("\n")[0]||"").split(",").length ? ";" : ",";
+  const grid=[]; let row=[], cur="", q=false, i=0;
+  while(i<text.length){
+    const ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){ cur+='"'; i+=2; continue } q=false; i++; continue }
+      cur+=ch; i++;
+    } else if(ch==='"'){ q=true; i++ }
+    else if(ch===sep){ row.push(cur); cur=""; i++ }
+    else if(ch==="\r"){ i++ }
+    else if(ch==="\n"){ row.push(cur); grid.push(row); row=[]; cur=""; i++ }
+    else { cur+=ch; i++ }
+  }
+  if(cur!=="" || row.length){ row.push(cur); grid.push(row) }
+  return xlGridToRows(grid.map(r=>r.map(c=>{
+    const t=String(c).trim();
+    return t!=="" && /^-?\d+(\.\d+)?$/.test(t) ? Number(t) : c;
+  })));
+}
+/* one entry point: hand it the chosen file, get {headers, rows} back */
+async function xlReadFile(file){
+  const name=String(file?.name||"").toLowerCase();
+  const buf=new Uint8Array(await file.arrayBuffer());
+  if(!buf.length) throw new Error("The file is empty.");
+  if(name.endsWith(".csv")||name.endsWith(".txt")) return xlParseCsv(xlUtf8(buf));
+  if(name.endsWith(".xls") && !name.endsWith(".xlsx"))
+    throw new Error("Old .xls files are not supported. Open it in Excel and use File → Save As → .xlsx.");
+  const zip=await xlUnzip(buf);
+  const sheet=Object.keys(zip).filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k))
+    .sort((a,b)=>(+(/(\d+)\.xml$/.exec(a)[1]))-(+(/(\d+)\.xml$/.exec(b)[1])))[0];
+  if(!sheet) throw new Error("No sheet found inside this workbook.");
+  const strings = zip["xl/sharedStrings.xml"] ? xlStrings(xlUtf8(zip["xl/sharedStrings.xml"])) : [];
+  const styles  = zip["xl/styles.xml"] ? xlDateStyles(xlUtf8(zip["xl/styles.xml"])) : new Set();
+  return xlGridToRows(xlSheetGrid(xlUtf8(zip[sheet]), strings, styles));
 }
 
-async function aiScanPhoto(input){
-  const file = input.files && input.files[0]; input.value="";
-  if(!file) return;
-  const msg=document.getElementById("aiScanMsg");
-  const btn=document.getElementById("aiScanBtn");
-  const setMsg=(t)=>{ if(msg) msg.innerHTML=t };
-  btn.disabled=true; setMsg(`<span class="spinner" style="border-color:#cbd5e1;border-top-color:#0f766e"></span> AI is reading the photo… one moment`);
+/* ---- writing a template .xlsx (stored, uncompressed — Excel is fine with it) ---- */
+let _xlCrcTab=null;
+function xlCrc32(u8){
+  if(!_xlCrcTab){
+    _xlCrcTab=new Int32Array(256);
+    for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = (c&1)? (0xEDB88320^(c>>>1)) : (c>>>1); _xlCrcTab[n]=c }
+  }
+  let c=-1;
+  for(let i=0;i<u8.length;i++) c=(c>>>8)^_xlCrcTab[(c^u8[i])&0xFF];
+  return (c^-1)>>>0;
+}
+function xlZipStore(entries){
+  const enc=new TextEncoder(), parts=[], dirs=[]; let off=0;
+  entries.forEach(e=>{
+    const nm=enc.encode(e.name), data=e.data, crc=xlCrc32(data), sz=data.length;
+    const lh=new Uint8Array(30+nm.length), lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true); lv.setUint16(4,20,true); lv.setUint16(6,0,true); lv.setUint16(8,0,true);
+    lv.setUint16(10,0,true); lv.setUint16(12,0x2100,true);
+    lv.setUint32(14,crc,true); lv.setUint32(18,sz,true); lv.setUint32(22,sz,true);
+    lv.setUint16(26,nm.length,true); lv.setUint16(28,0,true);
+    lh.set(nm,30);
+    const cd=new Uint8Array(46+nm.length), cv=new DataView(cd.buffer);
+    cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true);
+    cv.setUint16(8,0,true); cv.setUint16(10,0,true); cv.setUint16(12,0,true); cv.setUint16(14,0x2100,true);
+    cv.setUint32(16,crc,true); cv.setUint32(20,sz,true); cv.setUint32(24,sz,true);
+    cv.setUint16(28,nm.length,true); cv.setUint32(42,off,true);
+    cd.set(nm,46);
+    parts.push(lh,data); dirs.push(cd);
+    off += lh.length + sz;
+  });
+  let dirSize=0; dirs.forEach(d=>dirSize+=d.length);
+  const end=new Uint8Array(22), ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true);
+  ev.setUint16(8,dirs.length,true); ev.setUint16(10,dirs.length,true);
+  ev.setUint32(12,dirSize,true); ev.setUint32(16,off,true);
+  let total=off+dirSize+22;
+  const out=new Uint8Array(total); let at=0;
+  parts.concat(dirs,[end]).forEach(b=>{ out.set(b,at); at+=b.length });
+  return out;
+}
+function xlEsc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function xlColName(i){
+  let s="", n=i+1;
+  while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26) }
+  return s;
+}
+function xlMakeXlsx(sheetName, grid){
+  const enc=new TextEncoder();
+  let sd="";
+  grid.forEach((row,r)=>{
+    sd+='<row r="'+(r+1)+'">';
+    row.forEach((v,c)=>{
+      if(v===""||v===null||v===undefined) return;
+      const ref=xlColName(c)+(r+1);
+      sd += (typeof v==="number")
+        ? '<c r="'+ref+'"><v>'+v+'</v></c>'
+        : '<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xlEsc(v)+'</t></is></c>';
+    });
+    sd+='</row>';
+  });
+  const head='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  const files=[
+    { name:"[Content_Types].xml", data:enc.encode(head+
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+      '<Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'+
+      '</Types>') },
+    { name:"_rels/.rels", data:enc.encode(head+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'+
+      '</Relationships>') },
+    { name:"xl/workbook.xml", data:enc.encode(head+
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '+
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+      '<sheets><sheet name="'+xlEsc(String(sheetName).slice(0,28))+'" sheetId="1" r:id="rId1"/></sheets></workbook>') },
+    { name:"xl/_rels/workbook.xml.rels", data:enc.encode(head+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'+
+      '</Relationships>') },
+    { name:"xl/worksheets/sheet1.xml", data:enc.encode(head+
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'+sd+'</sheetData></worksheet>') }
+  ];
+  return xlZipStore(files);
+}
+function xlDownload(name, bytes, mime){
+  const blob=new Blob([bytes],{type:mime||"application/octet-stream"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+
+/* ---- what each import understands ------------------------------------- */
+const IMPORT_KINDS = {
+  in: {
+    title:"Stock IN from Excel", sheet:"Stock IN", file:"stock-in-template.xlsx", page:"cartons",
+    blurb:"one row per product — same Carton No. on two rows means one carton with two products",
+    cols:[
+      { k:"cartonNo", h:"Carton No.", need:true,  w:120, alias:["cartonno","carton","cartonnumber","ctn","cartonid"] },
+      { k:"product",  h:"Product",    need:true,  w:170, alias:["product","productname","item","itemname","goods"] },
+      { k:"pcs",      h:"PCS",        need:true,  w:80, n:true, alias:["pcs","qty","quantity","pieces","totalpcs","piece"] },
+      { k:"gA",       h:"Grade A",    w:78, n:true, alias:["gradea","a","fresh","gradeafresh"] },
+      { k:"gB",       h:"Grade B",    w:78, n:true, alias:["gradeb","b","usable","gradebusable"] },
+      { k:"gB2",      h:"Grade B2",   w:78, n:true, alias:["gradeb2","b2"] },
+      { k:"gC",       h:"Grade C",    w:78, n:true, alias:["gradec","c","damage","damaged","gradecdamage"] },
+      { k:"inDate",   h:"IN Date",    w:118, alias:["indate","date","receivedate","receiveddate","stockindate","entrydate"] },
+      { k:"expiry",   h:"Expiry",     w:118, alias:["expiry","expirydate","exp","expdate","bestbefore"] },
+      { k:"vendor",   h:"Vendor",     w:140, alias:["vendor","vendorname","supplier","source","outlet","party"] },
+      { k:"po",       h:"Invoice/PO", w:120, alias:["po","invoice","invoiceno","invoicepo","poinvoice","challan","reference","ref"] },
+      { k:"note",     h:"Remarks",    w:150, alias:["remarks","remark","note","notes","comment","description"] }
+    ],
+    template:[
+      ["Carton No.","Product","PCS","Grade A","Grade B","Grade B2","Grade C","IN Date","Expiry","Vendor","Invoice/PO","Remarks"],
+      ["CTN-0001","Chips 50g Pack",100,90,6,2,2,"2026-08-24","2026-12-31","Mirpur Vendor","INV-2026-01","first lot"],
+      ["CTN-0002","Chips 50g Pack",50,50,0,0,0,"2026-08-24","","","",""],
+      ["CTN-0002","Biscuit 100g",30,30,0,0,0,"2026-08-24","","","","same carton, 2nd product"]
+    ]
+  },
+  products: {
+    title:"Products from Excel", sheet:"Products", file:"products-template.xlsx", page:"products",
+    blurb:"a name that already exists gets its retail price updated",
+    cols:[
+      { k:"name",  h:"Product name",    need:true, w:220, alias:["productname","product","name","item","itemname"] },
+      { k:"price", h:"Retail price (৳)", w:130, n:true, alias:["retailprice","price","rate","mrp","retail","sellingprice","unitprice"] }
+    ],
+    template:[
+      ["Product name","Retail price"],
+      ["Chips 50g Pack",25],
+      ["Biscuit 100g",40]
+    ]
+  },
+  vendors: {
+    title:"Vendors from Excel", sheet:"Vendors", file:"vendors-template.xlsx", page:"vendors",
+    blurb:"a name that already exists gets its discount, phone and address updated",
+    cols:[
+      { k:"name",        h:"Vendor name", need:true, w:190, alias:["vendorname","vendor","name","supplier","party"] },
+      { k:"discountPct", h:"Discount %",  w:110, n:true, alias:["discount","discountpct","discountpercent","percent","pct","off"] },
+      { k:"phone",       h:"Phone",       w:130, alias:["phone","mobile","contact","phoneno","cell"] },
+      { k:"address",     h:"Address",     w:200, alias:["address","location","area","place"] }
+    ],
+    template:[
+      ["Vendor name","Discount %","Phone","Address"],
+      ["Mirpur Vendor",12.5,"01711000000","Mirpur 10, Dhaka"],
+      ["Uttara Vendor",8,"01822000000","Uttara Sector 7"]
+    ]
+  }
+};
+
+/* ---- the panel that sits on Stock IN / Products / Vendors ---- */
+function importPanel(kind){
+  if(!isAdmin()) return "";
+  const c=IMPORT_KINDS[kind];
+  return `<div class="panel no-print imp-panel">
+    <div class="panel-head"><h2>📄 Import from Excel <span class="sub">${esc(c.blurb)}</span></h2>
+      <div class="btn-row">
+        <input type="file" id="impFile_${kind}" class="hidden" accept=".xlsx,.xlsm,.csv,.txt" onchange="importLoad('${kind}',this)">
+        <button type="button" class="btn" onclick="document.getElementById('impFile_${kind}').click()">⬆ Choose Excel / CSV file</button>
+        <button type="button" class="btn secondary" onclick="importTemplate('${kind}')">⬇ Download template</button>
+      </div>
+    </div>
+    <div class="hint">Admin only. You see a preview first — fix anything wrong there, then press <b>Approve &amp; save</b>. Nothing is saved before that.</div>
+  </div>`;
+}
+function importTemplate(kind){
+  const c=IMPORT_KINDS[kind]; if(!c) return;
   try{
-    const image = await compressImage(file);
-    const resp = await fetch("/api/public/scan-invoice",{
-      method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ image })
-    });
-    const text = await resp.text();
-    let out={}; try{ out=JSON.parse(text) }catch(e){ throw new Error("Server returned an unexpected response ("+resp.status+")") }
-    if(!resp.ok) throw new Error(out.error || out.message || ("Scan failed ("+resp.status+")"));
-    const d = out.data || {};
+    xlDownload(c.file, xlMakeXlsx(c.sheet, c.template),
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    toast("Template downloaded — fill it in Excel, then upload it here.");
+  }catch(e){ alert("Could not build the template file.\n\n"+(e?.message||e)) }
+}
 
-    const form=document.getElementById("inForm");
-    const set=(name,v)=>{ const el=form.elements[name]; if(el && v!==undefined && v!==null && v!=="") el.value=v };
-    set("po", d.po); set("cartonNo", d.cartonNo); set("outlet", d.outlet);
-    if(d.inDate) set("inDate", d.inDate);
-    set("expiry", d.expiry);
-
-    /* products: AI may return a list, or a single product name + total */
-    const products = companyProducts();
-    const matchProduct = (name)=>{
-      const n=String(name||"").toLowerCase().trim(); if(!n||!products.length) return "";
-      const exact = products.find(p=>p.name.toLowerCase()===n);
-      if(exact) return exact.id;
-      const part = products.find(p=>p.name.toLowerCase().includes(n.slice(0,4)) || n.includes(p.name.toLowerCase().slice(0,4)));
-      return part? part.id : "";
-    };
-    let aiItems = Array.isArray(d.items)? d.items.filter(i=>i && (i.product||i.pcs)) : [];
-    if(!aiItems.length && (d.product || d.pcs)) aiItems=[{ product:d.product, pcs:d.pcs }];
-    if(aiItems.length && products.length){
-      inLines = aiItems.map(i=>({ key:uid("l"), productId: matchProduct(i.product) || products[0].id, pcs:num(i.pcs) }));
-      if(!inLines.length) inLines=[{ key:uid("l"), productId:products[0].id, pcs:0 }];
-      drawInLines();
+/* ---- load + map the columns ---- */
+let imp=null;
+function importKey(h){ return String(h||"").toLowerCase().replace(/[^a-z0-9]/g,"") }
+function importMapCols(kind, headers){
+  const cols=IMPORT_KINDS[kind].cols;
+  const norm=headers.map(importKey), used=new Set(), map={};
+  /* Pass 1 — exact heading matches, for EVERY column, before anything loose
+     runs. Otherwise the column that happens to come first in the list wins. */
+  cols.forEach(c=>{
+    for(const a of c.alias){
+      const i=norm.findIndex((n,ix)=>!used.has(ix) && n===a);
+      if(i>=0){ used.add(i); map[c.k]=headers[i]; break }
     }
+  });
+  /* Pass 2 — loose match on whatever is left. A heading that is the exact name
+     of some other column is off limits here, else "Expiry Date" gets taken as
+     the IN Date and "Grade B2" as Grade B — quietly, with totals that still
+     add up, which is the worst kind of wrong. */
+  const owned=new Set(cols.reduce((a,c)=>a.concat(c.alias),[]));
+  cols.forEach(c=>{
+    if(map[c.k]) return;
+    for(const a of c.alias){
+      if(a.length<4) continue;
+      const i=norm.findIndex((n,ix)=>!used.has(ix) && !owned.has(n) && n.length>=4
+        && (n.indexOf(a)>=0 || a.indexOf(n)>=0));
+      if(i>=0){ used.add(i); map[c.k]=headers[i]; break }
+    }
+  });
+  return map;
+}
+async function importLoad(kind, el){
+  if(!isAdmin()) return alert("Admin only.");
+  const file = el && el.files && el.files[0];
+  if(!file) return;
+  el.value="";
+  toast("Reading "+file.name+" …");
+  let parsed;
+  try{ parsed = await xlReadFile(file) }
+  catch(err){ return alert("Could not read this file.\n\n"+(err&&err.message?err.message:err)) }
+  const cfg=IMPORT_KINDS[kind];
+  if(!parsed.rows.length) return alert("No data rows found in this file.\n\nThe first filled row must be the column headings, with the data under it.");
+  const map=importMapCols(kind, parsed.headers);
+  const missing=cfg.cols.filter(c=>c.need && !map[c.k]);
+  if(missing.length)
+    return alert("These column(s) are missing from the sheet:\n\n  "+missing.map(c=>c.h).join("\n  ")+
+      "\n\nFound in your file: "+(parsed.headers.join(", ")||"nothing")+
+      "\n\nUse “Download template” to get a sheet with the right headings.");
+  const rows=parsed.rows.map(r=>{
+    const o={};
+    cfg.cols.forEach(c=>{ o[c.k] = map[c.k]!==undefined ? r[map[c.k]] : "" });
+    return o;   /* the "no grades at all" fill happens per carton, in importCheckIn */
+  });
+  imp={ kind, fileName:file.name, rows, mapped:Object.keys(map).length, headers:parsed.headers };
+  importValidate();
+  importRender();
+}
 
-    let gTotal=0;
-    GRADES.forEach(k=>{
-      const v = num(d["grade_"+k.toLowerCase()] ?? d["grade"+k] ?? d.grades?.[k]);
-      gTotal+=v;
-      const el=document.getElementById("in_g"+k); if(el) el.value=v;
+/* ---- date reader: accepts 2026-08-24, 24/08/2026, 24-08-26, Excel numbers ---- */
+function importISO(y,m,d){
+  y=+y; m=+m; d=+d;
+  if(!(y>=1900&&y<=2200) || !(m>=1&&m<=12) || !(d>=1&&d<=31)) return null;
+  const t=new Date(Date.UTC(y,m-1,d));
+  if(t.getUTCMonth()!==m-1 || t.getUTCDate()!==d) return null;
+  const p=x=>String(x).padStart(2,"0");
+  return y+"-"+p(m)+"-"+p(d);
+}
+function importDate(v){
+  if(v===""||v===null||v===undefined) return "";
+  if(typeof v==="number") return xlSerialToISO(v) || null;
+  const s=String(v).trim();
+  if(!s) return "";
+  let m=/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/.exec(s);
+  if(m) return importISO(m[1],m[2],m[3]);
+  m=/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/.exec(s);
+  if(m){
+    let a=+m[1], b=+m[2], y=+m[3];
+    if(y<100) y += y<70 ? 2000 : 1900;
+    return (a<=12 && b>12) ? importISO(y,a,b) : importISO(y,b,a);   /* day first, BD style */
+  }
+  if(/^\d+(\.\d+)?$/.test(s)) return xlSerialToISO(s) || null;
+  const t=Date.parse(s);
+  if(!isNaN(t)){ const d=new Date(t); return importISO(d.getFullYear(),d.getMonth()+1,d.getDate()) }
+  return null;
+}
+
+/* ---- validation ---- */
+function importValidate(){
+  if(!imp) return;
+  imp.rows.forEach(r=>{ r._err=[]; r._note=[]; r._act="NEW"; r._newProduct=""; r._id=""; r._productId="" });
+  if(imp.kind==="in") importCheckIn(imp.rows); else importCheckList(imp.rows);
+  imp.bad = imp.rows.filter(r=>r._err.length).length;
+  imp.missingProducts = [...new Set(imp.rows.filter(r=>r._newProduct).map(r=>r._newProduct))];
+}
+function importCheckIn(rows){
+  const byName=new Map(companyProducts().map(p=>[String(p.name).trim().toLowerCase(),p]));
+  const taken=new Set(companyCartons().map(c=>String(c.cartonNo).trim().toLowerCase()));
+  const groups=new Map();
+  rows.forEach(r=>{
+    const no=String(r.cartonNo===undefined?"":r.cartonNo).trim();
+    r.cartonNo=no;
+    if(!no) r._err.push("Carton No. is empty.");
+    else{
+      const k=no.toLowerCase();
+      if(taken.has(k)) r._err.push("Carton No. “"+no+"” is already in the app.");
+      if(!groups.has(k)) groups.set(k,[]);
+      groups.get(k).push(r);
+    }
+    const pn=String(r.product===undefined?"":r.product).trim();
+    r.product=pn;
+    if(!pn) r._err.push("Product name is empty.");
+    else{
+      const p=byName.get(pn.toLowerCase());
+      if(p) r._productId=p.id;
+      else{ r._err.push("“"+pn+"” is not in your product list."); r._newProduct=pn }
+    }
+    const rawQ=String(r.pcs===undefined?"":r.pcs).trim();
+    const q=num(r.pcs);
+    if(rawQ!=="" && !/^-?\d+(\.\d+)?$/.test(rawQ)) r._err.push("PCS must be a number.");
+    else if(!(q>0)) r._err.push("PCS must be more than 0.");
+    else if(Math.round(q)!==q) r._err.push("PCS must be a whole number.");
+    GRADES.forEach(g=>{
+      const gv=num(r["g"+g]);
+      if(gv<0) r._err.push("Grade "+g+" cannot be a minus number.");
+      else if(Math.round(gv)!==gv) r._err.push("Grade "+g+" must be a whole number.");
     });
-    const iTotal=inProductTotal();
-    if(gTotal===0 && iTotal>0){ const a=document.getElementById("in_gA"); if(a) a.value=iTotal }
-    inTotals();
-    setMsg(`✅ Filled in — <b>check the values</b> before saving.${d.note?" <span class='muted'>("+esc(d.note)+")</span>":""}`);
-    toast("AI scan complete — please check the values");
-  }catch(err){
-    const m=String(err.message||err);
-    const hint = /not configured/i.test(m)
-      ? "No AI key found. Add <b>LOVABLE_API_KEY</b> to the Lovable project."
-      : "Try again, or type the values in by hand.";
-    setMsg(`❌ Pora jaini: ${esc(m)} — ${hint}`);
-  }finally{ btn.disabled=false }
+    const din=importDate(r.inDate);
+    if(din===null) r._err.push("IN Date is not a date — write it as 2026-08-24.");
+    else{ r.inDate=din; if(!din) r._note.push("No IN date — today’s date will be used.") }
+    const dex=importDate(r.expiry);
+    if(dex===null) r._err.push("Expiry is not a date — write it as 2026-12-31.");
+    else r.expiry=dex;
+  });
+  groups.forEach(list=>{
+    const pTot=list.reduce((t,r)=>t+num(r.pcs),0);
+    let gTot=list.reduce((t,r)=>t+GRADES.reduce((s,g)=>s+num(r["g"+g]),0),0);
+    /* No grade filled in anywhere for this carton? Then it is all Grade A.
+       Per carton, not per row — people write the breakdown once on the first
+       row of a 2-product carton, and that used to read as a mismatch. */
+    if(gTot===0 && pTot>0){
+      list[0].gA = pTot; gTot = pTot;
+      list.forEach(r=>r._note.push("No grades given — all "+pcs(pTot)+" PCS will be saved as Grade A."));
+    }
+    if(gTot!==pTot) list.forEach(r=>r._err.push(
+      "Carton “"+list[0].cartonNo+"”: grade total "+pcs(gTot)+" ≠ PCS total "+pcs(pTot)+" — the two must match."));
+    if(list.length>1) list.forEach(r=>r._note.push(
+      list.length+" rows share this Carton No. — they become one carton holding "+list.length+" products."));
+  });
+}
+function importCheckList(rows){
+  const isProd = imp.kind==="products";
+  const have=new Map((isProd? companyProducts() : companyVendors()).map(x=>[String(x.name).trim().toLowerCase(),x]));
+  const seen=new Map();
+  rows.forEach((r,i)=>{
+    const nm=String(r.name===undefined?"":r.name).trim();
+    r.name=nm;
+    if(!nm){ r._err.push("Name is empty."); return }
+    const k=nm.toLowerCase();
+    if(seen.has(k)) r._err.push("“"+nm+"” is in this sheet twice (also row "+(seen.get(k)+1)+").");
+    else seen.set(k,i);
+    const old=have.get(k);
+    if(old){ r._act="UPDATE"; r._id=old.id }
+    if(isProd){
+      const raw=String(r.price===undefined?"":r.price).trim();
+      if(raw==="") r._note.push("No price given — 0 will be saved.");
+      else if(!/^-?\d+(\.\d+)?$/.test(raw)) r._err.push("Retail price must be a number.");
+      else if(num(raw)<0) r._err.push("Retail price cannot be a minus number.");
+      if(old) r._note.push("Already in the list — retail price becomes "+money(Math.max(0,num(r.price)))+" (was "+money(num(old.retailPrice))+").");
+    } else {
+      const raw=String(r.discountPct===undefined?"":r.discountPct).trim().replace(/%$/,"");
+      if(raw==="") r._note.push("No discount given — 0% will be saved.");
+      else if(!/^-?\d+(\.\d+)?$/.test(raw)) r._err.push("Discount must be a number.");
+      else if(num(raw)<0 || num(raw)>100) r._err.push("Discount must be between 0 and 100.");
+      if(old) r._note.push("Already in the list — discount, phone and address will be updated.");
+    }
+  });
+}
+
+/* ---- preview ---- */
+function importRender(){
+  const host=document.getElementById("modalRoot"); if(!host || !imp) return;
+  const cfg=IMPORT_KINDS[imp.kind], cols=cfg.cols, rows=imp.rows;
+  const box=document.getElementById("impScroll");
+  const sx=box? box.scrollLeft : 0, sy=box? box.scrollTop : 0;
+  const ok=rows.length-imp.bad;
+  const updates=rows.filter(r=>r._act==="UPDATE").length;
+  const span=cols.length+3;
+
+  host.innerHTML = `
+  <div class="modal"><div class="modal-card wide imp-modal">
+    <div class="modal-head">
+      <div><h2>📄 ${esc(cfg.title)}</h2>
+        <div class="muted" style="font-size:12.5px">${esc(imp.fileName)} · ${rows.length} row(s) read${imp.kind==="in"?"":`· ${updates} already in the list`}</div></div>
+      <button class="btn secondary small" onclick="importCancel()">Close</button>
+    </div>
+
+    <div class="kpis" style="margin-bottom:12px">
+      <span class="pill a">Ready: <b>${ok}</b></span>
+      <span class="pill ${imp.bad?"c":""}">Need fixing: <b>${imp.bad}</b></span>
+      ${imp.kind==="in"? "" : `<span class="pill b2">Will update: <b>${updates}</b></span>`}
+      ${imp.missingProducts.length? `<button class="btn small" onclick="importAddMissingProducts()">＋ Add ${imp.missingProducts.length} missing product(s)</button>`:""}
+    </div>
+
+    ${imp.bad? `<div class="alert-box">Fix the red boxes below (just type in them), or press ✕ to drop those rows. Approve stays locked until every row is clean.</div>`
+             : `<div class="notice">Everything looks good. Check the values once, then press <b>Approve &amp; save</b>.</div>`}
+
+    <div class="table-wrap tall" id="impScroll"><table class="table imp-table">
+      <thead><tr><th style="width:34px">#</th>
+        ${cols.map(c=>`<th class="wrap">${esc(c.h)}${c.need?" *":""}</th>`).join("")}
+        <th>Status</th><th style="width:40px"></th></tr></thead>
+      <tbody>
+        ${rows.length? rows.map((r,i)=>{
+          const bad=r._err.length>0;
+          return `<tr class="${bad?"imp-bad":""}">
+            <td class="muted">${i+1}</td>
+            ${cols.map(c=>`<td><input class="imp-in" ${c.n?'type="number" step="any"':""} style="width:${c.w||120}px"
+                value="${esc(r[c.k]===undefined?"":r[c.k])}"
+                onchange="importEdit(${i},'${c.k}',this.value)"></td>`).join("")}
+            <td>${bad? `<span class="badge c">FIX</span>` : r._act==="UPDATE"? `<span class="badge b2">UPDATE</span>` : `<span class="badge a">NEW</span>`}</td>
+            <td><button class="btn tiny danger" title="Drop this row" onclick="importDrop(${i})">✕</button></td>
+          </tr>` + ((r._err.length||r._note.length)? `<tr class="imp-msg"><td></td><td colspan="${span-1}">
+              ${r._err.map(m=>`<div class="imp-e">⚠ ${esc(m)}</div>`).join("")}
+              ${r._note.map(m=>`<div class="imp-n">• ${esc(m)}</div>`).join("")}
+              ${r._newProduct? `<button class="btn tiny" onclick="importAddProduct(${i})">＋ Add “${esc(r._newProduct)}” to products</button>`:""}
+            </td></tr>` : "");
+        }).join("") : `<tr><td colspan="${span}" class="muted" style="text-align:center;padding:20px">No rows left.</td></tr>`}
+      </tbody>
+    </table></div>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn" ${imp.bad||!rows.length?"disabled":""} onclick="importApprove()">
+        ✅ Approve &amp; save ${rows.length?`(${rows.length} row${rows.length>1?"s":""})`:""}</button>
+      <button class="btn secondary" onclick="importCancel()">Cancel — save nothing</button>
+    </div>
+  </div></div>`;
+
+  const now=document.getElementById("impScroll");
+  if(now){ now.scrollLeft=sx; now.scrollTop=sy }
+}
+function importEdit(i,key,val){
+  if(!imp || !imp.rows[i]) return;
+  imp.rows[i][key]=val;
+  importValidate(); importRender();
+}
+function importDrop(i){
+  if(!imp) return;
+  imp.rows.splice(i,1);
+  importValidate(); importRender();
+}
+function importCancel(){ imp=null; closeModal() }
+function importAddProduct(i){
+  if(!isAdmin()) return alert("Admin only.");
+  const nm=String(imp?.rows?.[i]?._newProduct||"").trim(); if(!nm) return;
+  if(!companyProducts().some(p=>String(p.name).trim().toLowerCase()===nm.toLowerCase())){
+    state.products.push({ id:uid("p"), companyId:state.activeCompanyId, name:nm, retailPrice:0 });
+    recordAudit("PRODUCT","Added product "+nm+" (from Excel import)");
+    save();
+  }
+  toast("“"+nm+"” added with price 0 — set the price on the Products page later.");
+  importValidate(); importRender();
+}
+function importAddMissingProducts(){
+  if(!isAdmin()) return alert("Admin only.");
+  const list=imp?.missingProducts||[]; if(!list.length) return;
+  if(!confirm("Add these "+list.length+" product(s) with retail price 0?\n\n  "+list.join("\n  ")+
+     "\n\nYou can set their prices on the Products page after that.")) return;
+  list.forEach(nm=>{
+    if(companyProducts().some(p=>String(p.name).trim().toLowerCase()===nm.toLowerCase())) return;
+    state.products.push({ id:uid("p"), companyId:state.activeCompanyId, name:nm, retailPrice:0 });
+  });
+  recordAudit("PRODUCT","Added "+list.length+" product(s) from Excel import");
+  save(); toast(list.length+" product(s) added with price 0.");
+  importValidate(); importRender();
+}
+
+/* ---- approve ---- */
+function importApprove(){
+  if(!isAdmin()) return alert("Admin only.");
+  if(!imp || !imp.rows.length) return;
+  importValidate();
+  if(imp.bad){ importRender(); return alert("Still "+imp.bad+" row(s) to fix.") }
+  const cfg=IMPORT_KINDS[imp.kind];
+  if(!confirm("Save "+imp.rows.length+" row(s) from "+imp.fileName+"?\n\nThis cannot be undone in one click.")) return;
+  const summary = imp.kind==="in" ? importSaveIn() : importSaveList();
+  const page=cfg.page;
+  save();
+  if(imp.kind!=="products") updateVendorDatalist();
+  imp=null; closeModal();
+  toast("Import done — "+summary);
+  show(page);
+}
+function importFirst(list,key){
+  const hit=list.find(r=>String(r[key]===undefined?"":r[key]).trim());
+  return hit? String(hit[key]).trim() : "";
+}
+function importSaveIn(){
+  const groups=new Map();
+  imp.rows.forEach(r=>{
+    const k=String(r.cartonNo).trim().toLowerCase();
+    if(!groups.has(k)) groups.set(k,[]);
+    groups.get(k).push(r);
+  });
+  let cartons=0, pieces=0;
+  groups.forEach(list=>{
+    const grades={}; GRADES.forEach(g=>grades[g]=list.reduce((t,r)=>t+num(r["g"+g]),0));
+    const total=gradeSum(grades);
+    const outlet=importFirst(list,"vendor");
+    const carton={
+      id:uid("c"), companyId:state.activeCompanyId,
+      cartonNo:String(list[0].cartonNo).trim(),
+      outlet, po:importFirst(list,"po"), note:importFirst(list,"note"),
+      inDate:importDate(importFirst(list,"inDate"))||today(),
+      expiry:importFirst(list,"expiry"),
+      items:list.map(r=>({ id:uid("li"), productId:r._productId, pcs:num(r.pcs), initialPcs:num(r.pcs) })),
+      grades:{...grades}, initialGrades:{...grades},
+      pcs:total, initialPcs:total, status:"IN STOCK"
+    };
+    state.cartons.unshift(carton);
+    if(outlet && !findVendorByName(outlet))
+      state.vendors.push({ id:uid("v"), companyId:state.activeCompanyId, name:outlet, phone:"", address:"", discountPct:0 });
+    state.movements.unshift({ id:uid("m"), companyId:state.activeCompanyId, type:"IN", cartonId:carton.id,
+      cartonNo:carton.cartonNo, productId:"", grade:"ALL", pcs:total, reference:carton.po,
+      date:carton.inDate, user:state.user.email });
+    cartons++; pieces+=total;
+  });
+  recordAudit("IMPORT","Excel import from "+imp.fileName+": "+cartons+" carton(s), "+pieces+" PCS");
+  return cartons+" carton(s), "+pcs(pieces)+" PCS added";
+}
+function importSaveList(){
+  const isProd = imp.kind==="products";
+  let added=0, updated=0;
+  imp.rows.forEach(r=>{
+    const nm=String(r.name).trim();
+    if(isProd){
+      const price=Math.max(0,num(r.price));
+      if(r._act==="UPDATE"){ const p=getProduct(r._id); if(p){ p.retailPrice=price; updated++ } }
+      else { state.products.push({ id:uid("p"), companyId:state.activeCompanyId, name:nm, retailPrice:price }); added++ }
+    } else {
+      const pct=Math.min(100,Math.max(0,num(String(r.discountPct||"").replace(/%$/,""))));
+      const phone=String(r.phone===undefined?"":r.phone).trim();
+      const address=String(r.address===undefined?"":r.address).trim();
+      if(r._act==="UPDATE"){
+        const v=state.vendors.find(x=>x.id===r._id);
+        if(v){ v.discountPct=pct; if(phone) v.phone=phone; if(address) v.address=address; updated++ }
+      } else { state.vendors.push({ id:uid("v"), companyId:state.activeCompanyId, name:nm, discountPct:pct, phone, address }); added++ }
+    }
+  });
+  const what = isProd? "product" : "vendor";
+  recordAudit("IMPORT","Excel import from "+imp.fileName+": "+added+" new "+what+"(s), "+updated+" updated");
+  return added+" new "+what+"(s), "+updated+" updated";
 }
 
 /* ------------------------------- STOCK OUT ------------------------------- */
@@ -2014,6 +2702,7 @@ render.products = function(){
   const stockMap={}; productStock().forEach(p=>stockMap[p.productId]=p);
 
   document.getElementById("page-products").innerHTML = `
+  ${importPanel('products')}
   <div class="panel">
     <div class="panel-head"><h2>Add product <span class="sub">${esc(currentCompany().name)}</span></h2></div>
     <form id="productForm" class="form-grid">
@@ -2083,6 +2772,7 @@ render.vendors = function(){
   const admin=isAdmin();
 
   document.getElementById("page-vendors").innerHTML = `
+  ${importPanel('vendors')}
   <div class="panel no-print">
     <div class="panel-head"><h2>🏷️ Add vendor</h2></div>
     <form id="vendorForm" class="form-grid">
@@ -2571,7 +3261,7 @@ render.company = function(){
   const c=currentCompany();
   const pinSet=!!state.security?.adminPinHash;
   const cloud=cloudStatus();
-  const cfg=readCloudCfg();
+  const cfg=readCloudCfg(), bk=readBackup();
 
   document.getElementById("page-company").innerHTML = `
   <div class="split">
@@ -2617,7 +3307,7 @@ render.company = function(){
         <b>${cloud.on?"✅ Supabase cloud database — connected":"💾 This browser only (offline mode)"}</b>
         <p class="muted">${cloud.on
           ? "Data is stored in Supabase Postgres. Every device and browser sees the same data, and clearing the browser does not lose it."
-          : "Right now the data lives only in this browser. Clearing browser data, or opening the app on another device, means this data is gone. Connect Supabase below."}</p>
+          : "Right now the data lives only in this browser. Clearing browser data, or opening the app on another device, means this data is gone. See the card beside this one for why the cloud is not reachable."}</p>
         <div class="kpis">
           <span class="pill">Cartons: <b>${state.cartons.length}</b></span>
           <span class="pill">Movements: <b>${state.movements.length}</b></span>
@@ -2625,63 +3315,24 @@ render.company = function(){
           <span class="pill">Approx size: <b>${storageSize()}</b></span>
         </div>
         ${cloud.on? `<div class="actions">
+            <button class="btn small" onclick="cloudSyncNow(false)">⟳ Check for updates now</button>
             <button class="btn secondary small" onclick="cloudPushAll()">⇪ Force push to cloud</button>
             <button class="btn secondary small" onclick="cloudPullAll()">⇩ Reload from cloud</button>
-            <button class="btn danger small" onclick="cloudDisconnect()">Disconnect cloud</button>
           </div>`:""}
       </div>
 
       <div class="storage-card">
-        <b>🔗 ${cloud.on?"Change cloud connection":"Connect Supabase (cloud database)"}</b>
-        <p class="muted">In your Supabase dashboard go to <b>Project Settings → Data API</b>, copy the <b>Project URL</b> and the <b>publishable / anon key</b>, and paste them below. This is a one-time step.</p>
-        <form id="cloudForm" class="form-stack" autocomplete="off">
-          <div class="field"><label class="required">Project URL</label>
-            <input id="cfUrl" placeholder="https://xxxxxxxxxxxx.supabase.co" value="${esc(cfg?.supabaseUrl||DEFAULT_SUPABASE_URL)}"></div>
-          <div class="field"><label class="required">Publishable / anon key</label>
-            <input id="cfKey" placeholder="sb_publishable_… ba eyJhbGciOi…" value="${esc(cfg?.supabaseAnonKey||DEFAULT_SUPABASE_KEY)}"></div>
-          <div class="field"><label>Workspace id <span class="optional-tag">(same rakhle shob device ek data dekhbe)</span></label>
-            <input id="cfDoc" placeholder="main" value="${esc(cfg?.docId||"main")}"></div>
-          <div id="cloudMsg" class="form-msg err hidden"></div>
-          <div class="actions"><button class="btn">🔌 Test &amp; connect</button></div>
-        </form>
-        <div class="hint">Run the SQL from <code>supabase/schema.sql</code> in Supabase once before this (SQL Editor → paste → Run).</div>
+        <b>🔗 Cloud connection</b>
+        <p class="muted">${cloud.on
+          ? "Nothing to set up — the app connects itself, on every device, using the project built into it. Whichever device saved last is the copy everyone gets, so signing in anywhere shows the latest work."
+          : "The app could not reach the cloud just now. Check the internet first. If it never connects, the database table is probably missing — run <code>supabase/schema.sql</code> once in the Supabase SQL Editor, then reload this page."}</p>
+        ${bk? `<div class="hint" style="margin-bottom:9px">A copy of this browser's earlier data was kept on ${esc(new Date(bk.at).toLocaleString())} when newer data arrived (${esc(bk.why||"replaced")}). It holds ${bk.doc.cartons?.length||0} cartons and ${bk.doc.products?.length||0} products.</div>
+          <div class="actions"><button class="btn secondary small" onclick="cloudRestoreBackup()">↩ Restore that earlier copy</button></div>`:""}
+        ${cfg? `<div class="hint" style="margin-top:9px">This browser also has its own saved cloud settings from before (workspace <code>${esc(cfg.docId||"main")}</code>), and those win over the built-in ones here.</div>
+          <div class="actions"><button class="btn secondary small" onclick="cloudResetSaved()">↺ Use the built-in project instead</button></div>`:""}
       </div>
     </div>
   </div>`;
-
-  document.getElementById("cloudForm").onsubmit = async e=>{
-    e.preventDefault();
-    const msg=document.getElementById("cloudMsg"); msg.className="form-msg err"; msg.classList.add("hidden");
-    const err=t=>{ msg.textContent=t; msg.className="form-msg err"; msg.classList.remove("hidden") };
-    const url=normalizeSupabaseUrl(document.getElementById("cfUrl").value);
-    const key=document.getElementById("cfKey").value.trim();
-    const doc=document.getElementById("cfDoc").value.trim()||"main";
-    if(!/^https:\/\/[\w.-]+/.test(url)) return err("The Project URL must start with 'https://'.");
-    if(key.length<20) return err("That key does not look right — please copy it again.");
-
-    msg.textContent="Connecting…"; msg.className="form-msg"; msg.classList.remove("hidden");
-    try{
-      const r=await fetch(`${url}/rest/v1/app_state?id=eq.${encodeURIComponent(doc)}&select=id`,
-        { headers:{ apikey:key, Authorization:"Bearer "+key } });
-      const body=await r.text();
-      if(!r.ok){
-        if(r.status===401||r.status===403) return err("The key was rejected. Please check the publishable / anon key.");
-        if(/relation .*app_state.* does not exist|Could not find the table/i.test(body))
-          return err("The 'app_state' table is missing. Run supabase/schema.sql in the Supabase SQL Editor first.");
-        return err(`Could not connect (${r.status}): ${body.slice(0,120)}`);
-      }
-      writeCloudCfg({ supabaseUrl:url, supabaseAnonKey:key, docId:doc });
-      const ok=await cloudInit();
-      if(!ok){ writeCloudCfg(null); return err("The connection worked but the data did not load. Please check the table permissions (RLS policy).") }
-      await cloudPush(true);
-      recordAudit("STORAGE","Connected Supabase cloud database");
-      setLogo(); syncHeader();
-      toast("Cloud connected — data is now saved to Supabase.");
-      render.company();
-    }catch(ex){
-      err("Network error: "+ex.message+" — check that the URL is correct.");
-    }
-  };
 
   document.getElementById("profileForm").onsubmit = e=>{
     e.preventDefault();
@@ -2774,7 +3425,7 @@ function clearAudit(){
    while giving real cloud durability + multi-device access.
    If Supabase is not configured the app silently uses localStorage only.
    ============================================================================ */
-const cloud = { url:"", key:"", ready:false, docId:"main", pushing:false, dirty:false, lastPush:0 };
+const cloud = { url:"", key:"", ready:false, docId:"main", pushing:false, pulling:false, dirty:false, lastPush:0, rev:"" };
 
 function cloudStatus(){
   return cloud.ready
@@ -2789,10 +3440,15 @@ function cloudHeaders(extra){
   }, extra||{});
 }
 const LS_CLOUD = "cartonCloudConfig_v1";
-/* Project URL + publishable (browser-safe) key, prefilled so the connect
-   form is ready to go. Change them any time in Company → Data storage. */
+/* Where the copy that lost a newest-wins decision is kept, so a bad merge is
+   never a lost day. One slot, overwritten each time. */
+const LS_BACKUP = "cartonStateBackup_v1";
+/* Project URL + publishable (browser-safe) key. These are the last-resort
+   cloud config (see cloudInit) as well as the prefill for the connect form, so
+   the app syncs with no setup at all. Change them any time in Company → Data
+   storage; anything saved there wins over these. */
 const DEFAULT_SUPABASE_URL = "https://zcoleigfrvidcywymqlz.supabase.co";
-const DEFAULT_SUPABASE_KEY = "sb_publishable_nI_asC7CY-FAgH_5xx32XQ_7GmlNYu_";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_BapfOhBNo_sT6aRmSr6syw_GhQ_0srl";
 /* People usually copy the REST endpoint (…/rest/v1/) instead of the plain project
    URL, so accept either and hand back the base URL. */
 function normalizeSupabaseUrl(u){
@@ -2801,6 +3457,34 @@ function normalizeSupabaseUrl(u){
     .replace(/\/rest(\/v1)?$/i,"")
     .replace(/\/+$/,"");
 }
+/* Which of two copies is newer? Both sides stamp savedAt on every save, so it
+   is a plain compare of two UTC ISO strings. A document written before this
+   build has no stamp, so the row's own updated_at stands in for it. */
+function docStamp(doc, rowStamp){ return String((doc && doc.savedAt) || rowStamp || "") }
+function stashBackup(why){
+  if(!(state.cartons||[]).length && !(state.products||[]).length) return;   /* nothing worth keeping */
+  try{ localStorage.setItem(LS_BACKUP, JSON.stringify({ at:new Date().toISOString(), why, doc:state })) }catch(e){}
+}
+function readBackup(){
+  try{ const s=localStorage.getItem(LS_BACKUP); const b=s? JSON.parse(s):null; return b && b.doc? b : null }catch(e){ return null }
+}
+/* Take the cloud's document as ours. Deliberately writes with writeStateRaw so
+   the other device's savedAt survives — restamping here would make this device
+   look newer than the copy it just accepted, and the two would fight. */
+function adoptRemote(remote, why){
+  stashBackup(why || "replaced by newer data from another device");
+  const keepUser=state.user;
+  state=remote;
+  if(keepUser && keepUser.loggedIn) state.user=keepUser;
+  writeStateRaw();
+}
+function redrawCurrentPage(){
+  try{
+    const el = document.querySelector? document.querySelector(".page.active") : null;
+    const p  = el? String(el.id||"").replace(/^page-/,"") : "";
+    if(p && render[p]) render[p]();
+  }catch(e){}
+}
 function readCloudCfg(){
   try{ const s=localStorage.getItem(LS_CLOUD); return s? JSON.parse(s) : null }catch(e){ return null }
 }
@@ -2808,31 +3492,56 @@ function writeCloudCfg(cfg){
   try{ cfg? localStorage.setItem(LS_CLOUD, JSON.stringify(cfg)) : localStorage.removeItem(LS_CLOUD) }catch(e){}
 }
 async function cloudInit(){
-  /* 1) settings saved inside the app win, 2) otherwise ask the server (.env) */
+  /* Three sources, in this order:
+       1) settings saved in this browser (Company → Data storage) always win,
+       2) then the server's .env, via /api/public/config,
+       3) then the project URL + publishable key built into this file.
+     (3) is what makes a static host — GitHub Pages, or even this file opened
+     straight off the disk — cloud-on from the very first load. Without it every
+     new device started on "Local only" and stayed there until someone found the
+     connect form, which is how the same login showed different data on a phone
+     and a PC. There is no connect form any more — nothing to fill in, on any
+     device. (1) is only still read so a browser that was pointed at another
+     project by hand keeps working; Company \u2192 Data storage can clear it. */
   let cfg = readCloudCfg();
   if(!cfg?.supabaseUrl || !cfg?.supabaseAnonKey){
     cfg = null;
     try{
       const r=await fetch("/api/public/config",{cache:"no-store"});
       if(r.ok) cfg=await r.json();
-    }catch(e){ /* opened as a plain file, or no server — stay local */ }
+    }catch(e){ /* no server here — fall through to the built-in defaults */ }
+  }
+  if((!cfg?.supabaseUrl || !cfg?.supabaseAnonKey) && DEFAULT_SUPABASE_URL && DEFAULT_SUPABASE_KEY){
+    cfg = { supabaseUrl:DEFAULT_SUPABASE_URL, supabaseAnonKey:DEFAULT_SUPABASE_KEY };
   }
   if(!cfg?.supabaseUrl || !cfg?.supabaseAnonKey) return false;
   cloud.url = normalizeSupabaseUrl(cfg.supabaseUrl);
   cloud.key = cfg.supabaseAnonKey;
   if(cfg.docId) cloud.docId = cfg.docId;
   try{
-    const r=await fetch(`${cloud.url}/rest/v1/app_state?id=eq.${encodeURIComponent(cloud.docId)}&select=doc`,{headers:cloudHeaders()});
+    const r=await fetch(`${cloud.url}/rest/v1/app_state?id=eq.${encodeURIComponent(cloud.docId)}&select=doc,updated_at`,{headers:cloudHeaders()});
     if(!r.ok) throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,140));
     const rows=await r.json();
     cloud.ready=true;
+    cloud.rev = (rows[0] && rows[0].updated_at) || "";
     if(rows.length && rows[0].doc && typeof rows[0].doc==="object"){
       const remote=migrateState(rows[0].doc);
-      const localCount = state.cartons.length + state.users.length;
-      const remoteCount = remote.cartons.length + remote.users.length;
-      /* remote wins unless it is empty and we have local data to seed it with */
-      if(remoteCount>0 || localCount===0){ const keepUser=state.user; state=remote; state.user=keepUser?.loggedIn? keepUser : state.user; }
-      else await cloudPush(true);
+      const localCount  = state.cartons.length + state.products.length;
+      const remoteCount = remote.cartons.length + remote.products.length;
+      /* Newest wins, in both directions — that is what makes signing in from
+         any device show the latest work instead of whatever that device
+         happened to be holding.
+
+         Two cases are deliberately not decided by the stamp. An empty cloud row
+         must never win over real data just because its timestamp is newer than
+         the last save on this phone — that is checked first. And when the two
+         stamps are equal or missing (a document written by an older build has no
+         savedAt) the cloud wins, because it is the copy every other device is
+         also reading; local only wins when it is strictly newer. Either way the
+         losing copy is stashed, so nothing is actually gone. */
+      if(remoteCount===0 && localCount>0)                        await cloudPush(true);
+      else if(docStamp(state,"") > docStamp(remote, cloud.rev))   await cloudPush(true);
+      else                                                       adoptRemote(remote, localCount===0? "this device had no data yet" : "the cloud copy was newer");
     }else{
       await cloudPush(true);
     }
@@ -2843,20 +3552,73 @@ async function cloudInit(){
     return false;
   }
 }
+/* Cheap "has anything changed up there?" — reads one timestamp, and only
+   downloads the document when that timestamp has moved. Called when the tab
+   comes back to the front, on a slow timer while it is open, and before every
+   push. Returns true only if this device actually took the cloud's copy. */
+async function cloudPullIfNewer(force){
+  if(!cloud.ready) return false;
+  if(cloud.pulling || (cloud.pushing && !force)) return false;
+  cloud.pulling=true;
+  try{
+    const q=`${cloud.url}/rest/v1/app_state?id=eq.${encodeURIComponent(cloud.docId)}`;
+    const r=await fetch(`${q}&select=updated_at`,{headers:cloudHeaders(),cache:"no-store"});
+    if(!r.ok) return false;
+    const head=await r.json();
+    const stamp=(head[0] && head[0].updated_at) || "";
+    if(!stamp || stamp===cloud.rev) return false;              /* nothing new up there */
+    const r2=await fetch(`${q}&select=doc,updated_at`,{headers:cloudHeaders(),cache:"no-store"});
+    if(!r2.ok) return false;
+    const rows=await r2.json();
+    if(!rows.length || !rows[0].doc || typeof rows[0].doc!=="object") return false;
+    cloud.rev = rows[0].updated_at || stamp;
+    const remote=migrateState(rows[0].doc);
+    /* Somebody else wrote, but not necessarily something newer than ours. */
+    if(!(docStamp(remote, cloud.rev) > docStamp(state, ""))) return false;
+    adoptRemote(remote, "newer data arrived from another device");
+    return true;
+  }catch(e){
+    return false;
+  }finally{ cloud.pulling=false }
+}
+/* The same thing, with the screen brought up to date. quiet=true for the
+   automatic checks, so he only hears about it when something really changed. */
+async function cloudSyncNow(quiet){
+  if(!cloud.ready){ if(!quiet) toast("Cloud is not connected right now."); return false }
+  const changed = await cloudPullIfNewer();
+  if(changed){
+    setLogo(); syncHeader(); redrawCurrentPage();
+    toast("Updated — newer data came from another device.");
+  }else if(!quiet) toast("Already up to date.");
+  return changed;
+}
 async function cloudPush(force){
   if(!cloud.ready) return;
   if(cloud.pushing && !force){ cloud.dirty=true; return }
   cloud.pushing=true; cloud.dirty=false;
   try{
-    const body=[{ id:cloud.docId, doc:state, updated_at:new Date().toISOString() }];
+    /* Never write over work that is newer than ours. This is the difference
+       between "the last device to save wins" and "the last tab left open
+       wins", which is how data used to go backwards. */
+    if(await cloudPullIfNewer(true)){
+      setLogo(); syncHeader(); redrawCurrentPage();
+      toast("Another device had saved newer data — this device is up to date now.");
+      cloud.pushFailed=false; setCloudDot("ok");
+      return;
+    }
+    const stamp=new Date().toISOString();
+    const body=[{ id:cloud.docId, doc:state, updated_at:stamp }];
     const r=await fetch(`${cloud.url}/rest/v1/app_state`,{
       method:"POST", headers:cloudHeaders({ "Prefer":"resolution=merge-duplicates,return=minimal" }),
       body:JSON.stringify(body)
     });
     if(!r.ok) throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,140));
+    cloud.rev=stamp;                      /* we know what the row says now */
+    cloud.pushFailed=false;
     setCloudDot("ok");
   }catch(e){
     console.warn("cloud push failed:",e.message);
+    cloud.pushFailed=true;                /* so the badge stops claiming "Cloud on" */
     setCloudDot("err");
   }finally{
     cloud.pushing=false;
@@ -2871,13 +3633,43 @@ function cloudQueue(){
   _pushTimer=setTimeout(()=>cloudPush(), 900);
 }
 async function cloudPushAll(){ await cloudPush(true); toast("Pushed to cloud.") }
-function cloudDisconnect(){
-  if(!confirm("Disconnect the cloud? Data stays in this browser but will no longer be saved to Supabase.")) return;
+/* The amber banner's button: the app already tried at boot, so all this does is
+   try again now that (hopefully) the internet is back. */
+async function cloudRetryConnect(){
+  toast("Trying the cloud again…");
+  const ok=await cloudInit();
+  setLogo(); syncHeader(); redrawCurrentPage();
+  toast(ok? "Connected — this data is going to the cloud now." : "Still no cloud. Check the internet, and that supabase/schema.sql has been run.");
+}
+/* Clears cloud settings saved in this browser and goes back to the project
+   built into the file. The only reason it exists: a device that connected by
+   hand once, to a wrong URL or a stray workspace id, could otherwise never be
+   brought back in line. */
+async function cloudResetSaved(){
+  if(!confirm("Use the built-in cloud project again, and forget the settings saved in this browser?")) return;
   writeCloudCfg(null);
-  cloud.ready=false; cloud.url=""; cloud.key="";
-  _saveLocal();
-  recordAudit("STORAGE","Disconnected Supabase cloud database");
-  setCloudDot("err"); toast("Cloud disconnected — local mode.");
+  cloud.ready=false; cloud.url=""; cloud.key=""; cloud.rev="";
+  const ok=await cloudInit();
+  recordAudit("STORAGE","Reset cloud settings to the built-in project");
+  setLogo(); syncHeader();
+  toast(ok? "Back on the built-in cloud project." : "Settings cleared, but the cloud is still not reachable.");
+  render.company();
+}
+/* Puts back the copy that lost a newest-wins decision, and pushes it up so the
+   other devices follow. */
+async function cloudRestoreBackup(){
+  const bk=readBackup(); if(!bk) return toast("There is no saved copy to restore.");
+  const c=bk.doc.cartons?.length||0, p=bk.doc.products?.length||0;
+  if(!confirm(`Restore the copy saved on ${new Date(bk.at).toLocaleString()} (${c} cartons, ${p} products)?\n\nThe data showing now will be kept as the backup instead, and every device will be updated to the restored copy.`)) return;
+  const outgoing=state;
+  const keepUser=state.user;
+  state=migrateState(bk.doc);
+  if(keepUser && keepUser.loggedIn) state.user=keepUser;
+  try{ localStorage.setItem(LS_BACKUP, JSON.stringify({ at:new Date().toISOString(), why:"replaced by a restore", doc:outgoing })) }catch(e){}
+  save();                                    /* restamps, so this copy is the newest one */
+  await cloudPush(true);
+  recordAudit("STORAGE","Restored the earlier local copy");
+  setLogo(); syncHeader(); toast("Restored. Other devices will pick this up.");
   render.company();
 }
 async function cloudPullAll(){
@@ -2885,11 +3677,60 @@ async function cloudPullAll(){
   const ok=await cloudInit();
   if(ok){ setLogo(); syncHeader(); show("dashboard"); toast("Reloaded from cloud.") }
 }
+/* ---- data-location badge (topbar) + local-only warning (dashboard) ---- */
+let cloudWarnDismissed = false;
+function cloudState(){
+  if(!cloud.ready) return "off";
+  return cloud.pushFailed ? "err" : "on";
+}
+function syncCloudBadge(){
+  const b=document.getElementById("cloudBadge"); if(!b) return;
+  const s=cloudState();
+  b.className="cloud-badge "+s;
+  const label = s==="on" ? "Cloud on" : s==="err" ? "Cloud error" : "Local only";
+  const t=document.getElementById("cloudBadgeText"); if(t) t.textContent=label;
+  b.title = s==="on" ? "Your data is backed up to the cloud"
+    : s==="err" ? "The last save to the cloud failed — it is still safe on this device"
+    : "Your data is saved on this device only";
+  b.style.cursor = s==="on" ? "default" : "pointer";
+  b.onclick = s==="on" ? null : ()=>{ isAdmin() ? show("company")
+    : toast("Ask an Admin to check cloud backup in Company & Security."); };
+}
+function dismissLocalWarn(){ cloudWarnDismissed=true; const el=document.getElementById("localWarn"); if(el) el.remove(); }
+function localWarnBanner(){
+  const s=cloudState();
+  if(s==="on" || cloudWarnDismissed) return "";
+  const admin=isAdmin();
+  if(s==="err") return `<div class="local-warn no-print" id="localWarn">
+    <div class="lw-text"><b>\u26a0 The last save to the cloud did not go through.</b><br>
+      Your work is still safe in this browser, but it has not reached the cloud, so another device
+      will not see it yet. Check the internet connection first. ${admin
+        ? "If it keeps failing, the internet is the first thing to check \u2014 nothing is set up wrong at this end."
+        : "If it keeps happening, tell an Admin."}</div>
+    <div class="lw-actions">
+      ${admin?`<button class="btn small" onclick="cloudPushAll()">\u21bb Try again now</button>`:""}
+      <button class="btn secondary small" onclick="dismissLocalWarn()">Dismiss</button>
+    </div>
+  </div>`;
+  return `<div class="local-warn no-print" id="localWarn">
+    <div class="lw-text"><b>\u26a0 Local only \u2014 this data lives on this device.</b><br>
+      Everything you save is kept in this browser only. If you sign in from another phone or computer,
+      or clear this browser\u2019s data, it will not be here. ${admin
+        ? "The app normally connects itself, so this usually means no internet \u2014 or that supabase/schema.sql has not been run in Supabase yet."
+        : "Tell an Admin: the app cannot reach the cloud, so this data is not being saved online."}</div>
+    <div class="lw-actions">
+      ${admin?`<button class="btn small" onclick="cloudRetryConnect()">\u21bb Try to connect now</button>`:""}
+      <button class="btn secondary small" onclick="dismissLocalWarn()">Dismiss</button>
+    </div>
+  </div>`;
+}
+
 function setCloudDot(kind){
   const el=document.getElementById("cloudDot"); if(!el) return;
   el.className="cloud-dot "+kind;
   el.title = kind==="ok" ? "Cloud synced" : kind==="sync" ? "Syncing…" : "Cloud sync failed — data is safe locally";
   el.style.display = cloud.ready ? "" : "none";
+  syncCloudBadge();
 }
 /* every save() also queues a cloud push */
 const _saveLocal = save;
@@ -2931,7 +3772,7 @@ function authOk(id,msg){
 function enterApp(){
   document.getElementById("authScreen").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
-  setLogo(); syncHeader(); setCloudDot(cloud.ready?"ok":"err");
+  setLogo(); syncHeader(); setCloudDot(cloud.ready?"ok":"err"); syncCloudBadge();
   show("dashboard");
 }
 function signInAs(account){
@@ -3091,6 +3932,15 @@ async function boot(){
   await cloudInit();
   ensureOwnerAccount();
   setLogo();
+
+  /* Wherever he signs in, he should see the latest work. A tab left open on the
+     PC used to sit on its own copy for hours and then push it over whatever the
+     phone had done, so: re-check the cloud whenever this tab comes back to the
+     front, and slowly while it is open. */
+  if(document.addEventListener) document.addEventListener("visibilitychange",()=>{ if(!document.hidden) cloudSyncNow(true) });
+  if(window.addEventListener) window.addEventListener("focus",()=>{ cloudSyncNow(true) });
+  const _poll=setInterval(()=>{ if(!document.hidden) cloudSyncNow(true) }, 30000);
+  if(_poll && _poll.unref) _poll.unref();   /* browsers ignore this; it lets the test runner exit */
 
   if(state.users.length===0){ showAuth("setup"); return }
   if(state.user?.loggedIn){
