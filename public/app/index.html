@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pro Inventory &amp; Stock Management</title>
+<!-- Favicon: Rakib er "R" logo. App ta site theke-o cholte pare abar shoja
+     file theke-o khola hoy, tai chhobi ta data-URI hisebe ekhane-i - path
+     bhul howa ba network lagar kono chance nei. Boro icon gulo public/ e. -->
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAG50lEQVR4nO1XbXBUVxl+3nPP3t27H5APk0IohBgpbYjFEr5RN6EFG60MDnNDW+sAMwqjpD+sjbYzxWtkZBA6xbZ+EAYnVrDoXhXHKcNHwWxAp0OFplJCpiQQMJCwm5AEdjfZu7v3vv5IoDG20kAd//T5d+85932e97xf9wAf4/8MutU6gwk6KBwNEwB055dzs/kDrkWt8z9TxWBqCDbI/7bHAAsDLO6U6z9I2GBBteSgERkwRPv8zunX+p1PXXOu5wy40pQQdrTbFznzzeN0AQB0hBQTVfbtCvi3ELDOCplkN/y0wf/A7x6ozkTkEwkrNd0hl0xJgYTC6EUcHXTZvu4aPNCldm3cfFI/rushxTRvT8RNATc871jVMT+/5RP1asRzb286jX6ZxGUlig6KRpIi2WG7gBRcRdKVm9vJXZkeEfnqz//xeOh2RdBI8q7qrrk5Z7L/4jrr9l3NDCaj7rjn73S6pY3aN+13HT9w8uyOHgBYlrszUDr5rmp2vJtiijWQ9MdLdx6rumDAoDEnJ4OJwfT2d972xR6LtfG9zL13DSSbp0S5bur+3SV60A8AqY7756WvVLwZa12zsbtlWQAAvv7p3XtqFpzitQ8efB4AjFsk7vtBwIBCIM7Rsh7z9/qLE5GM1asm3U3K6T3rLlQ+0RxaP9gQbJADFs+UWsccfzE/x0rhBh0hpV8kwglOM1y+coMNUdtYkRm7gDNgAEh32rOcNvCgmlLbxaVLrVPOrGUwndxxWFQ0VmTkAD+CHtt2uq8j7WjvmlhpJ5KZiWkhiKX0Tw1PVYfP9Fa9ZZQAc0iAdTmlZizAUpksOfBibWN1vPXJl9TZ63akzx9YOlMdUB7Gdb8Sj+Cd5+uWvwqwcKAtd9wqk6b0rS5fYw2RE49JgKkPJeIVRE5ZLof6cM1ysuzXGEzTSpsdAMhODWx1DWoyeTWLz50f/9S2bQsHP1Pw7DqfNmmmCKikaPQ6EdgIhpWxkAOA0E04DKbGoobftvv+2Sqky92XFekmJtC6Hem2lyvXjEt5lqA/QNd6PD+btbz+8P2Tqhfn+Uq2+LPyWGiD192exC8AJpSHx9yeh8oQTATiPz506L78zikvxrTIqsqTwa4jTz9cvKBYeUvz2gGHUyd+2H6t/Miv9FUB96Qtefn3+b0TA3D5Yytfrp99Z31gpAgA+PMjhrerqwCVD4YPjffJReevuFK/f2fq/rcuFd09MbewzOXPhh2wO5XxVnXdb+bt/Ug6IQCEEFLygs3062hx2XTEtilpbcHVuBcJtxspvwbF60JKlX+zNTqUDnRv3713RfROyIHRw0g3UWGamde+WOWek587rzvmxqunck9fTk8unKB6A7b0JBMiumvP4a/UAcCHIufhsqThaI/CzXHKAOklJWwEdX8x5dfnO+NEkczEflR9cPGhnqZ55/outMTTtkeqd29/vHLfIsP4wFFMeoiVoMESIICIQcQAWGdWPvC7hqAhASC8cP33Y18w2P7yBm77fM1LN1TOKHhq8uJ7dkUefajFWbnsxD4AGG1M11kZGVUCUPPjnQGjfm8W67hZoszvNasb50IE8K65T44rTftap3kDeUknlbqYtEpnNW0+t7qw3v3KxTXJz03bXhPIm7XFV+C3tJyBGUUTy9rDCAsAaKwttwFiAWDRhq4vpQLacuGmWcLDE9QAy5zxoqcgJ33UE4u8sHXpjFZmJiJiCQCmHhIwq+wCyzc/OzU+X2UfekXfvrKmzW2s68or5moLuCAEddXHrMgzbuWT2UB0TW0tPQfAAQCFgKXPdq7oIX9N3OObJ9wCcDPIw0hLIEkiP+VDyZSAd8X33miZS8BFw2AhASAv2kwAMA5qkYdddsZSFNvjNRkgREsIINZ1FqZJPYvm/OGXsaRdw4Fx69Y+c+bo5AJva1u/FuwYcH/jiqMtzGguCNWB9ADCSyA3QD6C4gOu9GNALdLyJspJXwPRRjArEgDK82fwcKZ2KEJR+u1BK6nIJgKYG4c8NE04MFjIP/1kUzzeWpkMzCnt68s62BJLIallw1IBUgFFJqBQppkt65hjD56UNvpT8cFcSsgV6uQpSxJStfuI/DdyQAIAmVUOwxD7J+Qc8V+M/7VABj7bg6vpUcnNqGU04tv9ZWV1FWmPtmHQyl+S9nhzVLsv5g6gVarOMU0mXl9/vLCpysTo8qybbZ54WtxTttWR/CYAhMPh91Z5eIweXLLVd3bmlu++MdOYOvL9iJ03nw1ABL912m8YIXUUGYIGy6DRIPUQK8EGljf6wZKj7z66rKU7MNrWGME0VHIjYLAIGiyHS/P9DfOH+I0fuhMYkm99acEQEdNYPNGZFfBte/4xPnr8CzixMGX+/og7AAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <style>
 /* ============ 1. DESIGN TOKENS ============ */
 :root{
@@ -311,6 +316,19 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .line-item{display:grid;grid-template-columns:1fr 130px auto;gap:9px;align-items:end;
   background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
 .line-item .field label{margin-bottom:4px}
+/* protita line er nijer grade box gulo - ei jonnoi damage/grade er taka oi
+   product er nijer rate e hoy, carton er average rate e na */
+.line-item.lg{grid-template-columns:minmax(0,1fr) minmax(0,290px) 74px auto}
+.lg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lg-grid .field label{font-size:10.5px;text-align:center;letter-spacing:.3px}
+.lg-grid input{text-align:center;padding-left:5px;padding-right:5px}
+.lg-pcs{font-weight:800;font-size:15.5px;padding:10px 0;text-align:center;line-height:1.1}
+.lg-pcs span{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.4px}
+/* protita line er rate ar taka - PCS er nichey, purota chowra jure */
+.line-money{grid-column:1/-1;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);
+  padding-top:7px;display:flex;gap:10px;flex-wrap:wrap}
+.line-money b{color:var(--text)}
+.line-money .bad{color:#b42318;font-weight:700}
 .tot-strip{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:11px;font-size:12.5px}
 .tot-strip .ok{color:#15803d;font-weight:800}
 .tot-strip .bad{color:#b42318;font-weight:800}
@@ -394,6 +412,7 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
   .form-grid .span2,.grade-box{grid-column:span 1}
   .grade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .line-item{grid-template-columns:1fr 100px auto}
+  .line-item.lg{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 62px auto}
   .panel{padding:13px;border-radius:14px}
   .table th,.table td{padding:9px 10px;font-size:12px}
   .btn{padding:11px 14px;min-height:42px}                 /* 42px = comfortable tap */
@@ -440,7 +459,8 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 }
 @media(max-width:460px){
   .cards{grid-template-columns:1fr}
-  .line-item{grid-template-columns:1fr;gap:8px}
+  .line-item,.line-item.lg{grid-template-columns:1fr;gap:8px}
+  .lg-pcs{padding:2px 0 0;text-align:left}
   .auth-card{padding:22px}
   .metric strong{font-size:20px}
   .tot-strip{font-size:12px}
@@ -468,6 +488,8 @@ table.table{width:100%;border-collapse:separate;border-spacing:0}
 .storage-card code{background:#e8eef6;padding:1px 6px;border-radius:5px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
 .rp-h3{margin:20px 0 9px;font-size:14.5px;font-weight:800;letter-spacing:.2px;color:inherit;
   border-bottom:2px solid var(--line);padding-bottom:6px}
+/* report er niche choto line - kon shonkha kise gona hoyeche seta bole dey */
+.rp-note{margin:7px 0 0;font-size:11.5px;line-height:1.5;color:var(--muted)}
 .cloud-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:0 0 auto;
   box-shadow:0 0 0 3px rgba(15,118,110,.12)}
 .cloud-dot.ok{background:#16a34a}
@@ -585,14 +607,35 @@ html[data-theme="dark"] .report-paper .pill{background:#f8fafc;color:#334155;bor
 @page{size:A4 portrait;margin:12mm}
 @media print{
   html,body{background:#fff!important;color:#0d1b2a!important}
+  /* html,body te height:100% ache - print e oita EK page er soman, tai baki ta
+     kete jeto ("ordhek ashe"). Ar modal/drawer khola thakle <html> e
+     overflow:hidden boshe, clipped root ke browser page e vag korte pare na.
+     Duita-i print er somoy khule dewa hoyeche. */
+  html,body{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+  html:has(.modal),html:has(.nav-scrim.show){overflow:visible!important}
   html[data-theme="dark"] #printHost .table th{background:#f7fafc!important;color:#64748b!important}
   body.printing>*{display:none!important}
   body.printing>#printHost{display:block!important}
-  #printHost{color:#0d1b2a;font-size:11px}
+  #printHost{color:#0d1b2a;font-size:11px;width:100%}
+  /* Onek column er table gulo (Carton detail, Vendor inflow) portrait A4 te
+     dhukanor jonno - choto font, kom padding, heading gulo wrap kore. */
+  #printHost .pt-compact{font-size:8.3px!important}
+  #printHost .pt-compact th,#printHost .pt-compact td{padding:2px 3px!important;
+    letter-spacing:0!important;word-break:break-word}
+  #printHost .pt-compact th{font-size:7.4px!important}
+  #printHost .pt-compact td.wrap,#printHost .pt-compact th.wrap{min-width:0!important}
   #printHost .report-paper{border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
   #printHost .no-print{display:none!important}
   #printHost .print-only{display:block!important}
-  #printHost .table-wrap{overflow:visible!important;border:0!important;border-radius:0!important;max-height:none!important}
+  #printHost .table-wrap{overflow:visible!important;border:0!important;border-radius:0!important;max-height:none!important;
+    display:block!important;width:auto!important;box-shadow:none!important}
+  /* .wrap column gulor min-width:180px print eo thakto, tai chowra landscape
+     report page er baire chole jeto - dan pash kata porto. */
+  #printHost .table td,#printHost .table th{min-width:0!important;max-width:none!important;overflow-wrap:break-word}
+  #printHost .report-paper,#printHost .table-wrap,#printHost table,#printHost tbody{
+    break-inside:auto!important;page-break-inside:auto!important}
+  #printHost .kpis,#printHost .report-head,#printHost .report-foot{break-inside:avoid;page-break-inside:avoid}
+  #printHost tfoot{display:table-row-group}   /* TOTAL line shudhu shesh e, protita page e na */
   #printHost table{width:100%!important;border-collapse:collapse!important;font-size:10px!important}
   #printHost thead{display:table-header-group}
   #printHost tr{break-inside:avoid;page-break-inside:avoid}
@@ -886,11 +929,55 @@ const GRADES = ["A","B","B2","C"];
 const GRADE_LABEL = { A:"A · Fresh", B:"B · Usable", B2:"B2", C:"C · Damage" };
 function gradeSum(g){ return GRADES.reduce((t,k)=>t+num(g?.[k]),0) }
 function cartonItems(c){ return Array.isArray(c?.items)? c.items : [] }
+function normGrades(g){ const o={}; GRADES.forEach(k=>o[k]=num(g?.[k])); return o }
+function zeroGrades(){ return { A:0,B:0,B2:0,C:0 } }
+/* Grade ekhon protita product line er nijer jinish. Age grade puro carton er ek
+   jaygay thakto, tai kon graded piece kon product er - app jante-i parto na, ar
+   Damage/Grade er taka carton er average rate e hoto. Ek carton e 80g (105) ar
+   120g (230) thakle 2 pcs damage 335 taka dekhato, 210 na. */
+function lineGrades(i, useInitial){
+  const g = useInitial ? (i?.initialGrades || i?.grades) : i?.grades;
+  return g || null;
+}
+function hasLineGrades(c){ return cartonItems(c).some(i=>i && (i.grades || i.initialGrades)) }
+/* Purono carton er carton-level grade pool ta line gulor moddhe bhag kore dey:
+   A theke shuru, protita line nijer pcs porjonto bhore. Total ek-i thake (ja
+   bache seta shesh line e boshe), tai kono piece haray na. */
+function spreadGrades(lines, pool, pcsKey, gKey){
+  const left = normGrades(pool);
+  lines.forEach(l=>{ l[gKey] = zeroGrades() });
+  lines.forEach(l=>{
+    let need = num(l[pcsKey]);
+    GRADES.forEach(k=>{
+      if(need<=0) return;
+      const take = Math.min(need, left[k]);
+      l[gKey][k] += take; left[k] -= take; need -= take;
+    });
+  });
+  const last = lines[lines.length-1];
+  if(last) GRADES.forEach(k=>{ if(left[k]>0){ last[gKey][k] += left[k]; left[k]=0 } });
+  return lines;
+}
+/* carton.grades = line gulor jog. Report, dashboard, grade mix, FEFO, CSV shob
+   ei number-i pore, tai save er por eita mela obosshok. */
+function rollupGrades(c, gKey){
+  const t = zeroGrades();
+  cartonItems(c).forEach(i=>GRADES.forEach(k=>t[k] += num(i?.[gKey]?.[k])));
+  return t;
+}
+function syncCartonGrades(c){
+  c.grades        = rollupGrades(c, "grades");
+  c.initialGrades = rollupGrades(c, "initialGrades");
+  c.pcs           = gradeSum(c.grades);
+  c.initialPcs    = gradeSum(c.initialGrades);
+  c.status        = c.pcs>0 ? "IN STOCK" : "OUT";
+  return c;
+}
 
 /* ---------------- state ---------------- */
 function defaultState(){
   return {
-    version:10,
+    version:11,
     activeCompanyId:"c1",
     security:{ adminPinHash:null },
     filters:{ vendor:"ALL", cartonStatus:"ALL", from:"", to:"", reportGrade:"ALL", cartonSearch:"", reportProduct:"ALL" },
@@ -919,7 +1006,7 @@ function readRaw(){
 function migrateState(s){
   if(!s || typeof s!=="object") return defaultState();
   const d = defaultState();
-  s.version = 10;
+  s.version = 11;
   s.security = Object.assign({adminPinHash:null}, s.security||{});
   s.filters  = Object.assign({}, d.filters, s.filters||{}, {
     vendor: s.filters?.vendor ?? s.selectedVendorFilter ?? "ALL",
@@ -954,6 +1041,17 @@ function migrateState(s){
                    pcs:p, initialPcs:num(c.initialPcs)||p }];
     }
     c.items.forEach(it=>{ if(!it.id) it.id=uid("li"); it.pcs=num(it.pcs); it.initialPcs=num(it.initialPcs)||it.pcs; });
+    /* v11: grade line-por-line. Purono carton er grade shudhu carton-level e
+       chhilo - kon graded piece kon product er, ei kotha ta data tei nei. Tai
+       ekhane ANDAJ kore bhag kora hoy NA: purono carton er hisab jemon chhilo
+       temon-i thake (carton er IN-time average rate). Line e grade thakle
+       (notun IN / Edit save) shudhu number gulo porishkar kore ney. */
+    if(c.items.some(it=>it.grades || it.initialGrades)){
+      c.items.forEach(it=>{
+        it.grades        = normGrades(it.grades);
+        it.initialGrades = it.initialGrades ? normGrades(it.initialGrades) : {...it.grades};
+      });
+    }
     delete c.productId;
     c.pcs        = gradeSum(c.grades);
     c.initialPcs = num(c.initialPcs) || gradeSum(c.initialGrades);
@@ -1010,9 +1108,57 @@ function cartonAvgRate(c, useInitial){
   const total = cartonItems(c).reduce((t,i)=>t+num(useInitial? i.initialPcs : i.pcs), 0);
   return total>0 ? cartonValue(c, useInitial)/total : 0;
 }
+/* Taka ke ek bar-i round kora hoy. Protita row alada round kore total ta
+   asol jog theke round korle column ta nijer total er shathe mele na. */
+function round2(v){ return Math.round(num(v)*100)/100 }
+/* Grade er taka. Ekhon protita line er nijer grade ache, tai protita graded
+   piece tar NIJER product er rate e dam pay - ei jonno-i "80g er 2 pcs damage =
+   210 taka", carton er average 167.50 diye 335 na. Purono data (line e grade
+   nei, jemon onno device er cloud copy) hole age-r niyom-i chole: carton ta je
+   rate e dhukechhilo, sei average rate. */
 function gradeValue(c, k, useInitial){
+  const list = cartonItems(c);
+  if(hasLineGrades(c))
+    return list.reduce((t,i)=>t + unitPrice(i.productId, c.outlet) * num(lineGrades(i, useInitial)?.[k]), 0);
   const g = useInitial ? (c.initialGrades||c.grades) : c.grades;
-  return cartonAvgRate(c, useInitial) * num(g?.[k]);
+  return cartonAvgRate(c, true) * num(g?.[k]);
+}
+/* Ek carton e 4-5 ta item thakle ekta "average rate" ta bhul-bujhabujhi bardhay
+   ("80g 105, 120g 230" er jaygay 167.50). Tai list ar details e ekhon rate er
+   RANGE dekhay - ek product hole ek-i number. */
+function cartonRateRange(c, useInitial){
+  const rates = cartonItems(c)
+    .filter(i=>num(useInitial? i.initialPcs : i.pcs)>0)
+    .map(i=>unitPrice(i.productId, c.outlet));
+  if(!rates.length) return null;
+  return { lo:Math.min(...rates), hi:Math.max(...rates) };
+}
+function rateRangeText(c, useInitial){
+  const r = cartonRateRange(c, useInitial);
+  if(!r) return money(0);
+  return round2(r.lo)===round2(r.hi) ? money(r.lo) : money(r.lo)+" – "+money(r.hi);
+}
+/* Ek-i product duita line e boshle avg rate oi dike hele jay ar details e
+   product ta duibar ashe. Tai save er age ek product ek line e mila dewa hoy. */
+function mergeItemLines(items){
+  /* grade shudhu tokhon-i boshe jokhon line er kachhe grade ache. Na thakle
+     {0,0,0,0} boshiye dile carton ta "line-grade wala" hoye jeto ar shob grade
+     er taka 0 dekhato. */
+  const out=[], byId={}, carryG = items.some(i=>i.grades || i.initialGrades);
+  items.forEach(i=>{
+    const k=i.productId;
+    if(byId[k]){
+      byId[k].pcs+=num(i.pcs); byId[k].initialPcs+=num(i.initialPcs);
+      /* grade-o jog hoy, nahole ek product duita line e dile grade harie jeto */
+      if(carryG) GRADES.forEach(g=>{ byId[k].grades[g]+=num(i.grades?.[g]);
+                          byId[k].initialGrades[g]+=num((i.initialGrades||i.grades)?.[g]) });
+    }
+    else { byId[k]=Object.assign({},i,{ pcs:num(i.pcs), initialPcs:num(i.initialPcs) });
+           if(carryG){ byId[k].grades=normGrades(i.grades);
+                       byId[k].initialGrades=normGrades(i.initialGrades||i.grades) }
+           out.push(byId[k]) }
+  });
+  return out;
 }
 function itemsSummary(c, sep){
   const list = cartonItems(c).filter(i=>num(i.pcs)>0 || num(i.initialPcs)>0);
@@ -1026,21 +1172,27 @@ function stockByGrade(){
 }
 function totalStock(){ const s=stockByGrade(); return gradeSum(s) }
 function activeCartonCount(){ return companyCartons().filter(c=>c.status==="IN STOCK" && num(c.pcs)>0).length }
-/* product-wise in-stock summary */
+/* Product-wise summary. Aage shudhu "IN STOCK" carton ar pcs>0 dhorto, tai je
+   product shob ber hoye gecche seta summary theke uthe jeto - "shob product
+   ashe na". Ekhon jei product kono din dhuke chilo, shob-i thake (0 dekhabe).
+   Cartons column e ek carton ek bar-i gona hoy, line shonkha na. */
 function productStock(){
   const map={};
   companyCartons().forEach(c=>{
-    if(c.status!=="IN STOCK") return;
     cartonItems(c).forEach(i=>{
-      if(num(i.pcs)<=0) return;
+      if(num(i.pcs)<=0 && num(i.initialPcs)<=0) return;
       const k=i.productId;
-      if(!map[k]) map[k]={ productId:k, name:productName(k), pcs:0, value:0, cartons:0 };
-      map[k].pcs   += num(i.pcs);
-      map[k].value += num(i.pcs)*unitPrice(i.productId, c.outlet);
-      map[k].cartons++;
+      if(!map[k]) map[k]={ productId:k, name:productName(k), pcs:0, got:0, value:0, ids:new Set() };
+      map[k].got += num(i.initialPcs);
+      if(c.status==="IN STOCK"){
+        map[k].pcs   += num(i.pcs);
+        map[k].value += num(i.pcs)*unitPrice(i.productId, c.outlet);
+        if(num(i.pcs)>0) map[k].ids.add(c.id);
+      }
     });
   });
-  return Object.values(map).sort((a,b)=>b.pcs-a.pcs);
+  return Object.values(map).map(p=>Object.assign(p,{ cartons:p.ids.size }))
+    .sort((a,b)=>b.pcs-a.pcs || b.got-a.got || a.name.localeCompare(b.name));
 }
 
 /* ---------------- accounts & session ---------------- */
@@ -1183,29 +1335,66 @@ function show(page){
 }
 function closeModal(){ document.getElementById("modalRoot").innerHTML="" }
 
-/* ---------------- printing (clone the paper into #printHost) ---------------- */
-function printPaper(paperId, orientation){
-  const src=document.getElementById(paperId);
-  if(!src) return toast("Nothing to print on this page.");
+/* ---------------- printing (clone the paper into #printHost) ----------------
+   Only #printHost is printed and it is a direct child of <body>, so no
+   scrolling or height-limited ancestor can cut the paper in half. Two rules
+   that used to clip it are undone inside @media print (html/body height:100%
+   and the modal overflow lock). The other half of the old bug was timing and
+   staging - see printCleanup() and the beforeprint listener below. */
+function activePaper(){ return document.querySelector(".page.active .report-paper") }
+/* Shob report A4 PORTRAIT. Age report gulo landscape chaito, kintu print
+   dialog e kagoj portrait thakle browser puro page ta chhoto kore sheet er
+   majhkhane boshiye dey - upore-niche faka. Portrait e rekhe table gulo-i
+   compact kora hoyeche (niche .pt-compact), tai kono setting badlate hoy na. */
+function paperOrientation(){ return "portrait" }
+
+/* Put the paper in #printHost and turn the print layout on. Runs from the
+   Print button, from Ctrl+P, and from the browser's own print (beforeprint). */
+function printStage(src){
   let st=document.getElementById("pageOrientStyle");
   if(!st){ st=document.createElement("style"); st.id="pageOrientStyle"; document.head.appendChild(st) }
-  st.textContent = `@page{size:A4 ${orientation||"portrait"};margin:12mm}`;
-
+  /* orientation ta ar keu badlate pare na - shob report portrait, ar margin
+     10mm rakha holo jate chowra table er jonno ektu beshi jayga thake */
+  st.textContent = `@page{size:A4 portrait;margin:10mm}`;
   const host=document.getElementById("printHost");
+  if(!host) return false;
   host.innerHTML="";
   const clone=src.cloneNode(true);
   clone.querySelectorAll(".no-print").forEach(n=>n.remove());
+  /* querySelectorAll nijer root ta dhore na, tai clone.removeAttribute alada
+     kore lage - noile print er somoy duita element er ek-i id thake. */
+  clone.removeAttribute("id");
   clone.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
   host.appendChild(clone);
   document.body.classList.add("printing");
-  setTimeout(()=>{
-    window.print();
-    setTimeout(()=>{ document.body.classList.remove("printing"); host.innerHTML="" }, 400);
-  }, 60);
+  return true;
 }
-window.addEventListener("afterprint",()=>{
+
+/* Chrome blocks inside window.print(), iOS Safari does not. Clearing the stage
+   on a short timer therefore stripped the print styles mid-preview on phones
+   and only the first page came out. So: never clear while the print media
+   query still matches. */
+const printMQ = window.matchMedia ? window.matchMedia("print") : null;
+function printCleanup(){
+  if(printMQ && printMQ.matches) return;
   document.body.classList.remove("printing");
-  document.getElementById("printHost").innerHTML="";
+  const host=document.getElementById("printHost");
+  if(host) host.innerHTML="";
+}
+function printPaper(paperId){
+  const src=document.getElementById(paperId);
+  if(!src) return toast("Nothing to print on this page.");
+  if(!printStage(src)) return;
+  setTimeout(()=>{ window.print(); setTimeout(printCleanup, 1500) }, 60);
+}
+window.addEventListener("afterprint", printCleanup);
+if(printMQ && printMQ.addEventListener) printMQ.addEventListener("change", e=>{ if(!e.matches) printCleanup() });
+/* Safety net: browser menu > Print, the phone share sheet, or a Ctrl+P we did
+   not catch. Without this the whole app UI printed, clipped to one screen. */
+window.addEventListener("beforeprint",()=>{
+  if(document.body.classList.contains("printing")) return;
+  const p=activePaper();
+  if(p) printStage(p, paperOrientation(p));
 });
 function reportMeta(title, extraLines){
   const u=state.user||{};
@@ -1294,7 +1483,7 @@ render.dashboard = function(){
 
   const vendorRows = Object.values(vendorMap).sort((a,b)=>b.value-a.value);
   const recent = companyMovements().slice(0,10);
-  const prodRows = productStock().slice(0,8);
+  const prodRows = productStock();          /* .slice(0,8) chhilo - tai shob product ashto na */
 
   expiryAlerts.sort((a,b)=>a.days-b.days);   /* jeta age shesh hobe seta upore */
   const alerts = (expiryAlerts.length||damageAlerts.length) ? `
@@ -1346,13 +1535,17 @@ render.dashboard = function(){
     </div>
 
     <div class="panel">
-      <div class="panel-head"><h2>Product-wise stock</h2></div>
+      <div class="panel-head"><div><h2>Product-wise stock</h2>
+        <div class="sub">All ${prodRows.length} product(s) you have received · scroll for more</div></div></div>
       <div class="table-wrap tall"><table class="table">
         <thead><tr><th class="wrap">Product</th><th class="num">In stock</th><th class="num">Cartons</th><th class="num">Value</th></tr></thead>
         <tbody>${prodRows.length? prodRows.map(p=>`<tr>
           <td class="wrap"><b>${esc(p.name)}</b></td><td class="num">${pcs(p.pcs)} PCS</td>
           <td class="num">${p.cartons}</td><td class="num"><b>${money(p.value)}</b></td>
         </tr>`).join("") : emptyRow(4,"No stock yet","")}</tbody>
+        ${prodRows.length?`<tfoot><tr><th>TOTAL</th><th class="num">${pcs(prodRows.reduce((t,p)=>t+p.pcs,0))} PCS</th>
+          <th class="num">${activeCartonCount()}</th>
+          <th class="num">${money(prodRows.reduce((t,p)=>t+round2(p.value),0))}</th></tr></tfoot>`:""}
       </table></div>
     </div>
   </div>
@@ -1376,20 +1569,32 @@ render.dashboard = function(){
 };
 
 /* ------------------------------- STOCK IN ------------------------------- */
-let inLines = [];   /* [{key, productId, pcs}] */
+let inLines = [];   /* [{key, productId, g:{A,B,B2,C}}] - PCS oi 4 tar jog */
 
+function newInLine(productId){ return { key:uid("l"), productId, g:zeroGrades() } }
+function inLinePcs(l){ return gradeSum(l?.g) }
 function inLineRow(l, i, products){
-  return `<div class="line-item">
+  return `<div class="line-item lg">
     <div class="field"><label>Product ${i+1}</label>
-      <select onchange="inLines[${i}].productId=this.value">
+      <select onchange="inLines[${i}].productId=this.value;inTotals()">
         ${products.map(p=>`<option value="${p.id}" ${p.id===l.productId?"selected":""}>${esc(p.name)}</option>`).join("")}
       </select></div>
+    <div class="lg-grid">
+      ${GRADES.map(k=>`<div class="field"><label>${esc(k)}${k==="C"?" · Dmg":""}</label>
+        <input type="number" min="0" step="1" value="${num(l.g?.[k])||""}" placeholder="0"
+               oninput="inLines[${i}].g.${k}=Number(this.value)||0;inTotals()"></div>`).join("")}
+    </div>
     <div class="field"><label>PCS</label>
-      <input type="number" min="0" step="1" value="${l.pcs||""}" placeholder="0"
-             oninput="inLines[${i}].pcs=Number(this.value)||0;inTotals()"></div>
+      <div class="lg-pcs" id="inPcs${i}">${pcs(inLinePcs(l))}<span>total</span></div></div>
     <button type="button" class="btn secondary small" title="Remove"
             onclick="removeInLine(${i})" ${inLines.length<=1?"disabled":""}>✕</button>
+    <div class="line-money" id="inMoney${i}"></div>
   </div>`;
+}
+/* Rate ta vendor er discount er upor bhor kore, tai vendor ghar boshle
+   protita line er taka-o bodlay - sei jonno rate ekhane live hisab hoy. */
+function inLineRate(productId){
+  return unitPrice(productId, document.getElementById("in_outlet")?.value);
 }
 function drawInLines(){
   const products = companyProducts();
@@ -1400,34 +1605,67 @@ function drawInLines(){
 function addInLine(){
   const products = companyProducts();
   if(!products.length) return toast("Add a product on the Products page first.");
-  inLines.push({ key:uid("l"), productId:products[0].id, pcs:0 });
+  /* Aage shob shomoy products[0] boshto, tai ek-i product duita line e pore
+     jawa khub shohoj chhilo. Ekhon je product ei carton e nei, seta boshe. */
+  const used = new Set(inLines.map(l=>l.productId));
+  const free = products.find(p=>!used.has(p.id));
+  if(!free) return toast("Every product is already on a line in this carton.");
+  inLines.push(newInLine(free.id));
   drawInLines();
 }
 function removeInLine(i){ if(inLines.length<=1) return; inLines.splice(i,1); drawInLines() }
-function inGradeTotal(){
-  return GRADES.reduce((t,k)=>t+num(document.getElementById("in_g"+k)?.value),0);
+function inGradeTotal(){ return inLines.reduce((t,l)=>t+inLinePcs(l),0) }
+function inProductTotal(){ return inGradeTotal() }
+/* line gulor grade jog kore carton er grade - list, report, dashboard shob
+   ei number-i pore */
+function inGradeRollup(){
+  const t=zeroGrades();
+  inLines.forEach(l=>GRADES.forEach(k=>t[k]+=num(l.g?.[k])));
+  return t;
 }
-function inProductTotal(){ return inLines.reduce((t,l)=>t+num(l.pcs),0) }
 function inTotals(){
+  /* age protita line er rate ar taka, tarpor carton er mot - shob ek jaygay
+     dekhe felle 4-5 item er hisab e ar ondhokar thake na */
+  let val=0, noPrice=false, lo=null, hi=null;
+  inLines.forEach((l,i)=>{
+    const q=inLinePcs(l), r=inLineRate(l.productId), v=round2(r*q);
+    val += v;
+    if(r<=0) noPrice=true;
+    if(q>0){ lo = lo===null? r : Math.min(lo,r); hi = hi===null? r : Math.max(hi,r) }
+    const pe=document.getElementById("inPcs"+i);
+    if(pe) pe.innerHTML = `${pcs(q)}<span>total</span>`;
+    const el=document.getElementById("inMoney"+i);
+    if(el) el.innerHTML = `<span>Rate <b>${money(r)}</b> / PCS</span><span>Line value <b>${money(v)}</b></span>`
+      + (r>0? "" : `<span class="bad">no price set for this product</span>`);
+  });
   const box=document.getElementById("inTotals"); if(!box) return;
-  const p=inProductTotal(), g=inGradeTotal(), ok = p>0 && p===g;
+  const p=inProductTotal(), roll=inGradeRollup();
+  const seen=new Set(), dupes=new Set();
+  inLines.forEach(l=>{ if(seen.has(l.productId)) dupes.add(l.productId); seen.add(l.productId) });
+  /* Ekta blended "Avg rate" (100 ar 200 mile 150) dekhe mone hoy app bhul rate
+     dhoreche. Tai ek product hole ek rate, beshi hole rate er range. */
+  const rateTxt = lo===null? money(0) : (round2(lo)===round2(hi)? money(lo) : money(lo)+" – "+money(hi));
   box.innerHTML = `
     <span class="pill">Products total: <b>${pcs(p)}</b> PCS</span>
-    <span class="pill">Grades total: <b>${pcs(g)}</b> PCS</span>
-    <span class="${ok?"ok":"bad"}">${p===0?"⚠️ Enter product PCS":ok?"✅ Match — ready to save":"❌ Product total and grade total do not match"}</span>`;
+    ${GRADES.map(k=>`<span class="pill ${k.toLowerCase()}">${esc(k)}: <b>${pcs(roll[k])}</b></span>`).join("")}
+    <span class="pill">Carton value: <b>${money(val)}</b></span>
+    <span class="pill">Rate: <b>${rateTxt}</b> / PCS</span>
+    <span class="${p>0?"ok":"bad"}">${p>0?"✅ Ready to save":"⚠️ Enter pieces in the grade boxes (A / B / B2 / C)"}</span>
+    ${dupes.size?`<span class="bad">⚠️ ${esc([...dupes].map(productName).join(", "))} is on more than one line — the lines will be added together when you save</span>`:""}
+    ${noPrice?`<span class="bad">⚠️ A product has no retail price, so its value shows ৳0.00</span>`:""}`;
 }
+/* protita line er shob piece ek grade e - "shob-i fresh" ba "shob-i damage" */
 function inFillGrade(k){
-  const total=inProductTotal(); if(total<=0) return;
-  GRADES.forEach(g=>{ const el=document.getElementById("in_g"+g); if(el) el.value = (g===k? total : 0) });
-  inTotals();
+  inLines.forEach(l=>{ const t=inLinePcs(l); if(t>0){ GRADES.forEach(x=>l.g[x]= x===k? t : 0) } });
+  drawInLines();
 }
 
 render.in = function(){
   const products = companyProducts();
-  inLines = products.length ? [{ key:uid("l"), productId:products[0].id, pcs:0 }] : [];
+  inLines = products.length ? [newInLine(products[0].id)] : [];
 
   document.getElementById("page-in").innerHTML = `
-  <div class="notice">Receiving stock for <b>${esc(currentCompany().name)}</b>. Add as many products to one carton as you need — the grade breakdown (A/B/B2/C) covers the whole carton.</div>
+  <div class="notice">Receiving stock for <b>${esc(currentCompany().name)}</b>. Add as many products to one carton as you need. Type the pieces straight into each product's own <b>A / B / B2 / C</b> boxes — that line's PCS is their total, and grade or damage money is then charged at <b>that product's own rate</b>, not a carton average.</div>
 
   ${products.length? "" : `<div class="alert-box">No products yet. Add one on the <a onclick="show('products')"><b>Products</b></a> page first.</div>`}
 
@@ -1440,7 +1678,8 @@ render.in = function(){
       <div class="field"><label class="required">IN Date</label><input name="inDate" type="date" value="${today()}" required></div>
       <div class="field"><label class="required">Carton No.</label><input name="cartonNo" id="in_carton" placeholder="CTN-0001" required></div>
       <div class="field"><label>Vendor / return source <span class="optional-tag">(optional)</span></label>
-        <input name="outlet" id="in_outlet" list="vendorSuggestions" placeholder="Type or choose vendor…">
+        <input name="outlet" id="in_outlet" list="vendorSuggestions" placeholder="Type or choose vendor…"
+               oninput="inTotals()">
         <div class="hint">If left empty this counts as "Direct".</div></div>
       <div class="field"><label>Expiry date <span class="optional-tag">(optional)</span></label><input name="expiry" type="date"></div>
       <div class="field"><label>Remarks <span class="optional-tag">(optional)</span></label><input name="note" placeholder="Any note about this carton"></div>
@@ -1448,21 +1687,18 @@ render.in = function(){
       <div class="span2">
         <div class="panel-head" style="margin-bottom:9px"><h2>Products in this carton</h2>
           <button type="button" class="btn ghost small" onclick="addInLine()">＋ Add product</button></div>
+        <div class="hint" style="margin:-4px 0 9px">${GRADES.map(k=>esc(GRADE_LABEL[k])).join(" · ")}</div>
         <div class="line-items" id="inLines"></div>
       </div>
 
       <div class="grade-box">
-        <div class="gb-head"><b>Grade breakdown (whole carton)</b>
+        <div class="gb-head"><b>Carton total</b>
           <div class="btn-row">
-            <button type="button" class="btn tiny secondary" onclick="inFillGrade('A')">All → A</button>
-            <button type="button" class="btn tiny secondary" onclick="inFillGrade('B')">All → B</button>
-            <button type="button" class="btn tiny secondary" onclick="inFillGrade('B2')">All → B2</button>
-            <button type="button" class="btn tiny secondary" onclick="inFillGrade('C')">All → C</button>
+            <button type="button" class="btn tiny secondary" onclick="inFillGrade('A')">Move all → A</button>
+            <button type="button" class="btn tiny secondary" onclick="inFillGrade('B')">→ B</button>
+            <button type="button" class="btn tiny secondary" onclick="inFillGrade('B2')">→ B2</button>
+            <button type="button" class="btn tiny secondary" onclick="inFillGrade('C')">→ C</button>
           </div>
-        </div>
-        <div class="grade-grid">
-          ${GRADES.map(k=>`<div class="field"><label>${esc(GRADE_LABEL[k])}</label>
-            <input type="number" min="0" step="1" id="in_g${k}" name="grade_${k}" value="0" oninput="inTotals()"></div>`).join("")}
         </div>
         <div class="tot-strip" id="inTotals"></div>
       </div>
@@ -1484,12 +1720,18 @@ render.in = function(){
     if(companyCartons().some(c=>c.cartonNo.toLowerCase()===cartonNo.toLowerCase()))
       return toast("This Carton No. already exists in this company.");
 
-    const items = inLines.filter(l=>num(l.pcs)>0).map(l=>({ id:uid("li"), productId:l.productId, pcs:num(l.pcs), initialPcs:num(l.pcs) }));
-    if(!items.length) return toast("Enter PCS for at least one product.");
+    /* protita line tar nijer grade niye jay - ei jonnoi pore Damage/Grade er
+       taka oi product er nijer rate e hisab hoy */
+    const items = mergeItemLines(inLines.filter(l=>inLinePcs(l)>0)
+      .map(l=>({ id:uid("li"), productId:l.productId, pcs:inLinePcs(l), initialPcs:inLinePcs(l),
+                 grades:normGrades(l.g), initialGrades:normGrades(l.g) })));
+    if(!items.length) return alert("Nothing to save!\n\nType the pieces into a product's A / B / B2 / C boxes. The PCS column is their total.");
 
-    const grades={}; GRADES.forEach(k=>grades[k]=num(f.get("grade_"+k)));
-    const gTotal=gradeSum(grades), iTotal=items.reduce((t,i)=>t+i.pcs,0);
-    if(gTotal!==iTotal) return alert(`Mismatch!\nProduct total = ${iTotal} PCS\nGrade total (A+B+B2+C) = ${gTotal} PCS\n\nThe two totals must be the same.`);
+    /* carton er grade = line gulor jog. Mismatch ar hote pare na - line er PCS
+       ta nijei grade gulor jog, tai purono "totals do not match" ta uthe gelo. */
+    const grades=zeroGrades();
+    items.forEach(i=>GRADES.forEach(k=>grades[k]+=num(i.grades?.[k])));
+    const gTotal=gradeSum(grades);
 
     const carton = {
       id:uid("c"), companyId:state.activeCompanyId, cartonNo,
@@ -2000,12 +2242,21 @@ function importCheckIn(rows){
     if(!pn) r._err.push("Product name is empty.");
     else{
       const p=byName.get(pn.toLowerCase());
-      if(p) r._productId=p.id;
+      /* price 0 mane bhul na (import theke asha product 0 price e boshe), tai
+         error na - note. Kintu na bolle carton ta 0 taka dhore dhukto ar keu
+         bujhto na keno shob jaygay 0 dekhachhe. */
+      if(p){ r._productId=p.id;
+        if(!(num(p.retailPrice)>0)) r._note.push("“"+pn+"” has no retail price yet — "
+          + "this carton will show 0 value until you set the price on the Products page.") }
       else{ r._err.push("“"+pn+"” is not in your product list."); r._newProduct=pn }
     }
     const rawQ=String(r.pcs===undefined?"":r.pcs).trim();
+    const rowG=GRADES.reduce((t,g)=>t+num(r["g"+g]),0);
+    /* PCS ghor khali kintu grade deya ache? Tahole PCS ta grade gulor jog -
+       ekhon form-eo thik ei niyom. */
+    if(rawQ==="" && rowG>0){ r.pcs=rowG; r._note.push("PCS taken from the grade columns ("+pcs(rowG)+")."); }
     const q=num(r.pcs);
-    if(rawQ!=="" && !/^-?\d+(\.\d+)?$/.test(rawQ)) r._err.push("PCS must be a number.");
+    if(String(r.pcs).trim()!=="" && !/^-?\d+(\.\d+)?$/.test(String(r.pcs).trim())) r._err.push("PCS must be a number.");
     else if(!(q>0)) r._err.push("PCS must be more than 0.");
     else if(Math.round(q)!==q) r._err.push("PCS must be a whole number.");
     GRADES.forEach(g=>{
@@ -2020,18 +2271,21 @@ function importCheckIn(rows){
     if(dex===null) r._err.push("Expiry is not a date — write it as 2026-12-31.");
     else r.expiry=dex;
   });
-  groups.forEach(list=>{
-    const pTot=list.reduce((t,r)=>t+num(r.pcs),0);
-    let gTot=list.reduce((t,r)=>t+GRADES.reduce((s,g)=>s+num(r["g"+g]),0),0);
-    /* No grade filled in anywhere for this carton? Then it is all Grade A.
-       Per carton, not per row — people write the breakdown once on the first
-       row of a 2-product carton, and that used to read as a mismatch. */
-    if(gTot===0 && pTot>0){
-      list[0].gA = pTot; gTot = pTot;
-      list.forEach(r=>r._note.push("No grades given — all "+pcs(pTot)+" PCS will be saved as Grade A."));
+  /* Protita row ekta product line, tai oi row er grade oi row er PCS er
+     shathe milte hobe. Carton dhore melano jabe na - tahole kon product er
+     kon grade seta bojha jay na, ar Damage/Grade er taka bhul rate e hoy. */
+  rows.forEach(r=>{
+    if(r._err.length) return;
+    const q=num(r.pcs), rowG=GRADES.reduce((t,g)=>t+num(r["g"+g]),0);
+    if(rowG===0 && q>0){
+      r.gA = q;
+      r._note.push("No grades given for “"+r.product+"” — all "+pcs(q)+" PCS will be saved as Grade A.");
+    } else if(rowG!==q){
+      r._err.push("“"+r.product+"”: its grades add to "+pcs(rowG)+" but its PCS says "+pcs(q)
+        + " — every product keeps its own A / B / B2 / C, so write this product's own breakdown on its own row.");
     }
-    if(gTot!==pTot) list.forEach(r=>r._err.push(
-      "Carton “"+list[0].cartonNo+"”: grade total "+pcs(gTot)+" ≠ PCS total "+pcs(pTot)+" — the two must match."));
+  });
+  groups.forEach(list=>{
     if(list.length>1) list.forEach(r=>r._note.push(
       list.length+" rows share this Carton No. — they become one carton holding "+list.length+" products."));
   });
@@ -2191,6 +2445,8 @@ function importSaveIn(){
   });
   let cartons=0, pieces=0;
   groups.forEach(list=>{
+    /* protita row tar nijer grade niye jay; carton er grade shei gulor jog */
+    const rowGrades=r=>{ const o={}; GRADES.forEach(g=>o[g]=num(r["g"+g])); return o };
     const grades={}; GRADES.forEach(g=>grades[g]=list.reduce((t,r)=>t+num(r["g"+g]),0));
     const total=gradeSum(grades);
     const outlet=importFirst(list,"vendor");
@@ -2200,7 +2456,9 @@ function importSaveIn(){
       outlet, po:importFirst(list,"po"), note:importFirst(list,"note"),
       inDate:importDate(importFirst(list,"inDate"))||today(),
       expiry:importFirst(list,"expiry"),
-      items:list.map(r=>({ id:uid("li"), productId:r._productId, pcs:num(r.pcs), initialPcs:num(r.pcs) })),
+      items:mergeItemLines(list.map(r=>({ id:uid("li"), productId:r._productId,
+        pcs:num(r.pcs), initialPcs:num(r.pcs),
+        grades:rowGrades(r), initialGrades:rowGrades(r) }))),
       grades:{...grades}, initialGrades:{...grades},
       pcs:total, initialPcs:total, status:"IN STOCK"
     };
@@ -2325,7 +2583,7 @@ function fefoUse(cartonId,itemId){
   cs.value=cartonId; outRefresh();
   const q=document.getElementById("outPcs"); if(q) q.value="";   /* age type kora PCS ta muche jay */
   const ps=document.getElementById("outProductSelect");
-  if(ps){ ps.value=itemId; outValue() }
+  if(ps){ ps.value=itemId; outProductPick() }
   toast("Carton selected. Now choose the grade and PCS.");
 }
 function outRefresh(){
@@ -2350,8 +2608,27 @@ function outRefresh(){
     ? list.map(i=>`<option value="${i.id}" ${i.id===keep?"selected":""}>${esc(productName(i.productId))} — ${pcs(i.pcs)} PCS available · ${money(unitPrice(i.productId,c.outlet))}</option>`).join("")
     : `<option value="">— no stock left in this carton —</option>`;
   if(list.length && !list.some(i=>i.id===keep)) psel.value=list[0].id;
-  drawGrades(k=>`${GRADE_LABEL[k]} — ${pcs(c.grades?.[k])} PCS available`);
+  /* je product ta bachha, tar NIJER grade koto ache seta dekhabe */
+  outGradeLabels();
   outValue();
+}
+/* Product bodlalei ei label gulo abar likhte hobe. Age shudhu outValue() cholto,
+   tai dropdown e agher product er "15 PCS available" jhulto - manush oi number
+   dekhe onno product er grade ber korte cheshta korto. */
+function outGradeLabels(){
+  const gsel=document.getElementById("outGradeSelect"); if(!gsel) return;
+  const c=outCarton(), av=c?outAvail():null, keep=gsel.value||"A";
+  gsel.innerHTML = GRADES.map(k=>`<option value="${k}" ${k===keep?"selected":""}>${
+    esc(av? `${GRADE_LABEL[k]} — ${pcs(av[k])} PCS available` : GRADE_LABEL[k])}</option>`).join("");
+  gsel.value=keep;
+}
+function outProductPick(){ outGradeLabels(); outValue() }
+/* koto pcs deya jabe - line er nijer grade, na thakle (purono carton) carton er */
+function outAvail(){
+  const c=outCarton(), it=outItem();
+  if(!c) return zeroGrades();
+  const lg=lineGrades(it);
+  return normGrades(lg && hasLineGrades(c) ? lg : c.grades);
 }
 function outValue(){
   const box=document.getElementById("outValueBox"); if(!box) return;
@@ -2360,12 +2637,12 @@ function outValue(){
   const grade=document.getElementById("outGradeSelect")?.value;
   if(!c||!it){ box.innerHTML=`<span class="pill">Vendor rate: —</span><span class="pill">Line total: —</span>`; return }
   const rate=unitPrice(it.productId,c.outlet);
-  const gAvail=num(c.grades?.[grade]), pAvail=num(it.pcs);
+  const gAvail=num(outAvail()[grade]), pAvail=num(it.pcs);
   const problem = qty>0 && (qty>gAvail || qty>pAvail);
   box.innerHTML = `
     <span class="pill">Vendor: <b>${esc(vendorOf(c))}</b> (${vendorPct(c.outlet)}% off)</span>
     <span class="pill">Product available: <b>${pcs(pAvail)}</b></span>
-    <span class="pill ${grade==="C"?"c":""}">Grade ${esc(grade)} available: <b>${pcs(gAvail)}</b></span>
+    <span class="pill ${grade==="C"?"c":""}">Grade ${esc(grade)} available: <b>${pcs(gAvail)}</b>${hasLineGrades(c)?" in this product":""}</span>
     <span class="pill">Vendor rate: <b>${money(rate)}</b></span>
     <span class="pill strong">Line total: ${money(rate*qty)}</span>
     ${problem?`<span class="pill c"><b>⚠️ More than available</b></span>`:""}`;
@@ -2399,7 +2676,7 @@ render.out = function(){
         </select></div>
 
       <div class="field"><label class="required">Product</label>
-        <select name="itemId" id="outProductSelect" onchange="outValue()" required>
+        <select name="itemId" id="outProductSelect" onchange="outProductPick()" required>
           <option value="">— select a carton first —</option>
         </select></div>
 
@@ -2431,12 +2708,23 @@ render.out = function(){
     const grade=f.get("grade"), qty=num(f.get("pcs"));
     if(qty<=0) return toast("Please enter PCS.");
     if(qty>num(it.pcs)) return alert(`This product only has ${num(it.pcs)} PCS left.`);
-    if(qty>num(c.grades?.[grade])) return alert(`Grade ${grade} only has ${num(c.grades?.[grade])} PCS left.`);
+    /* line er nijer grade theke-i jabe. Age carton er pool dekhto, tai onno
+       product er Grade A diye ei product er Grade A dispatch hoye jeto. */
+    const lineG = hasLineGrades(c) ? lineGrades(it) : null;
+    const avail = num(lineG ? lineG[grade] : c.grades?.[grade]);
+    if(qty>avail) return alert(`${lineG?productName(it.productId)+" has":"Grade "+grade+" has"} only ${avail} PCS in Grade ${grade}.`);
 
-    it.pcs = num(it.pcs)-qty;
-    c.grades[grade] = num(c.grades[grade])-qty;
-    c.pcs = gradeSum(c.grades);
-    c.status = c.pcs>0 ? "IN STOCK" : "OUT";
+    if(lineG){
+      it.grades = normGrades(it.grades);
+      it.grades[grade] = num(it.grades[grade])-qty;
+      it.pcs = gradeSum(it.grades);
+      syncCartonGrades(c);
+    } else {
+      it.pcs = num(it.pcs)-qty;
+      c.grades[grade] = num(c.grades[grade])-qty;
+      c.pcs = gradeSum(c.grades);
+      c.status = c.pcs>0 ? "IN STOCK" : "OUT";
+    }
 
     state.movements.unshift({ id:uid("m"), companyId:state.activeCompanyId, type:"OUT", cartonId:c.id, cartonNo:c.cartonNo,
       itemId:it.id, productId:it.productId, grade, pcs:qty, reference:String(f.get("reference")||"").trim(),
@@ -2483,7 +2771,7 @@ render.cartons = function(){
       <thead><tr>
         <th>Carton</th><th class="wrap">Products (remaining)</th><th>Vendor</th>
         <th class="num">Total rem.</th><th class="num">A</th><th class="num">B</th><th class="num">B2</th><th class="num">C</th>
-        <th class="num">Avg rate</th><th class="num">Stock value</th><th class="num">Damage value</th>
+        <th class="num">Rate / PCS</th><th class="num">Stock value</th><th class="num">Damage value</th>
         <th>Status</th><th>Actions</th>
       </tr></thead>
       <tbody>${rows.length? rows.map(c=>`<tr>
@@ -2492,7 +2780,7 @@ render.cartons = function(){
         <td><span class="badge ${c.outlet?"teal":"neutral"}">${esc(vendorOf(c))}</span></td>
         <td class="num"><b>${pcs(c.pcs)}</b></td>
         ${GRADES.map(k=>`<td class="num"><span class="badge ${k.toLowerCase()}">${pcs(c.grades?.[k])}</span></td>`).join("")}
-        <td class="num">${money(cartonAvgRate(c))}</td>
+        <td class="num nowrap">${rateRangeText(c)}</td>
         <td class="num"><b>${money(cartonValue(c))}</b></td>
         <td class="num">${money(gradeValue(c,"C"))}</td>
         <td>${c.status==="IN STOCK"? '<span class="badge a">In stock</span>' : '<span class="badge c">Out</span>'}</td>
@@ -2523,11 +2811,19 @@ function openCartonModal(id){
     <div class="kpis" style="margin-bottom:14px">
       <span class="pill">Remaining: <b>${pcs(c.pcs)}</b> PCS</span>
       <span class="pill">Received: <b>${pcs(c.initialPcs)}</b> PCS</span>
-      <span class="pill">Avg rate: <b>${money(cartonAvgRate(c))}</b></span>
+      <span class="pill">Rate at IN: <b>${rateRangeText(c,true)}</b> / PCS</span>
+      <span class="pill">Rate now: <b>${rateRangeText(c)}</b> / PCS</span>
       <span class="pill strong">Stock value: ${money(cartonValue(c))}</span>
       ${GRADES.map(k=>`<span class="pill ${k.toLowerCase()}">${esc(k)}: <b>${pcs(c.grades?.[k])}</b> · ${money(gradeValue(c,k))}</span>`).join("")}
       <span class="pill">Status: <b>${esc(c.status)}</b></span>
     </div>
+    <div class="rp-note" style="margin:-6px 0 14px">${hasLineGrades(c)
+      ? `Every product in this carton keeps its own A / B / B2 / C count, so the grade and damage
+         money above is charged at <b>that product's own rate</b> — never a carton average.`
+      : `This carton was received before grades were kept per product, so its grade money is priced
+         at the carton's rate at IN. Open <b>Edit</b> to split the grades across the products.`}
+      When a carton holds several products the rate is shown as a range, because there is no single
+      rate that fits them all.</div>
 
     <div class="panel" style="box-shadow:none">
       <div class="panel-head"><h2>Products in this carton</h2></div>
@@ -2539,6 +2835,11 @@ function openCartonModal(id){
           <td class="num">${money(unitPrice(i.productId,c.outlet))}</td>
           <td class="num"><b>${money(num(i.pcs)*unitPrice(i.productId,c.outlet))}</b></td>
         </tr>`).join("")||emptyRow(5,"No products","")}</tbody>
+        ${cartonItems(c).length?`<tfoot><tr><th>TOTAL</th>
+          <th class="num">${pcs(c.initialPcs)}</th><th class="num">${pcs(c.pcs)}</th>
+          <th class="num nowrap">${rateRangeText(c)}</th>
+          <th class="num">${money(cartonItems(c).reduce((t,i)=>t+round2(num(i.pcs)*unitPrice(i.productId,c.outlet)),0))}</th>
+        </tr></tfoot>`:""}
       </table></div>
     </div>
 
@@ -2567,53 +2868,106 @@ function undoOut(moveId){
   if(!c) return alert("Carton not found.");
   if(!confirm(`Undo this dispatch? +${m.pcs} PCS ${productName(m.productId)} will go back to Grade ${m.grade}.`)) return;
 
+  const wasLine = hasLineGrades(c);
   let it = cartonItems(c).find(i=>i.id===m.itemId) || cartonItems(c).find(i=>i.productId===m.productId);
-  if(!it){ it={ id:uid("li"), productId:m.productId, pcs:0, initialPcs:0 }; c.items.push(it) }
-  it.pcs = num(it.pcs)+num(m.pcs);
-  c.grades[m.grade] = num(c.grades[m.grade])+num(m.pcs);
-  c.pcs = gradeSum(c.grades);
-  c.status = c.pcs>0? "IN STOCK":"OUT";
+  if(!it){ it={ id:uid("li"), productId:m.productId, pcs:0, initialPcs:0 };
+           if(wasLine){ it.grades=zeroGrades(); it.initialGrades=zeroGrades() }
+           c.items.push(it) }
+  if(wasLine){
+    /* jei line theke gechhilo shei line-e-i, shei grade-e-i ferot. "Ja
+       dhukechhilo" (initialGrades) bodlay na - oitai to IN-time er rate. */
+    it.grades = normGrades(it.grades);
+    it.initialGrades = normGrades(it.initialGrades);
+    it.grades[m.grade] = num(it.grades[m.grade])+num(m.pcs);
+    it.pcs = gradeSum(it.grades);
+    syncCartonGrades(c);
+  } else {
+    it.pcs = num(it.pcs)+num(m.pcs);
+    c.grades[m.grade] = num(c.grades[m.grade])+num(m.pcs);
+    c.pcs = gradeSum(c.grades);
+    c.status = c.pcs>0? "IN STOCK":"OUT";
+  }
   state.movements = state.movements.filter(x=>x.id!==moveId);
   recordAudit("UNDO OUT", `Reverted ${m.pcs} PCS ${productName(m.productId)} (Grade ${m.grade}) to ${c.cartonNo}`);
   save(); toast("Dispatch reverted."); openCartonModal(c.id); render.cartons();
 }
 
 /* ---------- edit carton (admin) ---------- */
-let editLines=[];
+let editLines=[];   /* [{id, productId, g:{A,B,B2,C}}] - PCS oi 4 tar jog */
+function edLinePcs(l){ return gradeSum(l?.g) }
 function drawEditLines(){
   const products=companyProducts();
   const box=document.getElementById("edLines"); if(!box) return;
   box.innerHTML = editLines.map((l,i)=>`
-    <div class="line-item">
+    <div class="line-item lg">
       <div class="field"><label>Product ${i+1}</label>
-        <select onchange="editLines[${i}].productId=this.value">
+        <select onchange="editLines[${i}].productId=this.value;editTotals()">
           ${products.map(p=>`<option value="${p.id}" ${p.id===l.productId?"selected":""}>${esc(p.name)}</option>`).join("")}
         </select></div>
-      <div class="field"><label>Remaining PCS</label>
-        <input type="number" min="0" step="1" value="${num(l.pcs)}" oninput="editLines[${i}].pcs=Number(this.value)||0;editTotals()"></div>
+      <div class="lg-grid">
+        ${GRADES.map(k=>`<div class="field"><label>${esc(k)}${k==="C"?" · Dmg":""}</label>
+          <input type="number" min="0" step="1" value="${num(l.g?.[k])||""}" placeholder="0"
+                 oninput="editLines[${i}].g.${k}=Number(this.value)||0;editTotals()"></div>`).join("")}
+      </div>
+      <div class="field"><label>Left</label>
+        <div class="lg-pcs" id="edPcs${i}">${pcs(edLinePcs(l))}<span>PCS</span></div></div>
       <button type="button" class="btn secondary small" onclick="removeEditLine(${i})" ${editLines.length<=1?"disabled":""}>✕</button>
+      <div class="line-money" id="edMoney${i}"></div>
     </div>`).join("");
   editTotals();
 }
+function edLineRate(productId){
+  return unitPrice(productId, document.getElementById("ed_outlet")?.value);
+}
 function addEditLine(){
   const products=companyProducts(); if(!products.length) return;
-  editLines.push({ id:uid("li"), productId:products[0].id, pcs:0, initialPcs:0 });
+  const used=new Set(editLines.map(l=>l.productId));
+  const free=products.find(p=>!used.has(p.id));
+  if(!free) return toast("Every product is already on a line in this carton.");
+  editLines.push({ id:uid("li"), productId:free.id, g:zeroGrades(), initialPcs:0 });
   drawEditLines();
 }
 function removeEditLine(i){ if(editLines.length<=1) return; editLines.splice(i,1); drawEditLines() }
+function edGradeRollup(){
+  const t=zeroGrades();
+  editLines.forEach(l=>GRADES.forEach(k=>t[k]+=num(l.g?.[k])));
+  return t;
+}
 function editTotals(){
+  let val=0, lo=null, hi=null;
+  editLines.forEach((l,i)=>{
+    const q=edLinePcs(l), r=edLineRate(l.productId), v=round2(r*q);
+    val += v;
+    if(q>0){ lo = lo===null? r : Math.min(lo,r); hi = hi===null? r : Math.max(hi,r) }
+    const pe=document.getElementById("edPcs"+i);
+    if(pe) pe.innerHTML = `${pcs(q)}<span>PCS</span>`;
+    const el=document.getElementById("edMoney"+i);
+    if(el) el.innerHTML=`<span>Rate <b>${money(r)}</b> / PCS</span><span>Line value <b>${money(v)}</b></span>`
+      + (r>0? "" : `<span class="bad">no price set for this product</span>`);
+  });
   const box=document.getElementById("edTotals"); if(!box) return;
-  const p=editLines.reduce((t,l)=>t+num(l.pcs),0);
-  const g=GRADES.reduce((t,k)=>t+num(document.getElementById("ed_g"+k)?.value),0);
-  box.innerHTML=`<span class="pill">Products: <b>${pcs(p)}</b></span><span class="pill">Grades: <b>${pcs(g)}</b></span>
-    <span class="${p===g?"ok":"bad"}">${p===g?"✅ Match":"❌ Does not match"}</span>`;
+  const p=editLines.reduce((t,l)=>t+edLinePcs(l),0), roll=edGradeRollup();
+  const seen=new Set(), dupes=new Set();
+  editLines.forEach(l=>{ if(seen.has(l.productId)) dupes.add(l.productId); seen.add(l.productId) });
+  /* ek carton e onek rate hote pare - tai ekta banano average na, range */
+  const rateTxt = lo===null? money(0) : (round2(lo)===round2(hi)? money(lo) : money(lo)+" – "+money(hi));
+  box.innerHTML=`<span class="pill">Products: <b>${pcs(p)}</b></span>
+    ${GRADES.map(k=>`<span class="pill ${k.toLowerCase()}">${esc(k)}: <b>${pcs(roll[k])}</b></span>`).join("")}
+    <span class="pill">Remaining value: <b>${money(val)}</b></span>
+    <span class="pill">Rate: <b>${rateTxt}</b> / PCS</span>
+    <span class="ok">${p>0?"✅ Ready to update":"⚠️ Nothing left — the carton will be marked OUT"}</span>
+    ${dupes.size?`<span class="bad">⚠️ ${esc([...dupes].map(productName).join(", "))} is on more than one line — the lines will be added together</span>`:""}`;
 }
 
 function openEditCartonModal(id){
   if(!isAdmin()) return alert("Only admin can edit cartons.");
   const c=state.cartons.find(x=>x.id===id); if(!c) return;
-  editLines = cartonItems(c).map(i=>({ ...i }));
-  if(!editLines.length) editLines=[{ id:uid("li"), productId:companyProducts()[0]?.id||"", pcs:0, initialPcs:0 }];
+  /* line er nijer grade thakle oita, na thakle (purono carton) carton er pool
+     ta line gulor moddhe bhag kore dekhai - admin chokhe dekhe thik kore ney */
+  const wasFlat = cartonItems(c).length>0 && !hasLineGrades(c);
+  editLines = cartonItems(c).map(i=>({ ...i, g:normGrades(i.grades) }));
+  if(wasFlat) spreadGrades(editLines, c.grades, "pcs", "g");
+  if(!editLines.length) editLines=[{ id:uid("li"), productId:companyProducts()[0]?.id||"", g:zeroGrades(), initialPcs:0 }];
 
   document.getElementById("modalRoot").innerHTML = `
   <div class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-card">
@@ -2622,7 +2976,7 @@ function openEditCartonModal(id){
       <div class="form-grid">
         <div class="field"><label class="required">Carton No.</label><input id="ed_carton" value="${esc(c.cartonNo)}" required></div>
         <div class="field"><label>Vendor / source <span class="optional-tag">(optional)</span></label>
-          <input id="ed_outlet" list="vendorSuggestions" value="${esc(c.outlet||"")}"></div>
+          <input id="ed_outlet" list="vendorSuggestions" value="${esc(c.outlet||"")}" oninput="editTotals()"></div>
         <div class="field"><label>PO / Invoice <span class="optional-tag">(optional)</span></label><input id="ed_po" value="${esc(c.po||"")}"></div>
         <div class="field"><label>IN date</label><input id="ed_date" type="date" value="${esc(c.inDate||"")}"></div>
         <div class="field"><label>Expiry <span class="optional-tag">(optional)</span></label><input id="ed_expiry" type="date" value="${esc(c.expiry||"")}"></div>
@@ -2636,11 +2990,9 @@ function openEditCartonModal(id){
       </div>
 
       <div class="grade-box" style="grid-column:auto">
-        <div class="gb-head"><b>Correct grade quantities (remaining)</b></div>
-        <div class="grade-grid">
-          ${GRADES.map(k=>`<div class="field"><label>${esc(GRADE_LABEL[k])}</label>
-            <input type="number" min="0" step="1" id="ed_g${k}" value="${num(c.grades?.[k])}" oninput="editTotals()"></div>`).join("")}
-        </div>
+        <div class="gb-head"><b>Carton total (remaining)</b></div>
+        <div class="hint" style="margin-bottom:7px">${GRADES.map(k=>esc(GRADE_LABEL[k])).join(" · ")}</div>
+        ${wasFlat?`<div class="notice" style="margin-bottom:8px">This carton was saved when grades were kept for the whole carton, so we have split them across the products for you. Check each line's <b>A / B / B2 / C</b> boxes before you update — from now on grade and damage money is charged at each product's own rate.</div>`:""}
         <div class="tot-strip" id="edTotals"></div>
       </div>
 
@@ -2655,11 +3007,14 @@ function openEditCartonModal(id){
 
   document.getElementById("editCartonForm").onsubmit = e=>{
     e.preventDefault();
-    const grades={}; GRADES.forEach(k=>grades[k]=num(document.getElementById("ed_g"+k).value));
-    const items = editLines.filter(l=>num(l.pcs)>0 || num(l.initialPcs)>0)
-      .map(l=>({ id:l.id||uid("li"), productId:l.productId, pcs:num(l.pcs), initialPcs:num(l.initialPcs)||num(l.pcs) }));
-    const iTotal=items.reduce((t,i)=>t+num(i.pcs),0), gTotal=gradeSum(grades);
-    if(iTotal!==gTotal) return alert(`Mismatch!\nProducts = ${iTotal} PCS\nGrades = ${gTotal} PCS`);
+    /* protita line tar nijer grade niye jay; carton er grade shei gulor jog.
+       Mismatch er alert uthe gelo - line er PCS ta nijei grade gulor jog. */
+    const items = mergeItemLines(editLines.filter(l=>edLinePcs(l)>0 || num(l.initialPcs)>0)
+      .map(l=>({ id:l.id||uid("li"), productId:l.productId, pcs:edLinePcs(l),
+                 initialPcs:edLinePcs(l), grades:normGrades(l.g), initialGrades:normGrades(l.g) })));
+    const grades=zeroGrades();
+    items.forEach(i=>GRADES.forEach(k=>grades[k]+=num(i.grades?.[k])));
+    const gTotal=gradeSum(grades);
     const newNo=document.getElementById("ed_carton").value.trim();
     if(!newNo) return toast("Carton No. is required.");
     if(companyCartons().some(x=>x.id!==c.id && x.cartonNo.toLowerCase()===newNo.toLowerCase()))
@@ -2674,6 +3029,31 @@ function openEditCartonModal(id){
     c.note=document.getElementById("ed_note").value.trim();
     c.items=items; c.grades=grades;
     c.pcs=gTotal; c.status=gTotal>0?"IN STOCK":"OUT";
+    /* "ja dhukechhilo" ta abar hisab kore ney: ekhon ja ache + ja OUT hoyeche.
+       Eta na korle edit korar por Rate at IN / Damage at IN / Received column
+       purono number dhore boshe thakto. OUT row e product ar grade duitai
+       thake, tai dui axis er total shobshomoy mile. ADJUST (edit) count hoy
+       na - oita correction, dispatch na. */
+    const gone=state.movements.filter(m=>m.type==="OUT" && m.cartonId===c.id);
+    const outBy={}, strayG=zeroGrades();
+    gone.forEach(m=>{
+      if(m.productId){ (outBy[m.productId] = outBy[m.productId]||zeroGrades())[m.grade] =
+        num(outBy[m.productId][m.grade])+num(m.pcs) }
+      else strayG[m.grade]=num(strayG[m.grade])+num(m.pcs);
+    });
+    Object.keys(outBy).forEach(pid=>{ if(!c.items.some(i=>i.productId===pid))
+      c.items.push({ id:uid("li"), productId:pid, pcs:0, initialPcs:0, grades:zeroGrades(), initialGrades:zeroGrades() }) });
+    /* protita line er "ja dhukechhilo" = ekhon ja ache + oi line theke ja OUT
+       hoyeche, grade dhore dhore. Purono OUT row e product na thakle (stray)
+       prothom line e joma hoy. */
+    c.items.forEach((i,ix)=>{
+      i.grades = normGrades(i.grades);
+      i.initialGrades = zeroGrades();
+      GRADES.forEach(k=>{ i.initialGrades[k] = num(i.grades[k]) + num(outBy[i.productId]?.[k])
+        + (ix===0? num(strayG[k]) : 0) });
+      i.pcs = gradeSum(i.grades); i.initialPcs = gradeSum(i.initialGrades);
+    });
+    syncCartonGrades(c);
     if(c.outlet && !findVendorByName(c.outlet))
       state.vendors.push({ id:uid("v"), companyId:state.activeCompanyId, name:c.outlet, phone:"", address:"", discountPct:0 });
 
@@ -2811,7 +3191,7 @@ render.vendors = function(){
           ${vendors.length? vendors.map(x=>`<option value="${x.id}" ${x.id===selId?"selected":""}>${esc(x.name)} (${num(x.discountPct)}%)</option>`).join("")
             : `<option value="">— no vendor —</option>`}
         </select></div>
-        <button class="btn" onclick="printPaper('vendorPricePaper','portrait')">🖨 Print price list</button>
+        <button class="btn" onclick="printPaper('vendorPricePaper')">🖨 Print price list</button>
       </div>
     </div>
   </div>
@@ -2869,33 +3249,72 @@ function filteredCartons(){
   });
 }
 function setFilter(k,v){ state.filters[k]=v; save(); render.reports() }
+/* Product filter dile carton er shudhu sei product er line ta gona hobe.
+   Aage upor er KPI puro carton gonto ar nicher table ek product gonto - ek-i
+   chhapa page e duita alada stock value ashto. Ekhon shob ek niyome. */
+function filterItems(c){
+  const f=state.filters;
+  return cartonItems(c).filter(i=>f.reportProduct==="ALL" || i.productId===f.reportProduct);
+}
+function fPcs(c){  return filterItems(c).reduce((t,i)=>t+num(i.pcs),0) }
+function fInit(c){ return filterItems(c).reduce((t,i)=>t+num(i.initialPcs),0) }
+function fValue(c){ return filterItems(c).reduce((t,i)=>t+unitPrice(i.productId,c.outlet)*num(i.pcs),0) }
+function fRate(c){ const p=fPcs(c); return p>0? fValue(c)/p : 0 }
+/* filter e ja ache tar rate - ek product hole exact, onek hole range */
+function fRateText(c){
+  const rates=filterItems(c).filter(i=>num(i.pcs)>0).map(i=>unitPrice(i.productId,c.outlet));
+  if(!rates.length) return money(0);
+  const lo=Math.min(...rates), hi=Math.max(...rates);
+  return round2(lo)===round2(hi)? money(lo) : money(lo)+" – "+money(hi);
+}
 
+/* Filter e ekta product bachha thakle grade ar damage-o oi product er nijer
+   hoy - kintu shudhu tokhon, jokhon carton er line e grade ache. Purono carton e
+   kon grade kar chhilo ta jana nei, tai oikhane puro carton er hisab-i thake. */
+function fGrades(c){
+  const its=filterItems(c);
+  if(!hasLineGrades(c) || its.length===cartonItems(c).length) return normGrades(c.grades);
+  const g=zeroGrades(); its.forEach(i=>GRADES.forEach(k=>g[k]+=num(lineGrades(i)?.[k])));
+  return g;
+}
+function fDamageValue(c){
+  const its=filterItems(c);
+  if(!hasLineGrades(c) || its.length===cartonItems(c).length) return gradeValue(c,"C");
+  return its.reduce((t,i)=>t+unitPrice(i.productId,c.outlet)*num(lineGrades(i)?.C),0);
+}
 render.reports = function(){
   const f=state.filters;
   const rows=filteredCartons();
   const vendors=[...new Set(companyCartons().map(c=>vendorOf(c)))].sort();
   const gradeCols = f.reportGrade==="ALL" ? GRADES : [f.reportGrade];
 
+  const oneProduct = f.reportProduct!=="ALL";
+  /* protita row je bhabe chhapa hoy sei bhabe-i jog kora hoy (round2), noile
+     column ta nijer TOTAL er shathe mele na */
   const tot = { pcs:0, val:0, dmg:0, init:0 };
-  rows.forEach(c=>{ tot.pcs+=num(c.pcs); tot.val+=cartonValue(c); tot.dmg+=gradeValue(c,"C"); tot.init+=num(c.initialPcs) });
-  const gTot={}; GRADES.forEach(k=>gTot[k]=rows.reduce((t,c)=>t+num(c.grades?.[k]),0));
+  rows.forEach(c=>{ tot.pcs+=fPcs(c); tot.val+=round2(fValue(c)); tot.init+=fInit(c); tot.dmg+=round2(fDamageValue(c)) });
+  const gTot={}; GRADES.forEach(k=>gTot[k]=rows.reduce((t,c)=>t+num(fGrades(c)[k]),0));
+  /* shob carton er line e grade thakle filter kora grade gulo-o thik-thik oi
+     product er - tokhon "whole carton" hoshiyari ta ar dorkar nei */
+  const gradeExact = !oneProduct || rows.every(c=>!cartonItems(c).length || hasLineGrades(c));
 
   /* product-wise summary inside the filtered set */
   const pMap={};
-  rows.forEach(c=>cartonItems(c).forEach(i=>{
-    if(f.reportProduct!=="ALL" && i.productId!==f.reportProduct) return;
+  rows.forEach(c=>filterItems(c).forEach(i=>{
     const k=i.productId;
-    if(!pMap[k]) pMap[k]={ name:productName(k), got:0, rem:0, val:0, cartons:0 };
+    if(!pMap[k]) pMap[k]={ name:productName(k), got:0, rem:0, val:0, ids:new Set() };
     pMap[k].got+=num(i.initialPcs); pMap[k].rem+=num(i.pcs);
-    pMap[k].val+=num(i.pcs)*unitPrice(i.productId,c.outlet); pMap[k].cartons++;
+    pMap[k].val+=round2(num(i.pcs)*unitPrice(i.productId,c.outlet));
+    pMap[k].ids.add(c.id);          /* ek carton ek bar - aage line gona hoto */
   }));
-  const pRows=Object.values(pMap).sort((a,b)=>b.rem-a.rem);
+  const pRows=Object.values(pMap).map(p=>Object.assign(p,{ cartons:p.ids.size }))
+    .sort((a,b)=>b.rem-a.rem || a.name.localeCompare(b.name));
 
   document.getElementById("page-reports").innerHTML = `
   <div class="panel no-print">
     <div class="panel-head"><h2>Report filters</h2>
       <div class="btn-row">
-        <button class="btn" onclick="printPaper('stockReportPaper','landscape')">🖨 Print report</button>
+        <button class="btn" onclick="printPaper('stockReportPaper')">🖨 Print report</button>
         <button class="btn secondary" onclick="exportStockCSV()">⬇ Export CSV</button>
       </div>
     </div>
@@ -2935,9 +3354,14 @@ render.reports = function(){
       <span class="pill">Received: <b>${pcs(tot.init)}</b> PCS</span>
       <span class="pill strong">In stock: ${pcs(tot.pcs)} PCS</span>
       <span class="pill strong">Stock value: ${money(tot.val)}</span>
-      <span class="pill c">Damage value: ${money(tot.dmg)}</span>
+      <span class="pill c">Damage value${oneProduct&&!gradeExact?" (whole carton)":""}: ${money(tot.dmg)}</span>
       ${GRADES.map(k=>`<span class="pill ${k.toLowerCase()}">${esc(k)}: <b>${pcs(gTot[k])}</b></span>`).join("")}
     </div>
+    ${oneProduct?`<div class="rp-note">Pieces, rates and values on this page count
+      <b>${esc(productName(f.reportProduct))}</b> only.${gradeExact
+        ? ` Its A / B / B2 / C and damage value are this product's own, at this product's own rate.`
+        : ` A/B/B2/C grades and the damage value are
+      recorded for the whole carton, so those stay whole-carton figures.`}</div>`:""}
 
     <h3 class="rp-h3">Product-wise summary</h3>
     <div class="table-wrap"><table class="table">
@@ -2953,23 +3377,27 @@ render.reports = function(){
         <th class="num">${pcs(pRows.reduce((t,p)=>t+(p.got-p.rem),0))}</th>
         <th class="num">${money(pRows.reduce((t,p)=>t+p.val,0))}</th></tr></tfoot>`:""}
     </table></div>
+    ${pRows.length>1?`<div class="rp-note">One carton can hold several products, so the
+      Cartons column adds up to more than the ${rows.length} carton(s) in this report.</div>`:""}
 
     <h3 class="rp-h3">Carton detail</h3>
-    <div class="table-wrap"><table class="table">
+    <div class="table-wrap"><table class="table pt-compact">
       <thead><tr>
         <th>Carton</th><th class="wrap">Products (remaining)</th><th>Vendor</th><th>IN date</th><th>Expiry</th>
         <th class="num">Received</th><th class="num">Remaining</th>
         ${gradeCols.map(k=>`<th class="num">${esc(k)}</th>`).join("")}
-        <th class="num">Avg rate</th><th class="num">Stock value</th><th>Status</th>
+        <th class="num">Rate / PCS</th><th class="num">Stock value</th><th>Status</th>
       </tr></thead>
       <tbody>${rows.length? rows.map(c=>`<tr>
         <td><b>${esc(c.cartonNo)}</b>${c.po?`<br><small class="muted">${esc(c.po)}</small>`:""}</td>
-        <td class="wrap">${itemsSummary(c," · ")}</td>
+        <td class="wrap">${oneProduct
+          ? `${esc(productName(f.reportProduct))} <b>×${pcs(fPcs(c))}</b>`
+          : itemsSummary(c," · ")}</td>
         <td>${esc(vendorOf(c))}</td><td>${esc(c.inDate||"—")}</td><td>${esc(c.expiry||"—")}</td>
-        <td class="num">${pcs(c.initialPcs)}</td><td class="num"><b>${pcs(c.pcs)}</b></td>
-        ${gradeCols.map(k=>`<td class="num">${pcs(c.grades?.[k])}</td>`).join("")}
-        <td class="num">${money(cartonAvgRate(c))}</td>
-        <td class="num"><b>${money(cartonValue(c))}</b></td>
+        <td class="num">${pcs(fInit(c))}</td><td class="num"><b>${pcs(fPcs(c))}</b></td>
+        ${gradeCols.map(k=>`<td class="num">${pcs(fGrades(c)[k])}</td>`).join("")}
+        <td class="num nowrap">${fRateText(c)}</td>
+        <td class="num"><b>${money(fValue(c))}</b></td>
         <td>${c.status==="IN STOCK"?"In stock":"Out"}</td>
       </tr>`).join("") : emptyRow(10+gradeCols.length,"No cartons match the filters","")}</tbody>
       ${rows.length?`<tfoot><tr><th colspan="5">TOTAL (${rows.length} cartons)</th>
@@ -2991,16 +3419,22 @@ function downloadCSV(name, lines){
 }
 function exportStockCSV(){
   const rows=filteredCartons();
-  const head=["Carton No","Invoice/PO","Vendor","IN Date","Expiry","Product","Received PCS","Remaining PCS","Unit Rate","Line Value","Carton A","Carton B","Carton B2","Carton C","Carton Total","Status","Remarks"];
+  const head=["Carton No","Invoice/PO","Vendor","IN Date","Expiry","Product","Received PCS","Remaining PCS","Unit Rate","Line Value","Grade A","Grade B","Grade B2","Grade C","Carton Total","Status","Remarks"];
   const lines=[head.map(csvCell).join(",")];
   rows.forEach(c=>{
-    /* copy - age direct c.items e push korchilo, oita state nashto korto */
-    const items = cartonItems(c).length ? cartonItems(c) : [{productId:"",pcs:0,initialPcs:0}];
+    /* copy - age direct c.items e push korchilo, oita state nashto korto.
+       filterItems - noile Product filter dile-o CSV e shob product ashto, mane
+       screen er report ar CSV duita alada uttor dito. */
+    const items = filterItems(c).length ? filterItems(c) : [{productId:"",pcs:0,initialPcs:0}];
+    /* protita row nijer grade niye jay - ei CSV-i to sheet er nomuna, ar sheet
+       upload korle ekhon protita row-ke nijer A/B/B2/C dite hoy */
+    const lineG = hasLineGrades(c);
     items.forEach((i,ix)=>{
+      const g = lineG ? normGrades(lineGrades(i)) : (ix===0 ? normGrades(c.grades) : null);
       lines.push([ c.cartonNo, c.po||"", vendorOf(c), c.inDate||"", c.expiry||"",
         productName(i.productId), num(i.initialPcs), num(i.pcs),
         unitPrice(i.productId,c.outlet).toFixed(2), (num(i.pcs)*unitPrice(i.productId,c.outlet)).toFixed(2),
-        ix===0?num(c.grades?.A):"", ix===0?num(c.grades?.B):"", ix===0?num(c.grades?.B2):"", ix===0?num(c.grades?.C):"",
+        g?num(g.A):"", g?num(g.B):"", g?num(g.B2):"", g?num(g.C):"",
         ix===0?num(c.pcs):"", ix===0?c.status:"", ix===0?(c.note||""):""
       ].map(csvCell).join(","));
     });
@@ -3036,7 +3470,7 @@ render.vendorReports = function(){
   <div class="panel no-print">
     <div class="panel-head"><h2>Vendor performance</h2>
       <div class="btn-row">
-        <button class="btn" onclick="printPaper('vendorReportPaper','landscape')">🖨 Print</button>
+        <button class="btn" onclick="printPaper('vendorReportPaper')">🖨 Print</button>
         <button class="btn secondary" onclick="exportVendorCSV()">⬇ Export CSV</button>
       </div>
     </div>
@@ -3056,7 +3490,7 @@ render.vendorReports = function(){
       <span class="pill strong">Stock value: ${money(T.stockVal)}</span>
       <span class="pill c">Damage: ${pcs(T.dmg)} PCS · ${money(T.dmgVal)}</span>
     </div>
-    <div class="table-wrap"><table class="table">
+    <div class="table-wrap"><table class="table pt-compact">
       <thead><tr><th>Vendor</th><th class="num">Disc %</th><th class="num">Cartons</th><th class="num">Received</th>
         <th class="num">Dispatched</th><th class="num">Remaining</th><th class="num">Received value</th>
         <th class="num">Stock value</th><th class="num">Damage PCS</th><th class="num">Damage value</th><th class="num">Damage %</th></tr></thead>
@@ -3326,6 +3760,8 @@ render.company = function(){
         <p class="muted">${cloud.on
           ? "Nothing to set up — the app connects itself, on every device, using the project built into it. Whichever device saved last is the copy everyone gets, so signing in anywhere shows the latest work."
           : "The app could not reach the cloud just now. Check the internet first. If it never connects, the database table is probably missing — run <code>supabase/schema.sql</code> once in the Supabase SQL Editor, then reload this page."}</p>
+        ${cloud.lastError? `<div class="hint" style="margin-bottom:9px"><b>Last cloud error:</b> <code>${esc(cloud.lastError)}</code><br>
+          If that mentions <code>row-level security</code> or <code>app_state_history</code>, the database is refusing to save: run <code>supabase/schema.sql</code> again in the Supabase SQL Editor (the newest copy of that file fixes exactly this), then reload this page.</div>`:""}
         ${bk? `<div class="hint" style="margin-bottom:9px">A copy of this browser's earlier data was kept on ${esc(new Date(bk.at).toLocaleString())} when newer data arrived (${esc(bk.why||"replaced")}). It holds ${bk.doc.cartons?.length||0} cartons and ${bk.doc.products?.length||0} products.</div>
           <div class="actions"><button class="btn secondary small" onclick="cloudRestoreBackup()">↩ Restore that earlier copy</button></div>`:""}
         ${cfg? `<div class="hint" style="margin-top:9px">This browser also has its own saved cloud settings from before (workspace <code>${esc(cfg.docId||"main")}</code>), and those win over the built-in ones here.</div>
@@ -3425,12 +3861,13 @@ function clearAudit(){
    while giving real cloud durability + multi-device access.
    If Supabase is not configured the app silently uses localStorage only.
    ============================================================================ */
-const cloud = { url:"", key:"", ready:false, docId:"main", pushing:false, pulling:false, dirty:false, lastPush:0, rev:"" };
+const cloud = { url:"", key:"", ready:false, docId:"main", pushing:false, pulling:false, dirty:false, lastPush:0, rev:"", pushFailed:false, lastError:"" };
 
 function cloudStatus(){
+  const err = cloud.lastError || "";
   return cloud.ready
-    ? { on:true,  label:"Supabase cloud — synced" }
-    : { on:false, label:"Local browser storage" };
+    ? { on:true,  label: cloud.pushFailed? "Supabase cloud — last save was refused" : "Supabase cloud — synced", lastError:err }
+    : { on:false, label:"Local browser storage", lastError:err };
 }
 function cloudHeaders(extra){
   return Object.assign({
@@ -3548,6 +3985,7 @@ async function cloudInit(){
     return true;
   }catch(e){
     console.warn("Supabase unavailable, staying local:", e.message);
+    cloud.lastError = e.message;
     cloud.ready=false;
     return false;
   }
@@ -3614,10 +4052,12 @@ async function cloudPush(force){
     });
     if(!r.ok) throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,140));
     cloud.rev=stamp;                      /* we know what the row says now */
-    cloud.pushFailed=false;
+    cloud.pushFailed=false; cloud.lastError="";
     setCloudDot("ok");
   }catch(e){
     console.warn("cloud push failed:",e.message);
+    cloud.lastError = e.message;         /* the page shows this — a red dot with
+                                            no reason cost a whole day once */
     cloud.pushFailed=true;                /* so the badge stops claiming "Cloud on" */
     setCloudDot("err");
   }finally{
@@ -3918,11 +4358,10 @@ async function boot(){
       const box=document.querySelector(".page.active .search input");
       if(box){ e.preventDefault(); box.focus() }
     }
-    if((e.key||"").toLowerCase()==="p" && (e.ctrlKey||e.metaKey) && document.querySelector(".page.active .report-paper")){
-      e.preventDefault();
-      const paper=document.querySelector(".page.active .report-paper");
+    if((e.key||"").toLowerCase()==="p" && (e.ctrlKey||e.metaKey)){
       /* price list ta portrait, baki report gulo landscape */
-      printPaper(paper.id, paper.id==="vendorPricePaper" ? "portrait" : "landscape");
+      const paper=activePaper();
+      if(paper){ e.preventDefault(); printPaper(paper.id, paperOrientation(paper)) }
     }
   });
 
