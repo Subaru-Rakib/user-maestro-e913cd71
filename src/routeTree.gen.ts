@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicConfigRouteImport } from './routes/api/public/config'
 import { Route as ApiPublicScanInvoiceRouteImport } from './routes/api/public/scan-invoice'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicConfigRoute = ApiPublicConfigRouteImport.update({
+  id: '/api/public/config',
+  path: '/api/public/config',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicScanInvoiceRoute = ApiPublicScanInvoiceRouteImport.update({
@@ -25,27 +31,31 @@ const ApiPublicScanInvoiceRoute = ApiPublicScanInvoiceRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/public/config': typeof ApiPublicConfigRoute
   '/api/public/scan-invoice': typeof ApiPublicScanInvoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/public/config': typeof ApiPublicConfigRoute
   '/api/public/scan-invoice': typeof ApiPublicScanInvoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/public/config': typeof ApiPublicConfigRoute
   '/api/public/scan-invoice': typeof ApiPublicScanInvoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/scan-invoice'
+  fullPaths: '/' | '/api/public/config' | '/api/public/scan-invoice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/scan-invoice'
-  id: '__root__' | '/' | '/api/public/scan-invoice'
+  to: '/' | '/api/public/config' | '/api/public/scan-invoice'
+  id: '__root__' | '/' | '/api/public/config' | '/api/public/scan-invoice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiPublicConfigRoute: typeof ApiPublicConfigRoute
   ApiPublicScanInvoiceRoute: typeof ApiPublicScanInvoiceRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/config': {
+      id: '/api/public/config'
+      path: '/api/public/config'
+      fullPath: '/api/public/config'
+      preLoaderRoute: typeof ApiPublicConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/scan-invoice': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiPublicConfigRoute: ApiPublicConfigRoute,
   ApiPublicScanInvoiceRoute: ApiPublicScanInvoiceRoute,
 }
 export const routeTree = rootRouteImport
