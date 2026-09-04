@@ -24,14 +24,13 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
+      - run: npm install
       - run: npm run build
 
-      # SPA deep-link / refresh এ 404 fix (optional but recommended)
+      # optional: refresh/deep-link এ 404 কমাতে
       - run: cp .output/public/index.html .output/public/404.html
 
       - uses: actions/configure-pages@v5
-
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .output/public
