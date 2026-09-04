@@ -77,11 +77,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Pro Inventory & Stock Management" },
+      { name: "description", content: "Carton-wise stock in, stock out and reports." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Pro Inventory & Stock Management" },
+      { property: "og:description", content: "Carton-wise stock in, stock out and reports." },
+      { property: "og:image", content: "/icon-512.png" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -91,7 +92,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      /* Rakib er "R" logo. Prothom line ta chhobi ta NIJER bhitore niye rakhe
+         (data-URI), tai public/ er chhobi gulo upload na korleo tab er icon ta
+         thik-i ashe. Baki gulo - .ico purono browser, PNG gulo bookmark ar
+         phone er home screen (Add to Home screen) er jonno. */
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "data:image/png;base64,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" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
     ],
   }),
   shellComponent: RootShell,
